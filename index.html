@@ -1,0 +1,1324 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Evil Nine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:wght@400;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0a120a;
+      --felt:     #101c10;
+      --rule:     #1e3320;
+      --rule-lt:  #2d4d30;
+      --chalk:    #e8f0d8;
+      --chalk-dim:#8faa82;
+      --lime:     #c6f040;
+      --lime-dim: #7ab828;
+      --red:      #e05a4a;
+      --hole-w:   640px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: var(--bg);
+      color: var(--chalk);
+      min-height: 100vh;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    }
+
+    /* ══ HEADER ══ */
+    header {
+      border-bottom: 3px solid var(--lime);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 50;
+    }
+    .header-inner {
+      max-width: var(--hole-w);
+      margin: 0 auto;
+      display: flex;
+      align-items: stretch;
+      height: 56px;
+    }
+    .header-title {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 16px;
+      border-right: 2px solid var(--rule);
+    }
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px;
+      letter-spacing: 3px;
+      color: var(--chalk);
+      line-height: 1;
+    }
+    h1 em { color: var(--lime); font-style: normal; }
+    #saveStatus {
+      font-family: 'Courier Prime', monospace;
+      font-size: 11px;
+      color: var(--lime-dim);
+      letter-spacing: 0.5px;
+    }
+    .cog-btn {
+      width: 56px;
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      border-left: 1px solid var(--rule);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--chalk-dim);
+      transition: color 0.2s, background 0.2s;
+    }
+    .cog-btn:hover { color: var(--lime); background: var(--rule); }
+    .cog-btn svg { width: 22px; height: 22px; transition: transform 0.5s; }
+    .cog-btn:hover svg { transform: rotate(90deg); }
+
+    .pay-btn {
+      width: 56px;
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      border-left: 1px solid var(--rule);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--chalk-dim);
+      transition: color 0.2s, background 0.2s;
+    }
+    .pay-btn:hover { color: var(--lime); background: var(--rule); }
+    .pay-btn.has-payments { color: var(--lime); }
+    .pay-btn svg { width: 30px; height: 30px; }
+
+    /* payment modal */
+    .pay-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .pay-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .pay-modal {
+      background: var(--felt);
+      border-top: 3px solid var(--lime);
+      width: 100%;
+      max-width: var(--hole-w);
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .pay-modal-overlay.open .pay-modal { transform: translateY(0); }
+    .pay-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0 0 16px;
+      border-bottom: 1px solid var(--rule);
+      height: 52px;
+    }
+    .pay-modal-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 4px;
+      color: var(--chalk);
+    }
+    .pay-modal-x {
+      width: 52px;
+      height: 52px;
+      border: none;
+      border-left: 1px solid var(--rule);
+      background: none;
+      cursor: pointer;
+      font-family: 'Courier Prime', monospace;
+      font-size: 18px;
+      color: var(--chalk-dim);
+      transition: background 0.15s, color 0.15s;
+    }
+    .pay-modal-x:hover { background: var(--rule); color: var(--chalk); }
+    .pay-modal-body { padding: 20px 16px 28px; }
+    .pay-kr-badge {
+      font-family: 'Courier Prime', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--lime-dim);
+      margin-bottom: 16px;
+    }
+    .pay-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .pay-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 12px;
+    }
+    .pay-line:last-child { border-bottom: none; padding-bottom: 0; }
+    .pay-line-names {
+      font-family: 'Courier Prime', monospace;
+      font-size: 15px;
+      color: var(--chalk);
+    }
+    .pay-line-arrow {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px;
+      color: var(--chalk-dim);
+      margin: 0 8px;
+    }
+    .pay-line-amount {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px;
+      letter-spacing: 1px;
+      color: var(--lime);
+    }
+    .pay-empty {
+      font-family: 'Courier Prime', monospace;
+      font-size: 14px;
+      color: var(--chalk-dim);
+      font-style: italic;
+    }
+
+    @media (min-width: 500px) {
+      .pay-modal-overlay { align-items: center; }
+      .pay-modal { border: 2px solid var(--lime); border-top: 3px solid var(--lime); }
+    }
+
+    /* ══ MAIN ══ */
+    main {
+      max-width: var(--hole-w);
+      margin: 0 auto;
+      padding-bottom: 48px;
+    }
+
+    .section-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px;
+      letter-spacing: 4px;
+      color: var(--chalk-dim);
+      padding: 10px 16px 6px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    /* ══ SCOREBOARD ══ */
+    .scoreboard { border-bottom: 3px solid var(--rule); }
+
+    .players-row { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+
+    .player-col {
+      padding: 14px 12px 18px;
+      border-right: 1px solid var(--rule);
+      text-align: center;
+      position: relative;
+      transition: background 0.25s;
+    }
+    .player-col:last-child { border-right: none; }
+
+    .p-name {
+      font-family: 'Courier Prime', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--chalk-dim);
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .p-score {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 64px;
+      line-height: 1;
+      color: var(--chalk);
+      transition: color 0.3s;
+    }
+
+
+    .meta-strip {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .meta-divider { background: var(--rule); }
+    .meta-cell { padding: 10px 16px; display: flex; flex-direction: column; gap: 3px; }
+    .meta-key {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--chalk-dim);
+    }
+    .meta-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 1px;
+      color: var(--chalk);
+    }
+
+    .payments-strip {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--rule);
+      min-height: 44px;
+    }
+    .payments-key {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--chalk-dim);
+      margin-bottom: 6px;
+    }
+    #payments {
+      font-family: 'Courier Prime', monospace;
+      font-size: 15px;
+      white-space: pre-wrap;
+      color: var(--chalk);
+      line-height: 1.8;
+    }
+
+    /* ══ REGISTER HOLE ══ */
+    .register-section { border-bottom: 3px solid var(--rule); }
+
+    .hole-banner {
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--rule);
+      gap: 0;
+    }
+    .hole-label-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px;
+      letter-spacing: 4px;
+      color: var(--chalk-dim);
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    #holeNo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 52px;
+      letter-spacing: 2px;
+      color: var(--lime);
+      background: none;
+      border: none;
+      outline: none;
+      width: 90px;
+      padding: 8px 0;
+      -moz-appearance: textfield;
+    }
+    #holeNo::-webkit-inner-spin-button,
+    #holeNo::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    .hole-banner-right {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
+    }
+    .double-key {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--chalk-dim);
+    }
+
+    .score-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border-bottom: 1px solid var(--rule);
+    }
+    .score-input-col {
+      border-right: 1px solid var(--rule);
+      padding: 10px 12px;
+    }
+    .score-input-col:last-child { border-right: none; }
+    .si-label {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--chalk-dim);
+      margin-bottom: 4px;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .si-input {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px;
+      color: var(--chalk);
+      background: none;
+      border: none;
+      border-bottom: 2px solid var(--rule-lt);
+      outline: none;
+      width: 100%;
+      padding: 0 0 2px;
+      -moz-appearance: textfield;
+      transition: border-color 0.2s;
+    }
+    .si-input:focus { border-bottom-color: var(--lime); }
+    .si-input::-webkit-inner-spin-button,
+    .si-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .si-input::placeholder { color: var(--rule-lt); }
+
+    select {
+      font-family: 'Courier Prime', monospace;
+      font-size: 14px;
+      color: var(--chalk);
+      background: var(--rule);
+      border: 1px solid var(--rule-lt);
+      padding: 6px 28px 6px 10px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      border-radius: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%238faa82' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      cursor: pointer;
+    }
+    select:focus { border-color: var(--lime); }
+
+    #hint {
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      color: var(--chalk-dim);
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--rule);
+      min-height: 34px;
+      line-height: 1.5;
+      font-style: italic;
+    }
+
+    .action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+    .act-btn {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 2px;
+      padding: 16px 8px;
+      background: none;
+      border: none;
+      border-right: 1px solid var(--rule);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      color: var(--chalk-dim);
+    }
+    .act-btn:last-child { border-right: none; }
+    .act-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+    .act-btn.primary { color: var(--bg); background: var(--lime); font-size: 18px; }
+    .act-btn.primary:hover { background: #d4f050; }
+    .act-btn.secondary:not(:disabled):hover { background: var(--rule); color: var(--chalk); }
+
+    /* ══ HISTORY ══ */
+    .history-toggle {
+      width: 100%;
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      cursor: pointer;
+      color: var(--chalk);
+    }
+    .history-toggle:hover { background: var(--rule); }
+    .history-toggle-left { display: flex; align-items: center; gap: 12px; }
+    .ht-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14px;
+      letter-spacing: 4px;
+      color: var(--chalk-dim);
+    }
+    .ht-count {
+      font-family: 'Courier Prime', monospace;
+      font-size: 11px;
+      color: var(--lime-dim);
+      border: 1px solid var(--rule-lt);
+      padding: 1px 7px;
+    }
+    .chevron { color: var(--chalk-dim); transition: transform 0.3s; flex-shrink: 0; }
+    .history-section.open .chevron { transform: rotate(180deg); }
+    .history-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+    .history-section.open .history-body { max-height: 2000px; }
+    .history-inner { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; min-width: 360px; }
+    th {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--chalk-dim);
+      padding: 8px 12px;
+      text-align: left;
+      background: var(--felt);
+      border-bottom: 1px solid var(--rule);
+      white-space: nowrap;
+    }
+    td {
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--rule);
+      color: var(--chalk);
+      vertical-align: top;
+    }
+    td.note-cell { color: var(--chalk-dim); font-size: 12px; }
+    td:first-child {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 1px;
+      color: var(--lime-dim);
+    }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* ══ SETTINGS MODAL ══ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--felt);
+      border-top: 3px solid var(--lime);
+      width: 100%;
+      max-width: var(--hole-w);
+      max-height: 88vh;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0 0 16px;
+      border-bottom: 1px solid var(--rule);
+      height: 52px;
+    }
+    .modal-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 4px;
+      color: var(--chalk);
+    }
+    .modal-x {
+      width: 52px;
+      height: 52px;
+      border: none;
+      border-left: 1px solid var(--rule);
+      background: none;
+      cursor: pointer;
+      font-family: 'Courier Prime', monospace;
+      font-size: 18px;
+      color: var(--chalk-dim);
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .modal-x:hover { background: var(--rule); color: var(--chalk); }
+
+    .modal-body { padding-bottom: 16px; }
+
+    .settings-group {
+      border-bottom: 1px solid var(--rule);
+      padding: 12px 16px;
+    }
+    .sg-title {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--lime-dim);
+      margin-bottom: 12px;
+    }
+    .settings-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .settings-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .sf { display: flex; flex-direction: column; gap: 5px; }
+    .sf-label {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--chalk-dim);
+    }
+
+    input[type="text"], input[type="number"] {
+      font-family: 'Courier Prime', monospace;
+      font-size: 16px;
+      color: var(--chalk);
+      background: var(--rule);
+      border: 1px solid var(--rule-lt);
+      border-radius: 0;
+      padding: 8px 10px;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+    input[type="text"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input:focus { border-color: var(--lime); }
+    input::placeholder { color: var(--rule-lt); }
+
+    .save-btn {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 3px;
+      background: var(--lime);
+      color: var(--bg);
+      border: none;
+      padding: 14px 16px;
+      width: 100%;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: block;
+    }
+    .save-btn:hover { background: #d4f050; }
+
+    .danger-group { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .danger-btn {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 15px;
+      letter-spacing: 2px;
+      background: none;
+      border: 1px solid #3d1a1a;
+      color: var(--red);
+      padding: 11px 16px;
+      width: 100%;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .danger-btn:hover { background: rgba(224,90,74,0.1); }
+    .danger-confirm {
+      background: rgba(224,90,74,0.08);
+      border: 1px solid #5a2020;
+      padding: 10px 12px;
+      margin-bottom: 4px;
+    }
+    .danger-confirm-text {
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      color: var(--chalk-dim);
+      display: block;
+      margin-bottom: 8px;
+    }
+    .danger-confirm-btns { display: flex; gap: 8px; }
+    .danger-btn-confirm {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14px;
+      letter-spacing: 1px;
+      background: var(--red);
+      color: var(--bg);
+      border: none;
+      padding: 8px 14px;
+      cursor: pointer;
+      flex: 1;
+    }
+    .danger-btn-confirm:hover { opacity: 0.85; }
+    .danger-btn-cancel {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14px;
+      letter-spacing: 1px;
+      background: none;
+      color: var(--chalk-dim);
+      border: 1px solid var(--rule-lt);
+      padding: 8px 14px;
+      cursor: pointer;
+      flex: 1;
+    }
+    .danger-btn-cancel:hover { background: var(--rule); color: var(--chalk); }
+
+    @media (min-width: 500px) {
+      .modal-overlay { align-items: center; }
+      .modal { border: 2px solid var(--lime); border-top: 3px solid var(--lime); max-height: 85vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="header-title">
+        <h1>EVIL <em>NINE</em></h1>
+      </div>
+      <button class="pay-btn" id="openPayments" aria-label="Betalning">
+        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="20" fill="currentColor" opacity="0.18"/>
+          <text x="20" y="27" text-anchor="middle" font-family="Bebas Neue, sans-serif" font-size="22" fill="currentColor">$</text>
+        </svg>
+      </button>
+      <button class="cog-btn" id="openSettings" aria-label="Inställningar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="scoreboard">
+      <div class="section-label">STÄLLNING</div>
+      <div class="players-row">
+        <div class="player-col" id="cardA">
+          <div class="p-name" id="scoreTitleA">SPELARE 1</div>
+          <div class="p-score" id="scoreA">0</div>
+        </div>
+        <div class="player-col" id="cardB">
+          <div class="p-name" id="scoreTitleB">SPELARE 2</div>
+          <div class="p-score" id="scoreB">0</div>
+        </div>
+        <div class="player-col" id="cardC">
+          <div class="p-name" id="scoreTitleC">SPELARE 3</div>
+          <div class="p-score" id="scoreC">0</div>
+        </div>
+      </div>
+      <div class="meta-strip">
+        <div class="meta-cell">
+          <span class="meta-key">KR / POÄNG</span>
+          <span class="meta-val" id="krNow">10 KR</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-cell">
+          <span class="meta-key">PRESS</span>
+          <span class="meta-val" style="font-size:14px;padding-top:4px;" id="doublesUsed">–</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="register-section">
+      <div class="section-label">REGISTRERA HÅL</div>
+      <div class="hole-banner">
+        <span class="hole-label-text">HÅL</span>
+        <input id="holeNo" type="number" value="1" min="1" max="18" />
+        <div class="hole-banner-right">
+          <span class="double-key">PRESS <span style="opacity:0.5;font-size:9px;letter-spacing:1px;">FRÅN HÅL 12</span></span>
+          <select id="doubleWho"><option value="">Ingen</option></select>
+        </div>
+      </div>
+      <div class="score-inputs">
+        <div class="score-input-col">
+          <label class="si-label" id="labelInputA">SP. 1</label>
+          <input class="si-input" id="valA" type="number" inputmode="numeric" placeholder="–" />
+        </div>
+        <div class="score-input-col">
+          <label class="si-label" id="labelInputB">SP. 2</label>
+          <input class="si-input" id="valB" type="number" inputmode="numeric" placeholder="–" />
+        </div>
+        <div class="score-input-col">
+          <label class="si-label" id="labelInputC">SP. 3</label>
+          <input class="si-input" id="valC" type="number" inputmode="numeric" placeholder="–" />
+        </div>
+      </div>
+      <div id="hint"></div>
+      <div class="action-row">
+        <button class="act-btn primary" id="addHoleBtn">LÄGG TILL</button>
+        <button class="act-btn secondary" id="undoBtn" disabled>ÅNGRA</button>
+        <button class="act-btn secondary" id="resetBtn">NOLLSTÄLL</button>
+      </div>
+    </div>
+
+    <div class="history-section" id="historySection">
+      <button class="history-toggle" id="historyToggle">
+        <div class="history-toggle-left">
+          <span class="ht-label">HISTORIK</span>
+          <span class="ht-count" id="historyCount">0 HÅL</span>
+        </div>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="history-body">
+        <div class="history-inner">
+          <table>
+            <thead>
+              <tr>
+                <th>HÅL</th><th>RESULTAT</th><th>HÅLPOÄNG</th><th>NOTERING</th><th style="text-align:right">EFTER</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="pay-modal-overlay" id="payModalOverlay">
+    <div class="pay-modal">
+      <div class="pay-modal-header">
+        <span class="pay-modal-title">BETALNING</span>
+        <button class="pay-modal-x" id="closePayments">✕</button>
+      </div>
+      <div class="pay-modal-body">
+        <div class="pay-kr-badge" id="payKrBadge">10 KR / POÄNG</div>
+        <div class="pay-lines" id="payLines"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">INSTÄLLNINGAR</span>
+        <button class="modal-x" id="closeSettings">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="settings-group">
+          <div class="sg-title">SPELARE</div>
+          <div class="settings-grid3">
+            <div class="sf">
+              <label class="sf-label" id="labelNameA">SPELARE 1</label>
+              <input id="nameA" type="text" placeholder="NAMN" />
+            </div>
+            <div class="sf">
+              <label class="sf-label" id="labelNameB">SPELARE 2</label>
+              <input id="nameB" type="text" placeholder="NAMN" />
+            </div>
+            <div class="sf">
+              <label class="sf-label" id="labelNameC">SPELARE 3</label>
+              <input id="nameC" type="text" placeholder="NAMN" />
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="sg-title">SPELREGLER</div>
+          <div class="settings-grid2">
+            <div class="sf">
+              <label class="sf-label">KR / POÄNG (START)</label>
+              <input id="krPerPoint" type="number" value="10" min="1" />
+            </div>
+            <div class="sf">
+              <label class="sf-label">MAX HÅL</label>
+              <select id="maxHoles">
+                <option value="9">9 hål</option>
+                <option value="18" selected>18 hål</option>
+              </select>
+            </div>
+            <div class="sf">
+              <label class="sf-label">INMATNINGSTYP</label>
+              <select id="inputMode">
+                <option value="points" selected>Poäng</option>
+                <option value="strokes">Slag/netto</option>
+              </select>
+            </div>
+            <div class="sf">
+              <label class="sf-label">EVIL NINE-TRÖSKEL</label>
+              <input id="evilThreshold" type="number" value="2" min="1" />
+            </div>
+            <div class="sf">
+              <label class="sf-label">BETALMODELL</label>
+              <select id="payMode">
+                <option value="leader-diff" selected>Alla → ledaren</option>
+                <option value="pairwise">Parvis</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="settings-group" style="border-bottom:none;">
+          <div class="sg-title">HANTERA RUNDA</div>
+          <button class="save-btn" id="saveSettings">SPARA INSTÄLLNINGAR</button>
+        </div>
+
+        <div class="danger-group">
+          <div class="danger-confirm" id="resetConfirm" style="display:none;">
+            <span class="danger-confirm-text">Är du säker? Poäng, historik och sparad data raderas.</span>
+            <div class="danger-confirm-btns">
+              <button class="danger-btn-confirm" id="resetConfirmYes">JA, STARTA OM</button>
+              <button class="danger-btn-cancel" id="resetConfirmNo">AVBRYT</button>
+            </div>
+          </div>
+          <button class="danger-btn" id="resetBtn2">STARTA NY RUNDA</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const STORAGE_KEY = "evilNine_v4_state";
+
+  const els = {
+    labelNameA: document.getElementById('labelNameA'),
+    labelNameB: document.getElementById('labelNameB'),
+    labelNameC: document.getElementById('labelNameC'),
+    nameA: document.getElementById('nameA'),
+    nameB: document.getElementById('nameB'),
+    nameC: document.getElementById('nameC'),
+    krPerPoint: document.getElementById('krPerPoint'),
+    maxHoles: document.getElementById('maxHoles'),
+    inputMode: document.getElementById('inputMode'),
+    evilThreshold: document.getElementById('evilThreshold'),
+    payMode: document.getElementById('payMode'),
+    holeNo: document.getElementById('holeNo'),
+    doubleWho: document.getElementById('doubleWho'),
+    labelInputA: document.getElementById('labelInputA'),
+    labelInputB: document.getElementById('labelInputB'),
+    labelInputC: document.getElementById('labelInputC'),
+    valA: document.getElementById('valA'),
+    valB: document.getElementById('valB'),
+    valC: document.getElementById('valC'),
+    addHoleBtn: document.getElementById('addHoleBtn'),
+    resetBtn: document.getElementById('resetBtn'),
+    resetBtn2: document.getElementById('resetBtn2'),
+    undoBtn: document.getElementById('undoBtn'),
+
+    hint: document.getElementById('hint'),
+    scoreTitleA: document.getElementById('scoreTitleA'),
+    scoreTitleB: document.getElementById('scoreTitleB'),
+    scoreTitleC: document.getElementById('scoreTitleC'),
+    scoreA: document.getElementById('scoreA'),
+    scoreB: document.getElementById('scoreB'),
+    scoreC: document.getElementById('scoreC'),
+    cardA: document.getElementById('cardA'),
+    cardB: document.getElementById('cardB'),
+    cardC: document.getElementById('cardC'),
+    krNow: document.getElementById('krNow'),
+    doublesUsed: document.getElementById('doublesUsed'),
+    payments: document.getElementById('payments'),
+    historyBody: document.getElementById('historyBody'),
+    historyCount: document.getElementById('historyCount'),
+    historySection: document.getElementById('historySection'),
+    historyToggle: document.getElementById('historyToggle'),
+    modalOverlay: document.getElementById('modalOverlay'),
+    openSettings: document.getElementById('openSettings'),
+    closeSettings: document.getElementById('closeSettings'),
+    saveSettings: document.getElementById('saveSettings'),
+    openPayments: document.getElementById('openPayments'),
+    closePayments: document.getElementById('closePayments'),
+    payModalOverlay: document.getElementById('payModalOverlay'),
+    payLines: document.getElementById('payLines'),
+    payKrBadge: document.getElementById('payKrBadge'),
+  };
+
+  const state = {
+    scores: [0,0,0],
+    history: [],
+    usedDouble: [false,false,false],
+    krStart: 10,
+    krNow: 10,
+    maxHoles: 18,
+    hole: 1,
+  };
+
+  // ─── Modal ───────────────────────────────────
+  let settingsSnapshot = null;
+
+  function captureSettingsSnapshot() {
+    return {
+      nameA: els.nameA.value, nameB: els.nameB.value, nameC: els.nameC.value,
+      krPerPoint: els.krPerPoint.value, maxHoles: els.maxHoles.value,
+      inputMode: els.inputMode.value, evilThreshold: els.evilThreshold.value,
+      payMode: els.payMode.value,
+    };
+  }
+
+  function restoreSettingsSnapshot(snap) {
+    if (!snap) return;
+    els.nameA.value=snap.nameA; els.nameB.value=snap.nameB; els.nameC.value=snap.nameC;
+    els.krPerPoint.value=snap.krPerPoint; els.maxHoles.value=snap.maxHoles;
+    els.inputMode.value=snap.inputMode; els.evilThreshold.value=snap.evilThreshold;
+    els.payMode.value=snap.payMode;
+  }
+
+  function openModal() {
+    settingsSnapshot = captureSettingsSnapshot();
+    els.modalOverlay.classList.add('open');
+  }
+
+  function discardAndClose() {
+    restoreSettingsSnapshot(settingsSnapshot);
+    settingsSnapshot = null;
+    els.modalOverlay.classList.remove('open');
+    updateUI();
+  }
+
+  function saveAndClose() {
+    const newStart = Number(els.krPerPoint.value)||10;
+    if (state.krNow===state.krStart) state.krNow=newStart;
+    state.krStart=newStart;
+    settingsSnapshot=null;
+    els.modalOverlay.classList.remove('open');
+    updateUI();
+  }
+
+  // ─── Payment modal ──────────────────────────
+  els.openPayments.addEventListener('click', () => {
+    renderPayModal();
+    els.payModalOverlay.classList.add('open');
+  });
+  els.closePayments.addEventListener('click', () => els.payModalOverlay.classList.remove('open'));
+  els.payModalOverlay.addEventListener('click', (e) => {
+    if (e.target === els.payModalOverlay) els.payModalOverlay.classList.remove('open');
+  });
+
+  function renderPayModal() {
+    const [a,b,c] = displayNames();
+    const names = [a,b,c];
+    const p = state.scores;
+    const kr = state.krNow;
+    const mode = els.payMode.value;
+
+    els.payKrBadge.textContent = `${kr} KR / POÄNG`;
+
+    const transfers = [];
+    if (mode === "leader-diff") {
+      const leader = indexOfLeader(p);
+      for (let i = 0; i < 3; i++) {
+        if (i === leader) continue;
+        const amt = (p[leader] - p[i]) * kr;
+        if (amt > 0) transfers.push({ from: names[i], to: names[leader], amt });
+      }
+    } else if (mode === "pairwise") {
+      for (const [i,j] of [[0,1],[0,2],[1,2]]) {
+        if (p[i] === p[j]) continue;
+        const hi = p[i] > p[j] ? i : j;
+        const lo = hi === i ? j : i;
+        const amt = (p[hi] - p[lo]) * kr;
+        if (amt > 0) transfers.push({ from: names[lo], to: names[hi], amt });
+      }
+    }
+
+    // update pay-btn highlight
+    els.openPayments.classList.toggle('has-payments', transfers.length > 0);
+
+    if (transfers.length === 0) {
+      els.payLines.innerHTML = `<div class="pay-empty">Ingen betalning — alla är lika.</div>`;
+      return;
+    }
+
+    els.payLines.innerHTML = transfers.map(t => `
+      <div class="pay-line">
+        <div>
+          <div class="pay-line-names">${t.from}</div>
+          <div class="pay-line-arrow">▼ BETALAR TILL</div>
+          <div class="pay-line-names">${t.to}</div>
+        </div>
+        <div class="pay-line-amount">${t.amt} KR</div>
+      </div>`).join('');
+  }
+
+  els.openSettings.addEventListener('click', openModal);
+  els.closeSettings.addEventListener('click', discardAndClose);
+  els.saveSettings.addEventListener('click', saveAndClose);
+  els.modalOverlay.addEventListener('click', (e)=>{ if(e.target===els.modalOverlay) discardAndClose(); });
+  els.historyToggle.addEventListener('click', ()=>{ els.historySection.classList.toggle('open'); });
+
+  // ─── Game logic ──────────────────────────────
+  function displayNames() {
+    const r=[els.nameA.value,els.nameB.value,els.nameC.value].map(s=>(s||"").trim());
+    return [r[0]||"Spelare 1",r[1]||"Spelare 2",r[2]||"Spelare 3"];
+  }
+
+  function updateNameEverywhere() {
+    const [a,b,c]=displayNames();
+    els.labelNameA.textContent=a.toUpperCase();
+    els.labelNameB.textContent=b.toUpperCase();
+    els.labelNameC.textContent=c.toUpperCase();
+    els.labelInputA.textContent=a.toUpperCase().slice(0,8);
+    els.labelInputB.textContent=b.toUpperCase().slice(0,8);
+    els.labelInputC.textContent=c.toUpperCase().slice(0,8);
+    els.scoreTitleA.textContent=a.toUpperCase();
+    els.scoreTitleB.textContent=b.toUpperCase();
+    els.scoreTitleC.textContent=c.toUpperCase();
+  }
+
+  function minScore(s){return Math.min(...s);}
+  function lastIndices(s){const m=minScore(s);return s.map((v,i)=>v===m?i:-1).filter(i=>i!==-1);}
+  function indexOfLeader(s){let mx=s[0],idx=0;for(let i=1;i<3;i++)if(s[i]>mx){mx=s[i];idx=i;}return idx;}
+  function floorHalf(n){return Math.floor(n/2);}
+
+  function updateDoubleDropdown(){
+    const [a,b,c]=displayNames(),nm=[a,b,c];
+    const hole=Number(els.holeNo.value)||state.hole;
+    els.doubleWho.innerHTML=`<option value="">Ingen</option>`;
+    let hint="";
+    if(hole>=12){
+      const eligible=lastIndices(state.scores).filter(i=>!state.usedDouble[i]);
+      if(eligible.length>0){
+        const shared=eligible.length>1;
+        for(const i of eligible)
+          els.doubleWho.innerHTML+=`<option value="${i}">${nm[i].charAt(0).toUpperCase()+nm[i].slice(1)}</option>`;
+        hint=`HÅL ${hole}: ${eligible.map(i=>nm[i]).join(" & ")} kan pressa.`;
+      } else { hint=`HÅL ${hole}: Press redan använd.`; }
+    } else { hint=''; }
+    els.hint.textContent=hint;
+  }
+
+  function applyDoublingIfChosen(idx,holeNum){
+    if(idx===null||idx===undefined) return {applied:false,note:""};
+    if(holeNum<12) return {applied:false,note:"(ej tillåten före hål 12)"};
+    if(state.scores[idx]!==minScore(state.scores)) return {applied:false,note:"(nekad: inte sist)"};
+    if(state.usedDouble[idx]) return {applied:false,note:"(nekad: redan använd)"};
+    state.scores=state.scores.map(floorHalf);
+    state.krNow*=2;
+    state.usedDouble[idx]=true;
+    return {applied:true,note:`Press: kr/p nu ${state.krNow}.`};
+  }
+
+  function calcHolePoints(values){
+    const mode=els.inputMode.value;
+    const thr=Math.max(1,Number(els.evilThreshold.value)||2);
+    const sorted=values.map((v,i)=>({v,i})).sort((x,y)=>mode==="points"?y.v-x.v:x.v-y.v);
+    const [best,mid,last]=sorted;
+    const diff=mode==="points"?(best.v-mid.v):(mid.v-best.v);
+    if(diff>=thr){const p=[0,0,0];p[best.i]=9;return {pts:p,note:`Evil Nine (≥${thr})`};}
+    if(best.v===mid.v&&mid.v===last.v) return {pts:[0,0,0],note:"Alla lika (0–0–0)"};
+    if(best.v===mid.v){const p=[0,0,0];p[best.i]=3;p[mid.i]=3;return {pts:p,note:"Två delar 1:a (3–3–0)"};}
+    if(mid.v===last.v){const p=[0,0,0];p[best.i]=3;return {pts:p,note:"Ensam vinnare (3–0–0)"};}
+    const p=[0,0,0];p[best.i]=4;p[mid.i]=2;return {pts:p,note:"1–2–3 (4–2–0)"};
+  }
+
+  function normalizeDownToZero(){
+    const last=Math.min(...state.scores);
+    state.scores=state.scores.map(s=>s-last);
+    return last;
+  }
+
+  function calcPaymentsText(){
+    const [a,b,c]=displayNames(),names=[a,b,c],p=state.scores,kr=state.krNow;
+    const line=(f,t,amt)=>`${names[f]} → ${names[t]}: ${amt} kr`;
+    if(els.payMode.value==="leader-diff"){
+      const leader=indexOfLeader(p),lines=[];
+      for(let i=0;i<3;i++){
+        if(i===leader) continue;
+        const amt=(p[leader]-p[i])*kr;
+        if(amt>0) lines.push(line(i,leader,amt));
+      }
+      return lines.length===0?"Ingen betalning (lika).":lines.join("\n");
+    }
+    if(els.payMode.value==="pairwise"){
+      const lines=[];
+      for(const [i,j] of [[0,1],[0,2],[1,2]]){
+        if(p[i]===p[j]) continue;
+        const hi=p[i]>p[j]?i:j,lo=hi===i?j:i;
+        const amt=(p[hi]-p[lo])*kr;
+        if(amt>0) lines.push(line(lo,hi,amt));
+      }
+      return lines.length===0?"Ingen betalning (lika).":lines.join("\n");
+    }
+    return "–";
+  }
+
+  function addHistoryRow(entry,prepend=false){
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${entry.hole}</td>
+      <td>${entry.values.join(" / ")}</td>
+      <td>${entry.holePts.join(" / ")}</td>
+      <td class="note-cell">${entry.note}</td>
+      <td style="text-align:right">${entry.after.join(" / ")}</td>`;
+    if(prepend&&els.historyBody.firstChild)
+      els.historyBody.insertBefore(tr,els.historyBody.firstChild);
+    else
+      els.historyBody.appendChild(tr);
+  }
+
+  function rerenderHistory(){
+    els.historyBody.innerHTML="";
+    for(let i=state.history.length-1;i>=0;i--) addHistoryRow(state.history[i]);
+    updateHistoryCount();
+  }
+
+  function updateHistoryCount(){
+    els.historyCount.textContent=`${state.history.length} HÅL`;
+  }
+
+  function nowStamp(){return new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
+
+  function saveToStorage(){
+
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({
+      state,
+      ui:{
+        inputMode:els.inputMode.value,evilThreshold:els.evilThreshold.value,
+        maxHoles:els.maxHoles.value,krPerPoint:els.krPerPoint.value,
+        payMode:els.payMode.value,
+        names:[els.nameA.value,els.nameB.value,els.nameC.value],
+      }
+    }));
+
+  }
+
+  function loadFromStorage(){
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    try{
+      const payload=JSON.parse(raw);
+      if(!payload||!payload.state) return false;
+      Object.assign(state,payload.state);
+      const ui=payload.ui||{};
+      if(ui.inputMode) els.inputMode.value=ui.inputMode;
+      if(ui.evilThreshold!=null) els.evilThreshold.value=ui.evilThreshold;
+      if(ui.maxHoles) els.maxHoles.value=ui.maxHoles;
+      if(ui.krPerPoint!=null) els.krPerPoint.value=ui.krPerPoint;
+      if(ui.payMode) els.payMode.value=ui.payMode;
+      const nm=ui.names||["","",""];
+      els.nameA.value=nm[0]||"";els.nameB.value=nm[1]||"";els.nameC.value=nm[2]||"";
+      rerenderHistory();
+
+      return true;
+    }catch{return false;}
+  }
+
+  function snapshot(){
+    return JSON.parse(JSON.stringify({
+      state,
+      ui:{
+        inputMode:els.inputMode.value,evilThreshold:els.evilThreshold.value,
+        maxHoles:els.maxHoles.value,krPerPoint:els.krPerPoint.value,
+        payMode:els.payMode.value,
+        holeNo:els.holeNo.value,names:[els.nameA.value,els.nameB.value,els.nameC.value],
+      }
+    }));
+  }
+
+  function restore(snap){
+    Object.assign(state,snap.state);
+    const ui=snap.ui||{};
+    els.inputMode.value=ui.inputMode||els.inputMode.value;
+    if(ui.evilThreshold!=null) els.evilThreshold.value=ui.evilThreshold;
+    if(ui.maxHoles) els.maxHoles.value=ui.maxHoles;
+    if(ui.krPerPoint!=null) els.krPerPoint.value=ui.krPerPoint;
+    if(ui.payMode) els.payMode.value=ui.payMode;
+    if(ui.holeNo) els.holeNo.value=ui.holeNo;
+    const nm=ui.names||["","",""];
+    els.nameA.value=nm[0]||"";els.nameB.value=nm[1]||"";els.nameC.value=nm[2]||"";
+    rerenderHistory();
+    updateUI();
+  }
+
+  let undoStack=[];
+
+  function updateUI(){
+    updateNameEverywhere();
+    els.scoreA.textContent=state.scores[0];
+    els.scoreB.textContent=state.scores[1];
+    els.scoreC.textContent=state.scores[2];
+
+    els.krNow.textContent=`${state.krNow} KR`;
+    const [a,b,c]=displayNames();
+    els.doublesUsed.textContent=
+      `${a}:${state.usedDouble[0]?'✓':'–'} ${b}:${state.usedDouble[1]?'✓':'–'} ${c}:${state.usedDouble[2]?'✓':'–'}`;
+    els.undoBtn.disabled=state.history.length===0;
+    els.holeNo.value=state.hole;
+    updateDoubleDropdown();
+    // payments shown in modal
+    updateHistoryCount();
+    // update pay button highlight
+    const payTransfers = calcPaymentsText();
+    els.openPayments.classList.toggle('has-payments', payTransfers !== '–' && payTransfers !== 'Ingen betalning (lika).');
+    saveToStorage();
+  }
+
+  function onAddHole(){
+    const hole=Number(els.holeNo.value);
+    const maxHoles=Number(els.maxHoles.value);
+    state.maxHoles=maxHoles;
+    if(!Number.isFinite(hole)||hole<1||hole>maxHoles){alert(`Ogiltigt hål. Ange 1–${maxHoles}.`);return;}
+    const values=[Number(els.valA.value),Number(els.valB.value),Number(els.valC.value)];
+    if(values.some(v=>!Number.isFinite(v))){alert("Fyll i resultat för alla tre spelare.");return;}
+    undoStack.push(snapshot());
+    state.hole=hole;
+    const dblVal=els.doubleWho.value===""?null:Number(els.doubleWho.value);
+    const dblRes=applyDoublingIfChosen(dblVal,hole);
+    const {pts,note}=calcHolePoints(values);
+    state.scores=state.scores.map((s,i)=>s+pts[i]);
+    const deducted=normalizeDownToZero();
+    const after=[...state.scores];
+    const entry={
+      hole,values,holePts:pts,
+      note:[
+        dblRes.applied?dblRes.note:"",
+        note,
+        deducted>0?`Nedräkning: -${deducted}`:"Nedräkning: 0"
+      ].filter(Boolean).join(" • "),
+      after
+    };
+    state.history.push(entry);
+    addHistoryRow(entry,true);
+    state.hole=Math.min(hole+1,maxHoles);
+    els.valA.value="";els.valB.value="";els.valC.value="";
+    els.valA.focus();
+    updateUI();
+  }
+
+  function doReset(){
+    undoStack=[];
+    state.scores=[0,0,0];state.history=[];
+    state.usedDouble=[false,false,false];
+    state.krStart=Number(els.krPerPoint.value)||10;
+    state.krNow=state.krStart;
+    state.maxHoles=Number(els.maxHoles.value)||18;
+    state.hole=1;
+    rerenderHistory();
+    saveAndClose();
+  }
+
+  els.addHoleBtn.addEventListener('click',onAddHole);
+  els.resetBtn.addEventListener('click',doReset);
+  els.resetBtn2.addEventListener('click',()=>{
+    document.getElementById('resetConfirm').style.display='block';
+  });
+  document.getElementById('resetConfirmNo').addEventListener('click',()=>{
+    document.getElementById('resetConfirm').style.display='none';
+  });
+  document.getElementById('resetConfirmYes').addEventListener('click',()=>{
+    localStorage.removeItem(STORAGE_KEY);
+    document.getElementById('resetConfirm').style.display='none';
+    doReset();
+  });
+  els.undoBtn.addEventListener('click',()=>{const s=undoStack.pop();if(s)restore(s);});
+  // clearSavedBtn merged into resetBtn2
+  els.holeNo.addEventListener('input',updateDoubleDropdown);
+
+  const loaded=loadFromStorage();
+  if(!loaded){
+    state.krStart=Number(els.krPerPoint.value)||10;
+    state.krNow=state.krStart;
+    state.maxHoles=Number(els.maxHoles.value)||18;
+  }
+  updateUI();
+})();
+</script>
+</body>
+</html>
