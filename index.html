@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="sv">
 <head>
@@ -320,9 +321,9 @@
   <div class="scoreboard">
     <div class="section-label">ST&#196;LLNING</div>
     <div class="match-header">
-      <div class="team-name-disp" id="tb-team1Name">PAR 1</div>
+      <div class="team-name-disp" id="tb-team1Name">LAG 1</div>
       <div class="vs-label">MOT</div>
-      <div class="team-name-disp right" id="tb-team2Name">PAR 2</div>
+      <div class="team-name-disp right" id="tb-team2Name">LAG 2</div>
     </div>
     <div class="score-strip">
       <div class="score-cell"><div class="score-key">UT</div><div class="score-val" id="tb-scoreUt">&#8211;</div><div class="score-result" id="tb-resultUt"></div></div>
@@ -332,8 +333,8 @@
       <div class="score-cell"><div class="score-key">TOTALT</div><div class="score-val" id="tb-scoreTot">&#8211;</div><div class="score-result" id="tb-resultTot"></div></div>
     </div>
     <div class="teams-row">
-      <div class="team-col"><div class="team-label">PAR 1</div><div class="team-players" id="tb-team1Players">&#8211;</div></div>
-      <div class="team-col"><div class="team-label">PAR 2</div><div class="team-players" id="tb-team2Players">&#8211;</div></div>
+      <div class="team-col"><div class="team-label">LAG 1</div><div class="team-players" id="tb-team1Players">&#8211;</div></div>
+      <div class="team-col"><div class="team-label">LAG 2</div><div class="team-players" id="tb-team2Players">&#8211;</div></div>
     </div>
   </div>
   <div class="register-section">
@@ -370,7 +371,7 @@
       <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <div class="history-body"><div class="history-inner">
-      <table><thead><tr><th>H&#197;L</th><th>PAR 1</th><th>PAR 2</th><th>RESULTAT</th><th>NOTERING</th></tr></thead><tbody id="tb-historyBody"></tbody></table>
+      <table><thead><tr><th>H&#197;L</th><th>LAG 1</th><th>LAG 2</th><th>RESULTAT</th><th>NOTERING</th></tr></thead><tbody id="tb-historyBody"></tbody></table>
     </div></div>
   </div>
 </div>
@@ -453,10 +454,10 @@
         <div class="settings-group">
           <div class="sg-title">PARNING</div>
           <div class="settings-grid2">
-            <div class="sf"><label class="sf-label">PAR 1 &#8212; SPELARE A</label><select id="tb-pair1a"></select></div>
-            <div class="sf"><label class="sf-label">PAR 1 &#8212; SPELARE B</label><select id="tb-pair1b"></select></div>
-            <div class="sf"><label class="sf-label">PAR 2 &#8212; SPELARE A</label><select id="tb-pair2a"></select></div>
-            <div class="sf"><label class="sf-label">PAR 2 &#8212; SPELARE B</label><select id="tb-pair2b"></select></div>
+            <div class="sf"><label class="sf-label">LAG 1 &#8212; SPELARE A</label><select id="tb-pair1a"></select></div>
+            <div class="sf"><label class="sf-label">LAG 1 &#8212; SPELARE B</label><select id="tb-pair1b"></select></div>
+            <div class="sf"><label class="sf-label">LAG 2 &#8212; SPELARE A</label><select id="tb-pair2a"></select></div>
+            <div class="sf"><label class="sf-label">LAG 2 &#8212; SPELARE B</label><select id="tb-pair2b"></select></div>
           </div>
         </div>
         <div class="settings-group">
@@ -749,19 +750,29 @@
   function tbHcps(){const t=tbTee();if(!t)return[0,0,0,0];return[1,2,3,4].map(n=>playHcp(parseFloat($('tb-hcp'+n).value)||0,t.slope));}
 
   function tbBuildPairing(){
-    ['tb-pair1a','tb-pair1b','tb-pair2a','tb-pair2b'].forEach((sid,si)=>{
-      const sel=$(sid),cur=sel.value;sel.innerHTML='';
-      [0,1,2,3].forEach(i=>{const o=document.createElement('option');o.value=i;o.textContent=tbName(i);sel.appendChild(o);});
-      sel.value=cur||String(si);
+    const ids=['tb-pair1a','tb-pair1b','tb-pair2a','tb-pair2b'];
+    if(ids.some(id=>!$(id))) return;
+    const vals=ids.map(id=>$(id).value);
+    ids.forEach((sid,si)=>{
+      const sel=$(sid),cur=vals[si];
+      const taken=vals.filter((_,i)=>i!==si).map(v=>String(v));
+      sel.innerHTML='';
+      [0,1,2,3].forEach(i=>{
+        if(taken.includes(String(i))) return;
+        const o=document.createElement('option');o.value=i;o.textContent=tbName(i);sel.appendChild(o);
+      });
+      if([...sel.options].some(o=>o.value===cur)) sel.value=cur;
+      else sel.value=sel.options[0]?.value||'0';
     });
   }
-  [1,2,3,4].forEach(n=>$('tb-name'+n).addEventListener('input',tbBuildPairing));
+  [1,2,3,4].forEach(n=>{ const el=$('tb-name'+n); if(el) el.addEventListener('input',tbBuildPairing); });
+  ['tb-pair1a','tb-pair1b','tb-pair2a','tb-pair2b'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('change',tbBuildPairing); });
 
   function tbColors(){
     const teams=tbTeams();
     [1,2,3,4].forEach(n=>{$('tb-col'+n).classList.remove('team1','team2');$('tb-badge'+n).textContent='';$('tb-badge'+n).className='team-badge';});
-    teams[0].forEach(i=>{$('tb-col'+(i+1)).classList.add('team1');$('tb-badge'+(i+1)).textContent='PAR 1';$('tb-badge'+(i+1)).className='team-badge t1';});
-    teams[1].forEach(i=>{$('tb-col'+(i+1)).classList.add('team2');$('tb-badge'+(i+1)).textContent='PAR 2';$('tb-badge'+(i+1)).className='team-badge t2';});
+    teams[0].forEach(i=>{$('tb-col'+(i+1)).classList.add('team1');$('tb-badge'+(i+1)).textContent='LAG 1';$('tb-badge'+(i+1)).className='team-badge t1';});
+    teams[1].forEach(i=>{$('tb-col'+(i+1)).classList.add('team2');$('tb-badge'+(i+1)).textContent='LAG 2';$('tb-badge'+(i+1)).className='team-badge t2';});
   }
 
   function tbCalcScore(){
@@ -982,7 +993,7 @@
   // ════════════════════════════════
   // INIT
   // ════════════════════════════════
-  tbBuildPairing();
+  setTimeout(()=>tbBuildPairing(), 0);
   const savedMode=localStorage.getItem('golfActiveMode');
   if(savedMode==='tb'){
     activeMode='tb';
