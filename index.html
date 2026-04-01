@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0045)file:///C:/Users/bjorn/Downloads/index_6.html -->
+<!-- saved from url=(0046)file:///C:/Users/bjorn/Downloads/index_10.html -->
 <html lang="sv"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -234,15 +234,15 @@
 <body>
 <header>
   <div class="header-inner">
-    <div class="header-title"><h1 id="appTitle">BÄSTBOLL <em>TALIBAN</em></h1></div>
+    <div class="header-title"><h1 id="appTitle">EVIL <em>NINE</em></h1></div>
     <button class="mode-btn" id="modeBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
-      <span id="modeBtnLabel">Evil Nine</span>
+      <span id="modeBtnLabel">Taliban</span>
     </button>
-    <button class="pay-btn hidden" id="openPayments">
+    <button class="pay-btn" id="openPayments">
       <svg width="32" height="32" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="currentColor" opacity="0.18"></circle><text x="20" y="27" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="22" fill="currentColor">$</text></svg>
     </button>
-    <button class="pay-btn" id="tb-openPayments">
+    <button class="pay-btn hidden" id="tb-openPayments">
       <svg width="32" height="32" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="currentColor" opacity="0.18"></circle><text x="20" y="27" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="22" fill="currentColor">$</text></svg>
     </button>
     <button class="cog-btn" id="openSettings">
@@ -258,7 +258,7 @@
 </header>
 <main>
 <!-- EVIL NINE VIEW -->
-<div class="view" id="viewEN">
+<div class="view active" id="viewEN">
   <div class="scoreboard">
     <div class="section-label">STÄLLNING</div>
     <div class="players-row">
@@ -294,7 +294,7 @@
     <div class="action-row">
       <button class="act-btn primary" id="en-addHoleBtn">LÄGG TILL</button>
       <button class="act-btn secondary" id="en-undoBtn" disabled="">ÅNGRA</button>
-      <button class="act-btn secondary" id="en-resetBtn">NOLLSÄLL</button>
+      <button class="act-btn secondary" id="en-resetBtn">NOLLSTÄLL</button>
     </div>
     <div class="reset-confirm-bar" id="en-resetConfirmBar">
       <span class="reset-confirm-text">Är du säker?</span>
@@ -316,7 +316,7 @@
   </div>
 </div>
 <!-- TALIBAN VIEW -->
-<div class="view active" id="viewTB">
+<div class="view" id="viewTB">
   <div class="scoreboard">
     <div class="section-label">STÄLLNING</div>
     <div class="match-header">
@@ -353,7 +353,7 @@
     <div class="action-row">
       <button class="act-btn primary" id="tb-addHoleBtn">LÄGG TILL</button>
       <button class="act-btn secondary" id="tb-undoBtn">ÅNGRA</button>
-      <button class="act-btn secondary" id="tb-resetBtn">NOLLSÄLL</button>
+      <button class="act-btn secondary" id="tb-resetBtn">NOLLSTÄLL</button>
     </div>
     <div class="reset-confirm-bar" id="tb-resetConfirmBar">
       <span class="reset-confirm-text">Är du säker?</span>
@@ -379,7 +379,7 @@
 <div class="pay-modal-overlay" id="payModalOverlay">
   <div class="pay-modal">
     <div class="pay-modal-header"><span class="pay-modal-title">BETALNING</span><button class="pay-modal-x" id="closePayments">✕</button></div>
-    <div class="pay-modal-body"><div class="pay-kr-badge" id="payKrBadge">10 KR / POÄNG</div><div class="pay-lines" id="payLines"><div class="pay-empty">Ingen betalning — alla är lika.</div></div></div>
+    <div class="pay-modal-body"><div class="pay-kr-badge" id="payKrBadge">10 KR / POÄNG</div><div class="pay-lines" id="payLines"></div></div>
   </div>
 </div>
 <!-- Summary modal -->
@@ -394,9 +394,9 @@
   <div class="modal">
     <div class="modal-header"><span class="modal-title">INSTÄLLNINGAR</span><button class="modal-x" id="closeSettings">✕</button></div>
     <div class="modal-body">
-      <div class="settings-mode-indicator" id="settingsModeLabel">BÄSTBOLL TALIBAN</div>
+      <div class="settings-mode-indicator" id="settingsModeLabel">EVIL NINE</div>
       <!-- Evil Nine settings -->
-      <div class="settings-section" id="en-settings">
+      <div class="settings-section active" id="en-settings">
         <div class="settings-group">
           <div class="sg-title">SPELARE</div>
           <div class="settings-grid3">
@@ -436,7 +436,7 @@
         </div>
       </div>
       <!-- Taliban settings -->
-      <div class="settings-section active" id="tb-settings">
+      <div class="settings-section" id="tb-settings">
         <div class="settings-group">
           <div class="sg-title">SPELARE</div>
           <div class="settings-grid4">
