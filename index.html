@@ -1,746 +1,1017 @@
+
 <!doctype html>
 <html lang="sv">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Evil Nine</title>
+  <title>Golf Games</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:wght@400;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #0a120a; --felt: #101c10; --rule: #1e3320; --rule-lt: #2d4d30;
-      --chalk: #e8f0d8; --chalk-dim:#8faa82; --lime: #c6f040; --lime-dim: #7ab828;
-      --red: #e05a4a; --hole-w: 640px;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--chalk);
-      min-height: 100vh;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    }
-    header { border-bottom: 3px solid var(--lime); position: sticky; top: 0; background: var(--bg); z-index: 50; }
-    .header-inner { max-width: var(--hole-w); margin: 0 auto; display: flex; align-items: stretch; height: 56px; }
-    .header-title { flex: 1; display: flex; align-items: center; gap: 14px; padding: 0 16px; border-right: 2px solid var(--rule); }
-    h1 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 3px; color: var(--chalk); line-height: 1; }
-    h1 em { color: var(--lime); font-style: normal; }
-    .cog-btn { width: 56px; flex-shrink: 0; background: none; border: none; border-left: 1px solid var(--rule); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--chalk-dim); transition: color 0.2s, background 0.2s; }
-    .cog-btn:hover { color: var(--lime); background: var(--rule); }
-    .cog-btn svg { width: 22px; height: 22px; transition: transform 0.5s; }
-    .cog-btn:hover svg { transform: rotate(90deg); }
-    .pay-btn { width: 56px; flex-shrink: 0; background: none; border: none; border-left: 1px solid var(--rule); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--chalk-dim); transition: color 0.2s, background 0.2s; }
-    .pay-btn:hover { color: var(--lime); background: var(--rule); }
-    .pay-btn.has-payments { color: var(--lime); }
-    .pay-btn svg { width: 30px; height: 30px; }
-
-    /* COURSE BAR */
-    .course-bar { display: none; border-top: 1px solid var(--rule); }
-    .course-bar.visible { display: block; }
-    .course-bar-inner { max-width: var(--hole-w); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 6px 16px; cursor: pointer; transition: background 0.15s; }
-    .course-bar-inner:hover { background: var(--rule); }
-    .course-bar-name { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 3px; color: var(--lime); }
-    .course-bar-right { display: flex; gap: 12px; align-items: center; }
-    .course-bar-tee { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 1px; color: var(--chalk-dim); }
-    .course-bar-par { font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--chalk-dim); }
-
-    /* PAYMENT MODAL */
-    .pay-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .pay-modal-overlay.open { opacity: 1; pointer-events: all; }
-    .pay-modal { background: var(--felt); border-top: 3px solid var(--lime); width: 100%; max-width: var(--hole-w); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
-    .pay-modal-overlay.open .pay-modal { transform: translateY(0); }
-    .pay-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 0 0 0 16px; border-bottom: 1px solid var(--rule); height: 52px; }
-    .pay-modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 4px; color: var(--chalk); }
-    .pay-modal-x { width: 52px; height: 52px; border: none; border-left: 1px solid var(--rule); background: none; cursor: pointer; font-family: 'Courier Prime', monospace; font-size: 18px; color: var(--chalk-dim); transition: background 0.15s, color 0.15s; }
-    .pay-modal-x:hover { background: var(--rule); color: var(--chalk); }
-    .pay-modal-body { padding: 20px 16px 28px; }
-    .pay-kr-badge { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--lime-dim); margin-bottom: 16px; }
-    .pay-lines { display: flex; flex-direction: column; gap: 12px; }
-    .pay-line { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--rule); padding-bottom: 12px; }
-    .pay-line:last-child { border-bottom: none; padding-bottom: 0; }
-    .pay-line-names { font-family: 'Courier Prime', monospace; font-size: 15px; color: var(--chalk); }
-    .pay-line-arrow { font-family: 'Bebas Neue', sans-serif; font-size: 13px; color: var(--chalk-dim); margin: 0 8px; }
-    .pay-line-amount { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 1px; color: var(--lime); }
-    .pay-empty { font-family: 'Courier Prime', monospace; font-size: 14px; color: var(--chalk-dim); font-style: italic; }
-    @media (min-width: 500px) {
-      .pay-modal-overlay { align-items: center; }
-      .pay-modal { border: 2px solid var(--lime); border-top: 3px solid var(--lime); }
-    }
-
-    main { max-width: var(--hole-w); margin: 0 auto; padding-bottom: 48px; }
-    .section-label { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--chalk-dim); padding: 10px 16px 6px; border-bottom: 1px solid var(--rule); }
-    .scoreboard { border-bottom: 3px solid var(--rule); }
-    .players-row { display: grid; grid-template-columns: 1fr 1fr 1fr; }
-    .player-col { padding: 14px 12px 18px; border-right: 1px solid var(--rule); text-align: center; position: relative; transition: background 0.25s; }
-    .player-col:last-child { border-right: none; }
-    .p-name { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--chalk-dim); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .p-score { font-family: 'Bebas Neue', sans-serif; font-size: 64px; line-height: 1; color: var(--chalk); transition: color 0.3s; }
-    .meta-strip { display: grid; grid-template-columns: 1fr 1px 1fr; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
-    .meta-divider { background: var(--rule); }
-    .meta-cell { padding: 10px 16px; display: flex; flex-direction: column; gap: 3px; }
-    .meta-key { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--chalk-dim); }
-    .meta-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--chalk); }
-
-    .register-section { border-bottom: 3px solid var(--rule); }
-    .hole-banner { display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--rule); }
-    .hole-label-text { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--chalk-dim); margin-right: 12px; flex-shrink: 0; }
-    #holeNo { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; color: var(--lime); background: none; border: none; outline: none; width: 90px; padding: 8px 0; -moz-appearance: textfield; }
-    #holeNo::-webkit-inner-spin-button, #holeNo::-webkit-outer-spin-button { -webkit-appearance: none; }
-    .hole-banner-right { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
-    .double-key { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--chalk-dim); }
-    .hole-par-badge { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 1px; color: var(--lime-dim); display: none; }
-    .hole-par-badge.visible { display: block; }
-
-    .score-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--rule); }
-    .score-input-col { border-right: 1px solid var(--rule); padding: 10px 12px; }
-    .score-input-col:last-child { border-right: none; }
-    .si-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--chalk-dim); margin-bottom: 4px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .si-input { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--chalk); background: none; border: none; border-bottom: 2px solid var(--rule-lt); outline: none; width: 100%; padding: 0 0 2px; -moz-appearance: textfield; transition: border-color 0.2s; }
-    .si-input:focus { border-bottom-color: var(--lime); }
-    .si-input::-webkit-inner-spin-button, .si-input::-webkit-outer-spin-button { -webkit-appearance: none; }
-    .si-input::placeholder { color: var(--rule-lt); }
-    select { font-family: 'Courier Prime', monospace; font-size: 14px; color: var(--chalk); background: var(--rule); border: 1px solid var(--rule-lt); padding: 6px 28px 6px 10px; outline: none; appearance: none; -webkit-appearance: none; border-radius: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%238faa82' d='M5 7L0 2h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; cursor: pointer; }
-    select:focus { border-color: var(--lime); }
-    #hint { font-family: 'Courier Prime', monospace; font-size: 12px; color: var(--chalk-dim); padding: 8px 16px; border-bottom: 1px solid var(--rule); min-height: 34px; line-height: 1.5; font-style: italic; }
-    .action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; }
-    .act-btn { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; padding: 16px 8px; background: none; border: none; border-right: 1px solid var(--rule); cursor: pointer; transition: background 0.15s, color 0.15s; color: var(--chalk-dim); }
-    .act-btn:last-child { border-right: none; }
-    .act-btn:disabled { opacity: 0.25; cursor: not-allowed; }
-    .act-btn.primary { color: var(--bg); background: var(--lime); font-size: 18px; }
-    .act-btn.primary:hover { background: #d4f050; }
-    .act-btn.secondary:not(:disabled):hover { background: var(--rule); color: var(--chalk); }
-
-    .reset-confirm-bar { display: none; background: rgba(224,90,74,0.07); border-top: 1px solid #5a2020; padding: 10px 14px; align-items: center; justify-content: space-between; gap: 10px; }
-    .reset-confirm-bar.visible { display: flex; }
-    .reset-confirm-text { font-family: 'Courier Prime', monospace; font-size: 12px; color: var(--chalk-dim); flex: 1; }
-    .reset-confirm-btns { display: flex; gap: 8px; flex-shrink: 0; }
-    .reset-yes { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px; background: var(--red); color: var(--bg); border: none; padding: 8px 16px; cursor: pointer; }
-    .reset-yes:hover { opacity: 0.85; }
-    .reset-no { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px; background: none; color: var(--chalk-dim); border: 1px solid var(--rule-lt); padding: 8px 16px; cursor: pointer; }
-    .reset-no:hover { background: var(--rule); color: var(--chalk); }
-
-    .history-toggle { width: 100%; background: none; border: none; border-bottom: 1px solid var(--rule); display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; color: var(--chalk); }
-    .history-toggle:hover { background: var(--rule); }
-    .history-toggle-left { display: flex; align-items: center; gap: 12px; }
-    .ht-label { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 4px; color: var(--chalk-dim); }
-    .ht-count { font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--lime-dim); border: 1px solid var(--rule-lt); padding: 1px 7px; }
-    .chevron { color: var(--chalk-dim); transition: transform 0.3s; flex-shrink: 0; }
-    .history-section.open .chevron { transform: rotate(180deg); }
-    .history-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-    .history-section.open .history-body { max-height: 2000px; }
-    .history-inner { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; min-width: 360px; }
-    th { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--chalk-dim); padding: 8px 12px; text-align: left; background: var(--felt); border-bottom: 1px solid var(--rule); white-space: nowrap; }
-    td { font-family: 'Courier Prime', monospace; font-size: 13px; padding: 9px 12px; border-bottom: 1px solid var(--rule); color: var(--chalk); vertical-align: top; }
-    td.note-cell { color: var(--chalk-dim); font-size: 12px; }
-    td:first-child { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: var(--lime-dim); }
-    tr:hover td { background: rgba(255,255,255,0.02); }
-
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-    .modal { background: var(--felt); border-top: 3px solid var(--lime); width: 100%; max-width: var(--hole-w); max-height: 88vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
-    .modal-overlay.open .modal { transform: translateY(0); }
-    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 0 0 0 16px; border-bottom: 1px solid var(--rule); height: 52px; }
-    .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 4px; color: var(--chalk); }
-    .modal-x { width: 52px; height: 52px; border: none; border-left: 1px solid var(--rule); background: none; cursor: pointer; font-family: 'Courier Prime', monospace; font-size: 18px; color: var(--chalk-dim); transition: background 0.15s, color 0.15s; flex-shrink: 0; }
-    .modal-x:hover { background: var(--rule); color: var(--chalk); }
-    .modal-body { padding-bottom: 16px; }
-    .settings-group { border-bottom: 1px solid var(--rule); padding: 12px 16px; }
-    .sg-title { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--lime-dim); margin-bottom: 12px; }
-    .settings-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .settings-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    .sf { display: flex; flex-direction: column; gap: 5px; }
-    .sf-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--chalk-dim); }
-    input[type="text"], input[type="number"] { font-family: 'Courier Prime', monospace; font-size: 16px; color: var(--chalk); background: var(--rule); border: 1px solid var(--rule-lt); border-radius: 0; padding: 8px 10px; outline: none; width: 100%; transition: border-color 0.2s; -moz-appearance: textfield; }
-    input[type="text"]::-webkit-inner-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-    input:focus { border-color: var(--lime); }
-    input::placeholder { color: var(--rule-lt); }
-    .save-btn { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; background: var(--lime); color: var(--bg); border: none; padding: 14px 16px; width: 100%; cursor: pointer; transition: background 0.15s; display: block; }
-    .save-btn:hover { background: #d4f050; }
-    .danger-group { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
-    .danger-btn { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 2px; background: none; border: 1px solid #3d1a1a; color: var(--red); padding: 11px 16px; width: 100%; cursor: pointer; transition: background 0.15s; }
-    .danger-btn:hover { background: rgba(224,90,74,0.1); }
-    .danger-confirm { background: rgba(224,90,74,0.08); border: 1px solid #5a2020; padding: 10px 12px; margin-bottom: 4px; }
-    .danger-confirm-text { font-family: 'Courier Prime', monospace; font-size: 12px; color: var(--chalk-dim); display: block; margin-bottom: 8px; }
-    .danger-confirm-btns { display: flex; gap: 8px; }
-    .danger-btn-confirm { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px; background: var(--red); color: var(--bg); border: none; padding: 8px 14px; cursor: pointer; flex: 1; }
-    .danger-btn-confirm:hover { opacity: 0.85; }
-    .danger-btn-cancel { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px; background: none; color: var(--chalk-dim); border: 1px solid var(--rule-lt); padding: 8px 14px; cursor: pointer; flex: 1; }
-    .danger-btn-cancel:hover { background: var(--rule); color: var(--chalk); }
-    @media (min-width: 500px) {
-      .modal-overlay { align-items: center; }
-      .modal { border: 2px solid var(--lime); border-top: 3px solid var(--lime); max-height: 85vh; }
+    :root { --bg:#0a120a;--felt:#101c10;--rule:#1e3320;--rule-lt:#2d4d30;--chalk:#e8f0d8;--chalk-dim:#8faa82;--lime:#c6f040;--lime-dim:#7ab828;--red:#e05a4a;--hole-w:640px; }
+    *,*::before,*::after { box-sizing:border-box;margin:0;padding:0; }
+    body { font-family:'Manrope',sans-serif;background:var(--bg);color:var(--chalk);min-height:100vh;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); }
+    header { border-bottom:3px solid var(--lime);position:sticky;top:0;background:var(--bg);z-index:50; }
+    .header-inner { max-width:var(--hole-w);margin:0 auto;display:flex;align-items:stretch;height:56px; }
+    .header-title { flex:1;display:flex;align-items:center;padding:0 16px;border-right:2px solid var(--rule);overflow:hidden; }
+    h1 { font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--chalk);line-height:1;white-space:nowrap; }
+    h1 em { color:var(--lime);font-style:normal; }
+    .mode-btn { flex-shrink:0;background:none;border:none;border-left:1px solid var(--rule);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--chalk-dim);transition:color 0.2s,background 0.2s;padding:0 12px;font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;gap:5px;white-space:nowrap; }
+    .mode-btn:hover { color:var(--lime);background:var(--rule); }
+    .mode-btn svg { width:14px;height:14px;flex-shrink:0; }
+    .pay-btn { width:56px;flex-shrink:0;background:none;border:none;border-left:1px solid var(--rule);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--chalk-dim);transition:color 0.2s,background 0.2s; }
+    .pay-btn:hover { color:var(--lime);background:var(--rule); }
+    .pay-btn.has-payments { color:var(--lime); }
+    .pay-btn svg { width:30px;height:30px; }
+    .pay-btn.hidden { display:none; }
+    .cog-btn { width:56px;flex-shrink:0;background:none;border:none;border-left:1px solid var(--rule);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--chalk-dim);transition:color 0.2s,background 0.2s; }
+    .cog-btn:hover { color:var(--lime);background:var(--rule); }
+    .cog-btn svg { width:22px;height:22px;transition:transform 0.5s; }
+    .cog-btn:hover svg { transform:rotate(90deg); }
+    .course-bar { display:none;border-top:1px solid var(--rule); }
+    .course-bar.visible { display:block; }
+    .course-bar-inner { max-width:var(--hole-w);margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:6px 16px;cursor:pointer;transition:background 0.15s; }
+    .course-bar-inner:hover { background:var(--rule); }
+    .course-bar-name { font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--lime); }
+    .course-bar-right { display:flex;gap:12px;align-items:center; }
+    .course-bar-tee,.course-bar-par { font-family:'Courier Prime',monospace;font-size:11px;color:var(--chalk-dim); }
+    .view { display:none; }
+    .view.active { display:block; }
+    main { max-width:var(--hole-w);margin:0 auto;padding-bottom:48px; }
+    .section-label { font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:var(--chalk-dim);padding:10px 16px 6px;border-bottom:1px solid var(--rule); }
+    .scoreboard { border-bottom:3px solid var(--rule); }
+    .players-row { display:grid;grid-template-columns:1fr 1fr 1fr; }
+    .player-col { padding:14px 12px 18px;border-right:1px solid var(--rule);text-align:center;position:relative; }
+    .player-col:last-child { border-right:none; }
+    .p-name { font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--chalk-dim);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .p-score { font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;color:var(--chalk);transition:color 0.3s; }
+    .p-stroke-badge { font-family:'Courier Prime',monospace;font-size:10px;color:var(--lime);margin-top:2px;min-height:14px; }
+    .meta-strip { display:grid;grid-template-columns:1fr 1px 1fr;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule); }
+    .meta-divider { background:var(--rule); }
+    .meta-cell { padding:10px 16px;display:flex;flex-direction:column;gap:3px; }
+    .meta-key { font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--chalk-dim); }
+    .meta-val { font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--chalk); }
+    .match-header { display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px 16px;border-bottom:1px solid var(--rule);gap:8px; }
+    .team-name-disp { font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--chalk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .team-name-disp.right { text-align:right; }
+    .vs-label { font-family:'Courier Prime',monospace;font-size:11px;color:var(--chalk-dim);text-align:center;letter-spacing:2px; }
+    .score-strip { display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;border-bottom:1px solid var(--rule); }
+    .score-divider { background:var(--rule); }
+    .score-cell { padding:10px 8px;text-align:center; }
+    .score-key { font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--chalk-dim);margin-bottom:4px; }
+    .score-val { font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:var(--chalk);line-height:1; }
+    .score-val.lead { color:var(--lime); }
+    .score-result { font-family:'Courier Prime',monospace;font-size:10px;color:var(--chalk-dim);margin-top:2px; }
+    .teams-row { display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--rule); }
+    .team-col { padding:10px 12px;border-right:1px solid var(--rule); }
+    .team-col:last-child { border-right:none; }
+    .team-label { font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--lime-dim);margin-bottom:6px; }
+    .team-players { font-family:'Courier Prime',monospace;font-size:12px;color:var(--chalk-dim);line-height:1.6; }
+    .register-section { border-bottom:3px solid var(--rule); }
+    .hole-banner { display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--rule); }
+    .hole-label-text { font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:var(--chalk-dim);margin-right:12px;flex-shrink:0; }
+    .hole-no-input { font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:2px;color:var(--lime);background:none;border:none;outline:none;width:60px !important;flex-shrink:0;padding:8px 0;text-align:center;-moz-appearance:textfield; }
+    .hole-no-input::-webkit-inner-spin-button,.hole-no-input::-webkit-outer-spin-button { -webkit-appearance:none; }
+    .hole-banner-right { margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0; }
+    .double-key { font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--chalk-dim); }
+    .press-label-bar { padding:6px 16px 4px;border-bottom:1px solid var(--rule); }
+    .hole-banner-right select { font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:var(--chalk-dim);background:var(--rule);border:1px solid var(--rule-lt);padding:0 20px 0 8px;width:auto !important;height:36px;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23e8f0d8' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center; }
+    .hole-par-badge { font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:1px;color:var(--lime-dim);display:none; }
+    .hole-par-badge.visible { display:block; }
+    .score-inputs-3 { display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--rule); }
+    .score-inputs-4 { display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--rule); }
+    .score-input-col { border-right:1px solid var(--rule);padding:10px 8px; }
+    .score-input-col:last-child { border-right:none; }
+    .score-input-col.team1 { background:rgba(198,240,64,0.04);border-top:2px solid var(--lime); }
+    .score-input-col.team2 { background:rgba(255,255,255,0.02);border-top:2px solid var(--chalk-dim); }
+    .team-badge { font-family:'Courier Prime',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;display:none; }
+    .team-badge.t1 { color:var(--lime);display:block; }
+    .team-badge.t2 { color:var(--chalk-dim);display:block; }
+    .si-label { font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--chalk-dim);margin-bottom:4px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .si-input { font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--chalk);background:none;border:none;border-bottom:2px solid var(--rule-lt);outline:none;width:100%;padding:0 0 2px;-moz-appearance:textfield;transition:border-color 0.2s; }
+    .si-input-sm { font-size:34px; }
+    .si-input:focus { border-bottom-color:var(--lime); }
+    .si-input::-webkit-inner-spin-button,.si-input::-webkit-outer-spin-button { -webkit-appearance:none; }
+    .si-input::placeholder { color:var(--rule-lt); }
+    select { font-family:'Courier Prime',monospace;font-size:14px;color:var(--chalk);background:var(--rule);border:1px solid var(--rule-lt);padding:6px 28px 6px 10px;outline:none;appearance:none;-webkit-appearance:none;border-radius:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%238faa82' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer; }
+    select:focus { border-color:var(--lime); }
+    #en-hint,#tb-hint { font-family:'Courier Prime',monospace;font-size:12px;color:var(--chalk-dim);padding:8px 16px;border-bottom:1px solid var(--rule);min-height:34px;line-height:1.5;font-style:italic; }
+    .action-row { display:grid;grid-template-columns:1fr 1fr 1fr; }
+    .act-btn { font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;padding:16px 8px;background:none;border:none;border-right:1px solid var(--rule);cursor:pointer;transition:background 0.15s,color 0.15s;color:var(--chalk-dim); }
+    .act-btn:last-child { border-right:none; }
+    .act-btn:disabled { opacity:0.25;cursor:not-allowed; }
+    .act-btn.primary { color:var(--bg);background:var(--lime);font-size:18px; }
+    .act-btn.primary:hover { background:#d4f050; }
+    .act-btn.secondary:not(:disabled):hover { background:var(--rule);color:var(--chalk); }
+    .reset-confirm-bar { display:none;background:rgba(224,90,74,0.07);border-top:1px solid #5a2020;padding:10px 14px;align-items:center;justify-content:space-between;gap:10px; }
+    .reset-confirm-bar.visible { display:flex; }
+    .reset-confirm-text { font-family:'Courier Prime',monospace;font-size:12px;color:var(--chalk-dim);flex:1; }
+    .reset-confirm-btns { display:flex;gap:8px;flex-shrink:0; }
+    .reset-yes { font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;background:var(--red);color:var(--bg);border:none;padding:8px 16px;cursor:pointer; }
+    .reset-yes:hover { opacity:0.85; }
+    .reset-no { font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;background:none;color:var(--chalk-dim);border:1px solid var(--rule-lt);padding:8px 16px;cursor:pointer; }
+    .reset-no:hover { background:var(--rule);color:var(--chalk); }
+    .round-complete-bar { display:none;background:rgba(198,240,64,0.07);border-top:2px solid var(--lime);padding:10px 16px;align-items:center;justify-content:space-between;gap:10px; }
+    .round-complete-bar.visible { display:flex; }
+    .round-complete-text { font-family:'Courier Prime',monospace;font-size:12px;color:var(--lime-dim);flex:1;font-style:italic; }
+    .round-complete-btn { font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;background:var(--lime);color:var(--bg);border:none;padding:8px 14px;cursor:pointer;flex-shrink:0; }
+    .round-complete-btn:hover { background:#d4f050; }
+    .history-toggle { width:100%;background:none;border:none;border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;color:var(--chalk); }
+    .history-toggle:hover { background:var(--rule); }
+    .history-toggle-left { display:flex;align-items:center;gap:12px; }
+    .ht-label { font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:4px;color:var(--chalk-dim); }
+    .ht-count { font-family:'Courier Prime',monospace;font-size:11px;color:var(--lime-dim);border:1px solid var(--rule-lt);padding:1px 7px; }
+    .chevron { color:var(--chalk-dim);transition:transform 0.3s;flex-shrink:0; }
+    .history-section.open .chevron { transform:rotate(180deg); }
+    .history-body { max-height:0;overflow:hidden;transition:max-height 0.4s ease; }
+    .history-section.open .history-body { max-height:2000px; }
+    .history-inner { overflow-x:auto; }
+    table { width:100%;border-collapse:collapse;min-width:360px; }
+    th { font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--chalk-dim);padding:8px 10px;text-align:left;background:var(--felt);border-bottom:1px solid var(--rule);white-space:nowrap; }
+    td { font-family:'Courier Prime',monospace;font-size:12px;padding:8px 10px;border-bottom:1px solid var(--rule);color:var(--chalk);vertical-align:top; }
+    td.note-cell { color:var(--chalk-dim);font-size:11px; }
+    td:first-child { font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--lime-dim); }
+    td.win { color:var(--lime); }
+    td.loss { color:var(--red); }
+    td.draw { color:var(--chalk-dim); }
+    tr:hover td { background:rgba(255,255,255,0.02); }
+    .pay-modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s; }
+    .pay-modal-overlay.open { opacity:1;pointer-events:all; }
+    .pay-modal { background:var(--felt);border-top:3px solid var(--lime);width:100%;max-width:var(--hole-w);transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.22,1,0.36,1); }
+    .pay-modal-overlay.open .pay-modal { transform:translateY(0); }
+    .pay-modal-header { display:flex;align-items:center;justify-content:space-between;padding:0 0 0 16px;border-bottom:1px solid var(--rule);height:52px; }
+    .pay-modal-title { font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:var(--chalk); }
+    .pay-modal-x { width:52px;height:52px;border:none;border-left:1px solid var(--rule);background:none;cursor:pointer;font-family:'Courier Prime',monospace;font-size:18px;color:var(--chalk-dim);transition:background 0.15s,color 0.15s; }
+    .pay-modal-x:hover { background:var(--rule);color:var(--chalk); }
+    .pay-modal-body { padding:20px 16px 28px; }
+    .pay-kr-badge { font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--lime-dim);margin-bottom:16px; }
+    .pay-lines { display:flex;flex-direction:column;gap:12px; }
+    .pay-line { display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--rule);padding-bottom:12px; }
+    .pay-line:last-child { border-bottom:none;padding-bottom:0; }
+    .pay-line-names { font-family:'Courier Prime',monospace;font-size:15px;color:var(--chalk); }
+    .pay-line-arrow { font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--chalk-dim);margin:0 8px; }
+    .pay-line-amount { font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;color:var(--lime); }
+    .pay-empty { font-family:'Courier Prime',monospace;font-size:14px;color:var(--chalk-dim);font-style:italic; }
+    .summary-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s; }
+    .summary-overlay.open { opacity:1;pointer-events:all; }
+    .summary-modal { background:var(--felt);border-top:3px solid var(--lime);width:100%;max-width:var(--hole-w);max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.22,1,0.36,1); }
+    .summary-overlay.open .summary-modal { transform:translateY(0); }
+    .summary-header { display:flex;align-items:center;justify-content:space-between;padding:0 0 0 16px;border-bottom:1px solid var(--rule);height:52px; }
+    .summary-title { font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--lime); }
+    .summary-x { width:52px;height:52px;border:none;border-left:1px solid var(--rule);background:none;cursor:pointer;font-family:'Courier Prime',monospace;font-size:18px;color:var(--chalk-dim); }
+    .summary-x:hover { background:var(--rule);color:var(--chalk); }
+    .summary-podium { display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:3px solid var(--rule); }
+    .podium-col { padding:20px 12px 16px;text-align:center;border-right:1px solid var(--rule); }
+    .podium-col:last-child { border-right:none; }
+    .podium-col.first { background:rgba(198,240,64,0.05); }
+    .podium-rank { font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:var(--chalk-dim);margin-bottom:6px; }
+    .podium-col.first .podium-rank { color:var(--lime); }
+    .podium-name { font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--chalk-dim);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .podium-score { font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:1;color:var(--chalk); }
+    .podium-col.first .podium-score { color:var(--lime);font-size:64px; }
+    .summary-section-label { font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:var(--chalk-dim);padding:10px 16px 6px;border-bottom:1px solid var(--rule); }
+    .summary-pay-lines { padding:12px 16px;display:flex;flex-direction:column;gap:10px; }
+    .summary-pay-line { display:flex;align-items:center;justify-content:space-between; }
+    .summary-pay-from-to { font-family:'Courier Prime',monospace;font-size:14px;color:var(--chalk); }
+    .summary-pay-amt { font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--lime);letter-spacing:1px; }
+    .summary-no-pay { font-family:'Courier Prime',monospace;font-size:13px;color:var(--chalk-dim);font-style:italic;padding:12px 16px; }
+    .summary-section { border-bottom:1px solid var(--rule);padding:14px 16px; }
+    .summary-section-title { font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:var(--chalk-dim);margin-bottom:10px; }
+    .summary-result-row { display:flex;align-items:center;justify-content:space-between;margin-bottom:6px; }
+    .summary-result-label { font-family:'Courier Prime',monospace;font-size:13px;color:var(--chalk-dim); }
+    .summary-result-val { font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--chalk); }
+    .summary-result-val.win { color:var(--lime); }
+    .summary-winner-banner { background:rgba(198,240,64,0.07);border:1px solid var(--lime-dim);padding:12px 16px;margin:14px 16px 0;text-align:center; }
+    .summary-winner-text { font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--lime); }
+    .summary-winner-sub { font-family:'Courier Prime',monospace;font-size:11px;color:var(--chalk-dim);margin-top:4px; }
+    .summary-actions { display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule); }
+    .summary-btn { font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:14px 8px;background:none;border:none;border-right:1px solid var(--rule);cursor:pointer;color:var(--chalk-dim);transition:background 0.15s,color 0.15s; }
+    .summary-btn:last-child { border-right:none; }
+    .summary-btn:hover { background:var(--rule);color:var(--chalk); }
+    .summary-btn.primary { color:var(--bg);background:var(--lime); }
+    .summary-btn.primary:hover { background:#d4f050; }
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s; }
+    .modal-overlay.open { opacity:1;pointer-events:all; }
+    .modal { background:var(--felt);border-top:3px solid var(--lime);width:100%;max-width:var(--hole-w);max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.22,1,0.36,1); }
+    .modal-overlay.open .modal { transform:translateY(0); }
+    .modal-header { display:flex;align-items:center;justify-content:space-between;padding:0 0 0 16px;border-bottom:1px solid var(--rule);height:52px; }
+    .modal-title { font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:var(--chalk); }
+    .modal-x { width:52px;height:52px;border:none;border-left:1px solid var(--rule);background:none;cursor:pointer;font-family:'Courier Prime',monospace;font-size:18px;color:var(--chalk-dim);flex-shrink:0; }
+    .modal-x:hover { background:var(--rule);color:var(--chalk); }
+    .modal-body { padding-bottom:16px; }
+    .settings-mode-indicator { font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--lime-dim);padding:8px 16px;border-bottom:1px solid var(--rule);background:rgba(198,240,64,0.04); }
+    .settings-section { display:none; }
+    .settings-section.active { display:block; }
+    .settings-group { border-bottom:1px solid var(--rule);padding:12px 16px; }
+    .sg-title { font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--lime-dim);margin-bottom:12px; }
+    .settings-grid2 { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+    .settings-grid3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px; }
+    .settings-grid4 { display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px; }
+    .sf { display:flex;flex-direction:column;gap:5px; }
+    .sf-label { font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--chalk-dim); }
+    input[type="text"],input[type="number"] { font-family:'Courier Prime',monospace;font-size:16px;color:var(--chalk);background:var(--rule);border:1px solid var(--rule-lt);border-radius:0;padding:8px 10px;outline:none;width:100%;transition:border-color 0.2s;-moz-appearance:textfield; }
+    input[type="text"]::-webkit-inner-spin-button,input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
+    input:focus { border-color:var(--lime); }
+    input::placeholder { color:var(--rule-lt); }
+    .save-btn { font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;background:var(--lime);color:var(--bg);border:none;padding:14px 16px;width:100%;cursor:pointer;display:block; }
+    .save-btn:hover { background:#d4f050; }
+    .danger-group { padding:12px 16px;display:flex;flex-direction:column;gap:8px; }
+    .danger-btn { font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;background:none;border:1px solid #3d1a1a;color:var(--red);padding:11px 16px;width:100%;cursor:pointer; }
+    .danger-btn:hover { background:rgba(224,90,74,0.1); }
+    .danger-confirm { background:rgba(224,90,74,0.08);border:1px solid #5a2020;padding:10px 12px;margin-bottom:4px; }
+    .danger-confirm-text { font-family:'Courier Prime',monospace;font-size:12px;color:var(--chalk-dim);display:block;margin-bottom:8px; }
+    .danger-confirm-btns { display:flex;gap:8px; }
+    .danger-btn-confirm { font-family:'Bebas Neue',sans-serif;font-size:14px;background:var(--red);color:var(--bg);border:none;padding:8px 14px;cursor:pointer;flex:1; }
+    .danger-btn-confirm:hover { opacity:0.85; }
+    .danger-btn-cancel { font-family:'Bebas Neue',sans-serif;font-size:14px;background:none;color:var(--chalk-dim);border:1px solid var(--rule-lt);padding:8px 14px;cursor:pointer;flex:1; }
+    .danger-btn-cancel:hover { background:var(--rule);color:var(--chalk); }
+    @media (min-width:500px) {
+      .modal-overlay,.pay-modal-overlay,.summary-overlay { align-items:center; }
+      .modal { border:2px solid var(--lime);border-top:3px solid var(--lime);max-height:85vh; }
+      .pay-modal { border:2px solid var(--lime);border-top:3px solid var(--lime); }
+      .summary-modal { border:2px solid var(--lime);border-top:3px solid var(--lime);max-height:85vh; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="header-inner">
-      <div class="header-title">
-        <h1>EVIL <em>NINE</em></h1>
-      </div>
-      <button class="pay-btn" id="openPayments" aria-label="Betalning">
-        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="20" cy="20" r="20" fill="currentColor" opacity="0.18"/>
-          <text x="20" y="27" text-anchor="middle" font-family="Bebas Neue, sans-serif" font-size="22" fill="currentColor">$</text>
-        </svg>
-      </button>
-      <button class="cog-btn" id="openSettings" aria-label="Inst&#228;llningar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-      </button>
-    </div>
-    <div class="course-bar" id="courseBar">
-      <div class="course-bar-inner" id="courseBarInner">
-        <span class="course-bar-name" id="courseBarName"></span>
-        <div class="course-bar-right">
-          <span class="course-bar-tee" id="courseBarTee"></span>
-          <span class="course-bar-par" id="courseBarPar"></span>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <div class="scoreboard">
-      <div class="section-label">ST&#196;LLNING</div>
-      <div class="players-row">
-        <div class="player-col" id="cardA"><div class="p-name" id="scoreTitleA">SPELARE 1</div><div class="p-score" id="scoreA">0</div></div>
-        <div class="player-col" id="cardB"><div class="p-name" id="scoreTitleB">SPELARE 2</div><div class="p-score" id="scoreB">0</div></div>
-        <div class="player-col" id="cardC"><div class="p-name" id="scoreTitleC">SPELARE 3</div><div class="p-score" id="scoreC">0</div></div>
-      </div>
-      <div class="meta-strip">
-        <div class="meta-cell"><span class="meta-key">KR / PO&#196;NG</span><span class="meta-val" id="krNow">10 KR</span></div>
-        <div class="meta-divider"></div>
-        <div class="meta-cell"><span class="meta-key">PRESS</span><span class="meta-val" style="font-size:14px;padding-top:4px;" id="doublesUsed">&#8211;</span></div>
-      </div>
-    </div>
-
-    <div class="register-section">
-      <div class="section-label">REGISTRERA H&#197;L</div>
-      <div class="hole-banner">
-        <span class="hole-label-text">H&#197;L</span>
-        <input id="holeNo" type="number" value="1" min="1" max="18" />
-        <div class="hole-banner-right">
-          <span class="hole-par-badge" id="holeParBadge"></span>
-          <span class="double-key">PRESS <span style="opacity:0.5;font-size:9px;letter-spacing:1px;">FR&#197;N H&#197;L 12</span></span>
-          <select id="doubleWho"><option value="">Ingen</option></select>
-        </div>
-      </div>
-      <div class="score-inputs">
-        <div class="score-input-col"><label class="si-label" id="labelInputA">SP. 1</label><input class="si-input" id="valA" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
-        <div class="score-input-col"><label class="si-label" id="labelInputB">SP. 2</label><input class="si-input" id="valB" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
-        <div class="score-input-col"><label class="si-label" id="labelInputC">SP. 3</label><input class="si-input" id="valC" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
-      </div>
-      <div id="hint"></div>
-      <div class="action-row">
-        <button class="act-btn primary" id="addHoleBtn">L&#196;GG TILL</button>
-        <button class="act-btn secondary" id="undoBtn" disabled>&#197;NGRA</button>
-        <button class="act-btn secondary" id="resetBtn">NOLLS&#196;LL</button>
-      </div>
-      <div class="reset-confirm-bar" id="resetConfirmBar">
-        <span class="reset-confirm-text">&#196;r du s&#228;ker p&#229; att du vill nollst&#228;lla?</span>
-        <div class="reset-confirm-btns">
-          <button class="reset-yes" id="resetConfirmYesInline">JA</button>
-          <button class="reset-no" id="resetConfirmNoInline">NEJ</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="history-section" id="historySection">
-      <button class="history-toggle" id="historyToggle">
-        <div class="history-toggle-left">
-          <span class="ht-label">HISTORIK</span>
-          <span class="ht-count" id="historyCount">0 H&#197;L</span>
-        </div>
-        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="history-body">
-        <div class="history-inner">
-          <table>
-            <thead><tr><th>H&#197;L</th><th>SLAG / PO&#196;NG</th><th>H&#197;LPO&#196;NG</th><th>NOTERING</th><th style="text-align:right">EFTER</th></tr></thead>
-            <tbody id="historyBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <div class="pay-modal-overlay" id="payModalOverlay">
-    <div class="pay-modal">
-      <div class="pay-modal-header"><span class="pay-modal-title">BETALNING</span><button class="pay-modal-x" id="closePayments">&#x2715;</button></div>
-      <div class="pay-modal-body">
-        <div class="pay-kr-badge" id="payKrBadge">10 KR / PO&#196;NG</div>
-        <div class="pay-lines" id="payLines"></div>
-      </div>
+<header>
+  <div class="header-inner">
+    <div class="header-title"><h1 id="appTitle">EVIL <em>NINE</em></h1></div>
+    <button class="mode-btn" id="modeBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      <span id="modeBtnLabel">Taliban</span>
+    </button>
+    <button class="pay-btn" id="openPayments">
+      <svg width="32" height="32" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="currentColor" opacity="0.18"/><text x="20" y="27" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="22" fill="currentColor">$</text></svg>
+    </button>
+    <button class="pay-btn hidden" id="tb-openPayments">
+      <svg width="32" height="32" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="currentColor" opacity="0.18"/><text x="20" y="27" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="22" fill="currentColor">$</text></svg>
+    </button>
+    <button class="cog-btn" id="openSettings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+  <div class="course-bar" id="courseBar">
+    <div class="course-bar-inner" id="courseBarInner">
+      <span class="course-bar-name" id="courseBarName"></span>
+      <div class="course-bar-right"><span class="course-bar-tee" id="courseBarTee"></span><span class="course-bar-par" id="courseBarPar"></span></div>
     </div>
   </div>
-
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-      <div class="modal-header"><span class="modal-title">INST&#196;LLNINGAR</span><button class="modal-x" id="closeSettings">&#x2715;</button></div>
-      <div class="modal-body">
+</header>
+<main>
+<!-- EVIL NINE VIEW -->
+<div class="view active" id="viewEN">
+  <div class="scoreboard">
+    <div class="section-label">ST&#196;LLNING</div>
+    <div class="players-row">
+      <div class="player-col"><div class="p-name" id="en-scoreTitleA">SPELARE 1</div><div class="p-score" id="en-scoreA">0</div><div class="p-stroke-badge" id="en-strokeBadgeA"></div></div>
+      <div class="player-col"><div class="p-name" id="en-scoreTitleB">SPELARE 2</div><div class="p-score" id="en-scoreB">0</div><div class="p-stroke-badge" id="en-strokeBadgeB"></div></div>
+      <div class="player-col"><div class="p-name" id="en-scoreTitleC">SPELARE 3</div><div class="p-score" id="en-scoreC">0</div><div class="p-stroke-badge" id="en-strokeBadgeC"></div></div>
+    </div>
+    <div class="meta-strip">
+      <div class="meta-cell"><span class="meta-key">KR / PO&#196;NG</span><span class="meta-val" id="en-krNow">10 KR</span></div>
+      <div class="meta-divider"></div>
+      <div class="meta-cell"><span class="meta-key">PRESS</span><span class="meta-val" style="font-size:14px;padding-top:4px" id="en-doublesUsed">&#8211;</span></div>
+    </div>
+  </div>
+  <div class="register-section">
+    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
+      <span>REGISTRERA H&#197;L</span>
+      <span class="double-key">PRESS <span style="opacity:0.5;font-size:9px;letter-spacing:1px">FR&#197;N H&#197;L 12</span></span>
+    </div>
+    <div class="hole-banner">
+      <span class="hole-label-text">H&#197;L</span>
+      <input class="hole-no-input" id="en-holeNo" type="number" value="1" min="1" max="18" />
+      <span class="hole-par-badge" id="en-holeParBadge" style="margin-left:12px"></span>
+      <div class="hole-banner-right">
+        <select id="en-doubleWho"><option value="">Ingen</option></select>
+      </div>
+    </div>
+    <div class="score-inputs-3">
+      <div class="score-input-col"><label class="si-label" id="en-labelInputA">SP. 1</label><input class="si-input" id="en-valA" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+      <div class="score-input-col"><label class="si-label" id="en-labelInputB">SP. 2</label><input class="si-input" id="en-valB" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+      <div class="score-input-col"><label class="si-label" id="en-labelInputC">SP. 3</label><input class="si-input" id="en-valC" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+    </div>
+    <div id="en-hint"></div>
+    <div class="action-row">
+      <button class="act-btn primary" id="en-addHoleBtn">L&#196;GG TILL</button>
+      <button class="act-btn secondary" id="en-undoBtn" disabled>&#197;NGRA</button>
+      <button class="act-btn secondary" id="en-resetBtn">NOLLST&#196;LL</button>
+    </div>
+    <div class="reset-confirm-bar" id="en-resetConfirmBar">
+      <span class="reset-confirm-text">&#196;r du s&#228;ker?</span>
+      <div class="reset-confirm-btns"><button class="reset-yes" id="en-resetYes">JA</button><button class="reset-no" id="en-resetNo">NEJ</button></div>
+    </div>
+    <div class="round-complete-bar" id="en-roundCompleteBar">
+      <span class="round-complete-text">Rundan &#228;r klar! &#127920;</span>
+      <button class="round-complete-btn" id="en-showSummaryBtn">SE SAMMANFATTNING</button>
+    </div>
+  </div>
+  <div class="history-section" id="en-historySection">
+    <button class="history-toggle" id="en-historyToggle">
+      <div class="history-toggle-left"><span class="ht-label">HISTORIK</span><span class="ht-count" id="en-historyCount">0 H&#197;L</span></div>
+      <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="history-body"><div class="history-inner">
+      <table><thead><tr><th>H&#197;L</th><th>SLAG/PO&#196;NG</th><th>H&#197;LPO&#196;NG</th><th>NOTERING</th><th style="text-align:right">EFTER</th></tr></thead><tbody id="en-historyBody"></tbody></table>
+    </div></div>
+  </div>
+</div>
+<!-- TALIBAN VIEW -->
+<div class="view" id="viewTB">
+  <div class="scoreboard">
+    <div class="section-label">ST&#196;LLNING</div>
+    <div class="match-header">
+      <div class="team-name-disp" id="tb-team1Name">LAG 1</div>
+      <div class="vs-label">MOT</div>
+      <div class="team-name-disp right" id="tb-team2Name">LAG 2</div>
+    </div>
+    <div class="score-strip">
+      <div class="score-cell"><div class="score-key">UT</div><div class="score-val" id="tb-scoreUt">&#8211;</div><div class="score-result" id="tb-resultUt"></div></div>
+      <div class="score-divider"></div>
+      <div class="score-cell"><div class="score-key">IN</div><div class="score-val" id="tb-scoreIn">&#8211;</div><div class="score-result" id="tb-resultIn"></div></div>
+      <div class="score-divider"></div>
+      <div class="score-cell"><div class="score-key">TOTALT</div><div class="score-val" id="tb-scoreTot">&#8211;</div><div class="score-result" id="tb-resultTot"></div></div>
+    </div>
+    <div class="teams-row">
+      <div class="team-col"><div class="team-label">LAG 1</div><div class="team-players" id="tb-team1Players">&#8211;</div></div>
+      <div class="team-col"><div class="team-label">LAG 2</div><div class="team-players" id="tb-team2Players">&#8211;</div></div>
+    </div>
+  </div>
+  <div class="register-section">
+    <div class="section-label">REGISTRERA H&#197;L</div>
+    <div class="hole-banner">
+      <span class="hole-label-text">H&#197;L</span>
+      <input class="hole-no-input" id="tb-holeNo" type="number" value="1" min="1" max="18" />
+      <div class="hole-banner-right"><span class="hole-par-badge" id="tb-holeParBadge"></span></div>
+    </div>
+    <div class="score-inputs-4">
+      <div class="score-input-col" id="tb-col1"><div class="team-badge" id="tb-badge1"></div><label class="si-label" id="tb-labelP1">SP 1</label><input class="si-input si-input-sm" id="tb-val1" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+      <div class="score-input-col" id="tb-col2"><div class="team-badge" id="tb-badge2"></div><label class="si-label" id="tb-labelP2">SP 2</label><input class="si-input si-input-sm" id="tb-val2" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+      <div class="score-input-col" id="tb-col3"><div class="team-badge" id="tb-badge3"></div><label class="si-label" id="tb-labelP3">SP 3</label><input class="si-input si-input-sm" id="tb-val3" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+      <div class="score-input-col" id="tb-col4"><div class="team-badge" id="tb-badge4"></div><label class="si-label" id="tb-labelP4">SP 4</label><input class="si-input si-input-sm" id="tb-val4" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+    </div>
+    <div id="tb-hint"></div>
+    <div class="action-row">
+      <button class="act-btn primary" id="tb-addHoleBtn">L&#196;GG TILL</button>
+      <button class="act-btn secondary" id="tb-undoBtn" disabled>&#197;NGRA</button>
+      <button class="act-btn secondary" id="tb-resetBtn">NOLLST&#196;LL</button>
+    </div>
+    <div class="reset-confirm-bar" id="tb-resetConfirmBar">
+      <span class="reset-confirm-text">&#196;r du s&#228;ker?</span>
+      <div class="reset-confirm-btns"><button class="reset-yes" id="tb-resetYes">JA</button><button class="reset-no" id="tb-resetNo">NEJ</button></div>
+    </div>
+    <div class="round-complete-bar" id="tb-roundCompleteBar">
+      <span class="round-complete-text">Rundan &#228;r klar! &#127920;</span>
+      <button class="round-complete-btn" id="tb-showSummaryBtn">SE SAMMANFATTNING</button>
+    </div>
+  </div>
+  <div class="history-section" id="tb-historySection">
+    <button class="history-toggle" id="tb-historyToggle">
+      <div class="history-toggle-left"><span class="ht-label">HISTORIK</span><span class="ht-count" id="tb-historyCount">0 H&#197;L</span></div>
+      <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="history-body"><div class="history-inner">
+      <table><thead><tr><th>H&#197;L</th><th>LAG 1</th><th>LAG 2</th><th>RESULTAT</th><th>NOTERING</th></tr></thead><tbody id="tb-historyBody"></tbody></table>
+    </div></div>
+  </div>
+</div>
+</main>
+<!-- Payment modal -->
+<div class="pay-modal-overlay" id="payModalOverlay">
+  <div class="pay-modal">
+    <div class="pay-modal-header"><span class="pay-modal-title">BETALNING</span><button class="pay-modal-x" id="closePayments">&#x2715;</button></div>
+    <div class="pay-modal-body"><div class="pay-kr-badge" id="payKrBadge">10 KR / PO&#196;NG</div><div class="pay-lines" id="payLines"></div></div>
+  </div>
+</div>
+<!-- Summary modal -->
+<div class="summary-overlay" id="summaryOverlay">
+  <div class="summary-modal">
+    <div class="summary-header"><span class="summary-title" id="summaryTitle">RUNDAN KLAR</span><button class="summary-x" id="closeSummary">&#x2715;</button></div>
+    <div id="summaryBody"></div>
+  </div>
+</div>
+<!-- Settings modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">INST&#196;LLNINGAR</span><button class="modal-x" id="closeSettings">&#x2715;</button></div>
+    <div class="modal-body">
+      <div class="settings-mode-indicator" id="settingsModeLabel">EVIL NINE</div>
+      <!-- Evil Nine settings -->
+      <div class="settings-section active" id="en-settings">
         <div class="settings-group">
           <div class="sg-title">SPELARE</div>
           <div class="settings-grid3">
-            <div class="sf"><label class="sf-label" id="labelNameA">SPELARE 1</label><input id="nameA" type="text" placeholder="NAMN" /></div>
-            <div class="sf"><label class="sf-label" id="labelNameB">SPELARE 2</label><input id="nameB" type="text" placeholder="NAMN" /></div>
-            <div class="sf"><label class="sf-label" id="labelNameC">SPELARE 3</label><input id="nameC" type="text" placeholder="NAMN" /></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="hcpA" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="hcpB" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="hcpC" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+            <div class="sf"><label class="sf-label" id="en-labelNameA">SPELARE 1</label><input id="en-nameA" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label" id="en-labelNameB">SPELARE 2</label><input id="en-nameB" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label" id="en-labelNameC">SPELARE 3</label><input id="en-nameC" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpA" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpB" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpC" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
           </div>
         </div>
         <div class="settings-group">
           <div class="sg-title">BANA</div>
           <div class="settings-grid2">
-            <div class="sf"><label class="sf-label">V&#196;LJ BANA</label><select id="courseSelect"></select></div>
-            <div class="sf"><label class="sf-label">TEE</label><select id="teeSelect"><option value="">&#8211;</option></select></div>
+            <div class="sf"><label class="sf-label">V&#196;LJ BANA</label><select id="en-courseSelect"></select></div>
+            <div class="sf"><label class="sf-label">TEE</label><select id="en-teeSelect"><option value="">&#8211;</option></select></div>
           </div>
         </div>
         <div class="settings-group">
           <div class="sg-title">SPELREGLER</div>
           <div class="settings-grid2">
-            <div class="sf"><label class="sf-label">KR / PO&#196;NG (START)</label><input id="krPerPoint" type="number" value="10" min="1" /></div>
-            <div class="sf"><label class="sf-label">MAX H&#197;L</label><select id="maxHoles"><option value="9">9 h&#229;l</option><option value="18" selected>18 h&#229;l</option></select></div>
-            <div class="sf"><label class="sf-label">INMATNINGSTYP</label><select id="inputMode"><option value="points" selected>Po&#228;ng</option><option value="strokes">Slag/netto</option><option value="brutto">Slag/brutto</option></select></div>
-            <div class="sf"><label class="sf-label">EVIL NINE-TR&#214;SKEL</label><input id="evilThreshold" type="number" value="2" min="1" /></div>
-            <div class="sf"><label class="sf-label">BETALMODELL</label><select id="payMode"><option value="leader-diff" selected>Alla &#x2192; ledaren</option><option value="pairwise">Parvis</option></select></div>
+            <div class="sf"><label class="sf-label">KR / PO&#196;NG (START)</label><input id="en-krPerPoint" type="number" value="10" min="1" /></div>
+            <div class="sf"><label class="sf-label">MAX H&#197;L</label><select id="en-maxHoles"><option value="9">9 h&#229;l</option><option value="18" selected>18 h&#229;l</option></select></div>
+            <div class="sf"><label class="sf-label">STARTANDE H&#197;L</label><select id="en-startHole"><option value="1" selected>H&#229;l 1 (ut)</option><option value="10">H&#229;l 10 (in)</option></select></div>
+            <div class="sf"><label class="sf-label">INMATNINGSTYP</label><select id="en-inputMode"><option value="points" selected>Po&#228;ng</option><option value="strokes">Slag/netto</option><option value="brutto">Slag/brutto</option></select></div>
+            <div class="sf"><label class="sf-label">EVIL NINE-TR&#214;SKEL</label><input id="en-evilThreshold" type="number" value="2" min="1" /></div>
+            <div class="sf"><label class="sf-label">BETALMODELL</label><select id="en-payMode"><option value="leader-diff" selected>Alla &#x2192; ledaren</option><option value="pairwise">Parvis</option></select></div>
           </div>
         </div>
-        <div class="settings-group" style="border-bottom:none;">
-          <div class="sg-title">HANTERA RUNDA</div>
-          <button class="save-btn" id="saveSettings">SPARA INST&#196;LLNINGAR</button>
-        </div>
+        <div class="settings-group" style="border-bottom:none"><div class="sg-title">HANTERA RUNDA</div><button class="save-btn" id="en-saveSettings">SPARA INST&#196;LLNINGAR</button></div>
         <div class="danger-group">
-          <div class="danger-confirm" id="resetConfirm" style="display:none;">
-            <span class="danger-confirm-text">&#196;r du s&#228;ker? Po&#228;ng, historik och sparad data raderas.</span>
-            <div class="danger-confirm-btns">
-              <button class="danger-btn-confirm" id="resetConfirmYes">JA, STARTA OM</button>
-              <button class="danger-btn-cancel" id="resetConfirmNo">AVBRYT</button>
-            </div>
+          <div class="danger-confirm" id="en-resetConfirm" style="display:none">
+            <span class="danger-confirm-text">&#196;r du s&#228;ker? All data raderas.</span>
+            <div class="danger-confirm-btns"><button class="danger-btn-confirm" id="en-resetConfirmYes">JA, STARTA OM</button><button class="danger-btn-cancel" id="en-resetConfirmNo">AVBRYT</button></div>
           </div>
-          <button class="danger-btn" id="resetBtn2">STARTA NY RUNDA</button>
+          <button class="danger-btn" id="en-resetBtn2">STARTA NY RUNDA</button>
+        </div>
+      </div>
+      <!-- Taliban settings -->
+      <div class="settings-section" id="tb-settings">
+        <div class="settings-group">
+          <div class="sg-title">SPELARE</div>
+          <div class="settings-grid4">
+            <div class="sf"><label class="sf-label">SPELARE 1</label><input id="tb-name1" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label">SPELARE 2</label><input id="tb-name2" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label">SPELARE 3</label><input id="tb-name3" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label">SPELARE 4</label><input id="tb-name4" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp1" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp2" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp3" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp4" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="sg-title">PARNING</div>
+          <div class="settings-grid2">
+            <div class="sf"><label class="sf-label">LAG 1 &#8212; SPELARE A</label><select id="tb-pair1a"></select></div>
+            <div class="sf"><label class="sf-label">LAG 1 &#8212; SPELARE B</label><select id="tb-pair1b"></select></div>
+            <div class="sf"><label class="sf-label">LAG 2 &#8212; SPELARE A</label><select id="tb-pair2a"></select></div>
+            <div class="sf"><label class="sf-label">LAG 2 &#8212; SPELARE B</label><select id="tb-pair2b"></select></div>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="sg-title">BANA</div>
+          <div class="settings-grid2">
+            <div class="sf"><label class="sf-label">V&#196;LJ BANA</label><select id="tb-courseSelect"></select></div>
+            <div class="sf"><label class="sf-label">TEE</label><select id="tb-teeSelect"><option value="">&#8211;</option></select></div>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="sg-title">SPELREGLER</div>
+          <div class="settings-grid2">
+            <div class="sf"><label class="sf-label">MAX H&#197;L</label><select id="tb-maxHoles"><option value="9">9 h&#229;l</option><option value="18" selected>18 h&#229;l</option></select></div>
+            <div class="sf"><label class="sf-label">STARTANDE H&#197;L</label><select id="tb-startHole"><option value="1" selected>H&#229;l 1 (ut)</option><option value="10">H&#229;l 10 (in)</option></select></div>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="sg-title">INSATSER (KR)</div>
+          <div class="settings-grid3">
+            <div class="sf"><label class="sf-label">UT</label><input id="tb-stakeUt" type="number" value="100" min="0" /></div>
+            <div class="sf"><label class="sf-label">IN</label><input id="tb-stakeIn" type="number" value="100" min="0" /></div>
+            <div class="sf"><label class="sf-label">TOTALT</label><input id="tb-stakeTot" type="number" value="200" min="0" /></div>
+          </div>
+        </div>
+        <div class="settings-group" style="border-bottom:none"><div class="sg-title">HANTERA RUNDA</div><button class="save-btn" id="tb-saveSettings">SPARA INST&#196;LLNINGAR</button></div>
+        <div class="danger-group">
+          <div class="danger-confirm" id="tb-resetConfirm" style="display:none">
+            <span class="danger-confirm-text">&#196;r du s&#228;ker? All data raderas.</span>
+            <div class="danger-confirm-btns"><button class="danger-btn-confirm" id="tb-resetConfirmYes">JA, STARTA OM</button><button class="danger-btn-cancel" id="tb-resetConfirmNo">AVBRYT</button></div>
+          </div>
+          <button class="danger-btn" id="tb-resetBtn2">STARTA NY RUNDA</button>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-  (() => {
-    // ═══════════════════════════════
-    // COURSE DATA
-    // ═══════════════════════════════
-    const COURSES = [
-      {
-        id:"wasaby", name:"W\u00e4sby GK", par:72,
-        holes:[
-          {par:4,si:9},{par:3,si:17},{par:5,si:3},{par:4,si:11},{par:4,si:5},{par:3,si:15},
-          {par:5,si:1},{par:4,si:13},{par:4,si:7},{par:4,si:10},{par:3,si:16},{par:5,si:4},
-          {par:4,si:12},{par:4,si:6},{par:3,si:18},{par:5,si:2},{par:4,si:14},{par:4,si:8}
-        ],
-        tees:[
-          {name:"Vit",cr:74.0,slope:141},{name:"Gul",cr:71.9,slope:137},
-          {name:"Bl\u00e5",cr:69.5,slope:131},{name:"R\u00f6d",cr:67.6,slope:128}
-        ]
-      },
-      {
-        id:"brohof_stadium", name:"Bro Hof Stadium", par:72,
-        holes:[
-          {par:4,si:7},{par:5,si:11},{par:3,si:17},{par:4,si:3},{par:4,si:13},{par:3,si:15},
-          {par:5,si:1},{par:4,si:5},{par:4,si:9},{par:4,si:6},{par:3,si:18},{par:5,si:2},
-          {par:4,si:10},{par:4,si:4},{par:3,si:16},{par:5,si:8},{par:4,si:14},{par:4,si:12}
-        ],
-        tees:[
-          {name:"Vit",cr:77.3,slope:148},{name:"Gul",cr:73.1,slope:132},
-          {name:"Bl\u00e5",cr:72.0,slope:132},{name:"R\u00f6d",cr:67.9,slope:122}
-        ]
-      },
-      {
-        id:"brohof_castle", name:"Bro Hof Castle", par:72,
-        holes:[
-          {par:4,si:8},{par:4,si:4},{par:3,si:16},{par:5,si:2},{par:4,si:12},{par:4,si:6},
-          {par:3,si:18},{par:5,si:10},{par:4,si:14},{par:4,si:7},{par:4,si:3},{par:3,si:17},
-          {par:5,si:1},{par:4,si:11},{par:4,si:5},{par:3,si:15},{par:5,si:9},{par:4,si:13}
-        ],
-        tees:[
-          {name:"Vit",cr:74.2,slope:145},{name:"Gul",cr:71.2,slope:139},
-          {name:"Bl\u00e5",cr:68.9,slope:133},{name:"R\u00f6d",cr:65.3,slope:127}
-        ]
-      },
-      {
-        id:"osteraker", name:"\u00d6ster\u00e5ker GK", par:72,
-        holes:[
-          {par:4,si:5},{par:3,si:15},{par:5,si:1},{par:4,si:11},{par:4,si:7},{par:3,si:17},
-          {par:5,si:3},{par:4,si:13},{par:4,si:9},{par:4,si:6},{par:3,si:16},{par:5,si:2},
-          {par:4,si:12},{par:4,si:8},{par:3,si:18},{par:5,si:4},{par:4,si:14},{par:4,si:10}
-        ],
-        tees:[
-          {name:"Vit",cr:73.2,slope:131},{name:"Gul",cr:70.6,slope:129},
-          {name:"Bl\u00e5",cr:67.9,slope:124},{name:"R\u00f6d",cr:64.9,slope:117}
-        ]
-      },
-      {
-        id:"omberg", name:"Omberg GK", par:72,
-        holes:[
-          {par:4,si:7},{par:3,si:15},{par:5,si:3},{par:4,si:11},{par:4,si:5},{par:3,si:17},
-          {par:5,si:1},{par:4,si:13},{par:4,si:9},{par:4,si:8},{par:3,si:16},{par:5,si:2},
-          {par:4,si:12},{par:4,si:6},{par:3,si:18},{par:5,si:4},{par:4,si:14},{par:4,si:10}
-        ],
-        tees:[
-          {name:"Vit",cr:72.4,slope:135},{name:"Gul",cr:70.8,slope:132},
-          {name:"Bl\u00e5",cr:67.8,slope:126},{name:"R\u00f6d",cr:66.3,slope:123}
-        ]
-      }
-    ];
+<script>
+(() => {
+  const COURSES = [
+    { id:"wasaby", name:"W\u00e4sby GK", par:72,
+      holes:[{par:4,si:11},{par:3,si:17},{par:4,si:3},{par:4,si:13},{par:3,si:9},{par:5,si:1},{par:4,si:7},{par:4,si:15},{par:4,si:5},{par:4,si:14},{par:5,si:4},{par:3,si:8},{par:4,si:12},{par:4,si:2},{par:4,si:16},{par:3,si:18},{par:4,si:6},{par:4,si:10}],
+      tees:[{name:"Vit",cr:74.0,slope:141},{name:"Gul",cr:71.9,slope:137},{name:"Bl\u00e5",cr:69.5,slope:131},{name:"R\u00f6d",cr:67.6,slope:128}]},
+    { id:"brohof_stadium", name:"Bro Hof Stadium", par:72,
+      holes:[{par:5,si:8},{par:4,si:4},{par:4,si:18},{par:3,si:16},{par:4,si:2},{par:4,si:14},{par:3,si:12},{par:4,si:10},{par:5,si:6},{par:4,si:3},{par:3,si:15},{par:5,si:7},{par:5,si:9},{par:4,si:17},{par:5,si:1},{par:3,si:11},{par:3,si:5},{par:4,si:13}],
+      tees:[{name:"Vit",cr:77.3,slope:148},{name:"Gul",cr:73.1,slope:132},{name:"Bl\u00e5",cr:72.0,slope:132},{name:"R\u00f6d",cr:67.9,slope:122}]},
+    { id:"brohof_castle", name:"Bro Hof Castle", par:72,
+      holes:[{par:5,si:5},{par:3,si:13},{par:4,si:11},{par:3,si:9},{par:5,si:7},{par:4,si:1},{par:3,si:17},{par:4,si:15},{par:5,si:3},{par:5,si:4},{par:3,si:16},{par:3,si:18},{par:5,si:6},{par:4,si:14},{par:5,si:2},{par:4,si:12},{par:3,si:10},{par:4,si:8}],
+      tees:[{name:"Vit",cr:74.2,slope:145},{name:"Gul",cr:71.2,slope:139},{name:"Bl\u00e5",cr:68.9,slope:133},{name:"R\u00f6d",cr:65.3,slope:127}]},
+    { id:"osteraker", name:"\u00d6ster by Stenson", par:72,
+      holes:[{par:4,si:11},{par:4,si:15},{par:4,si:1},{par:3,si:17},{par:5,si:7},{par:4,si:3},{par:3,si:13},{par:5,si:9},{par:4,si:5},{par:4,si:10},{par:3,si:18},{par:4,si:2},{par:5,si:12},{par:4,si:14},{par:3,si:4},{par:4,si:16},{par:4,si:8},{par:5,si:6}],
+      tees:[{name:"Vit",cr:73.2,slope:131},{name:"Gul",cr:70.6,slope:129},{name:"Bl\u00e5",cr:67.9,slope:124},{name:"R\u00f6d",cr:64.9,slope:117}]},
+    { id:"omberg", name:"Omberg GK", par:71,
+      holes:[{par:4,si:11},{par:4,si:17},{par:4,si:1},{par:4,si:13},{par:3,si:9},{par:4,si:7},{par:4,si:5},{par:5,si:3},{par:3,si:15},{par:4,si:10},{par:3,si:16},{par:4,si:12},{par:3,si:18},{par:5,si:4},{par:3,si:14},{par:5,si:8},{par:4,si:2},{par:5,si:6}],
+      tees:[{name:"Vit",cr:72.4,slope:135},{name:"Gul",cr:70.8,slope:132},{name:"Bl\u00e5",cr:67.8,slope:126},{name:"R\u00f6d",cr:66.3,slope:123}]}
+  ];
 
-    // ═══════════════════════════════
-    // HCP HELPERS
-    // ═══════════════════════════════
-    function playingHcp(hcp, slope) { return Math.round(hcp * (slope / 113)); }
-    function extraStrokes(playHcp, si) {
-      if (playHcp <= 0) return 0;
-      let s = 0;
-      if (si <= playHcp) s++;
-      if (si <= (playHcp - 18)) s++;
-      return s;
+  const $ = id => document.getElementById(id);
+  let activeMode = 'en';
+
+  // ── HCP ──
+  function playHcp(hcp,slope){return Math.round(hcp*(slope/113));}
+  function extraStrokes(ph,si){if(ph<=0)return 0;let s=0;if(si<=ph)s++;if(si<=ph-18)s++;return s;}
+  function b2sf(brutto,par,ex){return Math.max(0,2-(brutto-par-ex));}
+  function netto(brutto,par,ex){return brutto-par-ex;}
+
+  // ── COURSE DROPDOWNS ──
+  function buildCourseDd(selId){
+    const s=$(selId);s.innerHTML='<option value="">Ingen bana</option>';
+    COURSES.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;s.appendChild(o);});
+  }
+  function buildTeeDd(selId,courseId){
+    const s=$(selId);s.innerHTML='<option value="">\u2013</option>';
+    if(!courseId)return;
+    const c=COURSES.find(x=>x.id===courseId);if(!c)return;
+    c.tees.forEach(t=>{const o=document.createElement('option');o.value=t.name;o.textContent=t.name+' (CR '+t.cr+' / Slope '+t.slope+')';s.appendChild(o);});
+  }
+  function getCourse(csel){const id=$(csel).value;return id?COURSES.find(c=>c.id===id)||null:null;}
+  function getTee(csel,tsel){const c=getCourse(csel);if(!c)return null;const n=$(tsel).value;return n?c.tees.find(t=>t.name===n)||null:null;}
+  function courseActive(csel,tsel){return !!(getCourse(csel)&&getTee(csel,tsel));}
+
+  function updateCourseBar(csel,tsel){
+    const c=getCourse(csel),t=getTee(csel,tsel);
+    if(c&&t){$('courseBarName').textContent=c.name.toUpperCase();$('courseBarTee').textContent=t.name+' \u00b7 CR '+t.cr+' \u00b7 Slope '+t.slope;$('courseBarPar').textContent='Par '+c.par;$('courseBar').classList.add('visible');}
+    else $('courseBar').classList.remove('visible');
+  }
+  function updateParBadge(badgeId,csel,hole){
+    const c=getCourse(csel);
+    if(c&&hole>=1&&hole<=c.holes.length){const hd=c.holes[hole-1];$(badgeId).textContent='PAR '+hd.par+' \u00b7 SI '+hd.si;$(badgeId).classList.add('visible');}
+    else $(badgeId).classList.remove('visible');
+  }
+
+  // ── MODE SWITCHER ──
+  $('modeBtn').addEventListener('click',()=>{
+    activeMode=activeMode==='en'?'tb':'en';
+    $('viewEN').classList.toggle('active',activeMode==='en');
+    $('viewTB').classList.toggle('active',activeMode==='tb');
+    $('appTitle').innerHTML=activeMode==='en'?'EVIL <em>NINE</em>':'B\u00c4STBOLL <em>TALIBAN</em>';
+    $('modeBtnLabel').textContent=activeMode==='en'?'Taliban':'Evil Nine';
+    $('openPayments').classList.toggle('hidden',activeMode==='tb');
+    $('tb-openPayments').classList.toggle('hidden',activeMode==='en');
+    $('en-settings').classList.toggle('active',activeMode==='en');
+    $('tb-settings').classList.toggle('active',activeMode==='tb');
+    $('settingsModeLabel').textContent=activeMode==='en'?'EVIL NINE':'B\u00c4STBOLL TALIBAN';
+    if(activeMode==='en')updateCourseBar('en-courseSelect','en-teeSelect');
+    else updateCourseBar('tb-courseSelect','tb-teeSelect');
+    localStorage.setItem('golfActiveMode',activeMode);
+  });
+
+  // ════════════════════════════════
+  // EVIL NINE
+  // ════════════════════════════════
+  const EN_KEY='evilNine_v6_state';
+  const enS={scores:[0,0,0],history:[],usedDouble:[false,false,false],krStart:10,krNow:10,maxHoles:18,hole:1};
+  let enUndo=[];
+
+  buildCourseDd('en-courseSelect');
+  $('en-courseSelect').addEventListener('change',()=>{buildTeeDd('en-teeSelect',$('en-courseSelect').value);if($('en-courseSelect').value)$('en-inputMode').value='brutto';});
+
+  function enNames(){return [0,1,2].map(i=>($(['en-nameA','en-nameB','en-nameC'][i]).value||'').trim()||'Spelare '+(i+1));}
+  function enCA(){return courseActive('en-courseSelect','en-teeSelect');}
+  function enCourse(){return getCourse('en-courseSelect');}
+  function enTee(){return getTee('en-courseSelect','en-teeSelect');}
+  function enHcps(){const t=enTee();if(!t)return[0,0,0];return[$('en-hcpA'),$('en-hcpB'),$('en-hcpC')].map(el=>playHcp(parseFloat(el.value)||0,t.slope));}
+
+  function enStrokeBadges(){
+    const bs=[$('en-strokeBadgeA'),$('en-strokeBadgeB'),$('en-strokeBadgeC')];
+    if(!enCA()){bs.forEach(b=>b.textContent='');return;}
+    const c=enCourse(),h=Number($('en-holeNo').value)||enS.hole;
+    if(!c||h<1||h>c.holes.length){bs.forEach(b=>b.textContent='');return;}
+    const hd=c.holes[h-1],ph=enHcps();
+    ph.forEach((p,i)=>{const ex=extraStrokes(p,hd.si);bs[i].textContent=ex>0?'\u25cf'.repeat(ex):'';});
+  }
+
+  function enUpdateDblDd(){
+    const names=enNames(),h=Number($('en-holeNo').value)||enS.hole;
+    $('en-doubleWho').innerHTML='<option value="">Ingen</option>';
+    const hints=[];
+    if(h>=12){
+      const m=Math.min(...enS.scores),elig=enS.scores.map((v,i)=>v===m&&!enS.usedDouble[i]?i:-1).filter(i=>i!==-1);
+      if(elig.length){elig.forEach(i=>{const o=document.createElement('option');o.value=i;o.textContent=names[i];$('en-doubleWho').appendChild(o);});hints.push('H\u00c5L '+h+': '+elig.map(i=>names[i]).join(' & ')+' kan pressa.');}
+      else hints.push('H\u00c5L '+h+': Press redan anv\u00e4nd.');
     }
-    function bruttoToStableford(brutto, par, extra) {
-      return Math.max(0, 2 - (brutto - par - extra));
-    }
+    if(enCA()){const c=enCourse(),hd=c.holes[h-1];if(hd){const ph=enHcps(),ex=ph.map(p=>extraStrokes(p,hd.si));hints.push('Extra slag \u2192 '+ex.map((e,i)=>names[i].split(' ')[0]+': '+(e>0?'+'+e:'0')).join(' \u00b7 '));}}
+    $('en-hint').textContent=hints.join('  |  ');
+  }
 
-    // ═══════════════════════════════
-    // ELEMENTS
-    // ═══════════════════════════════
-    const STORAGE_KEY = "evilNine_v5_state";
-    const $ = id => document.getElementById(id);
-    const els = {
-      labelNameA:$('labelNameA'), labelNameB:$('labelNameB'), labelNameC:$('labelNameC'),
-      nameA:$('nameA'), nameB:$('nameB'), nameC:$('nameC'),
-      hcpA:$('hcpA'), hcpB:$('hcpB'), hcpC:$('hcpC'),
-      krPerPoint:$('krPerPoint'), maxHoles:$('maxHoles'), inputMode:$('inputMode'),
-      evilThreshold:$('evilThreshold'), payMode:$('payMode'),
-      courseSelect:$('courseSelect'), teeSelect:$('teeSelect'),
-      holeNo:$('holeNo'), doubleWho:$('doubleWho'),
-      labelInputA:$('labelInputA'), labelInputB:$('labelInputB'), labelInputC:$('labelInputC'),
-      valA:$('valA'), valB:$('valB'), valC:$('valC'),
-      addHoleBtn:$('addHoleBtn'), resetBtn:$('resetBtn'), resetBtn2:$('resetBtn2'), undoBtn:$('undoBtn'),
-      hint:$('hint'),
-      scoreTitleA:$('scoreTitleA'), scoreTitleB:$('scoreTitleB'), scoreTitleC:$('scoreTitleC'),
-      scoreA:$('scoreA'), scoreB:$('scoreB'), scoreC:$('scoreC'),
-      cardA:$('cardA'), cardB:$('cardB'), cardC:$('cardC'),
-      krNow:$('krNow'), doublesUsed:$('doublesUsed'),
-      historyBody:$('historyBody'), historyCount:$('historyCount'),
-      historySection:$('historySection'), historyToggle:$('historyToggle'),
-      modalOverlay:$('modalOverlay'), openSettings:$('openSettings'),
-      closeSettings:$('closeSettings'), saveSettings:$('saveSettings'),
-      openPayments:$('openPayments'), closePayments:$('closePayments'),
-      payModalOverlay:$('payModalOverlay'), payLines:$('payLines'), payKrBadge:$('payKrBadge'),
-      resetConfirmBar:$('resetConfirmBar'),
-      resetConfirmYesInline:$('resetConfirmYesInline'), resetConfirmNoInline:$('resetConfirmNoInline'),
-      courseBar:$('courseBar'), courseBarInner:$('courseBarInner'),
-      courseBarName:$('courseBarName'), courseBarTee:$('courseBarTee'), courseBarPar:$('courseBarPar'),
-      holeParBadge:$('holeParBadge'),
-    };
+  function enCalcPts(raw,holeNum){
+    const mode=$('en-inputMode').value,thr=Math.max(1,Number($('en-evilThreshold').value)||2);
+    let vals=raw.slice(),sf=null;
+    if(mode==='brutto'&&enCA()){const c=enCourse(),hd=c.holes[holeNum-1],ph=enHcps();sf=raw.map((b,i)=>b2sf(b,hd.par,extraStrokes(ph[i],hd.si)));vals=sf;}
+    const low=(mode==='strokes'||(mode==='brutto'&&!enCA()));
+    const sorted=vals.map((v,i)=>({v,i})).sort((a,b)=>low?a.v-b.v:b.v-a.v);
+    const[best,mid,last]=sorted,diff=low?(mid.v-best.v):(best.v-mid.v);
+    let pts,note;
+    if(diff>=thr){pts=[0,0,0];pts[best.i]=9;note='Evil Nine (\u2265'+thr+')';}
+    else if(best.v===mid.v&&mid.v===last.v){pts=[0,0,0];note='Alla lika (0\u20130\u20130)';}
+    else if(best.v===mid.v){pts=[0,0,0];pts[best.i]=3;pts[mid.i]=3;note='Tv\u00e5 delar 1:a (3\u20133\u20130)';}
+    else if(mid.v===last.v){pts=[0,0,0];pts[best.i]=3;note='Ensam vinnare (3\u20130\u20130)';}
+    else{pts=[0,0,0];pts[best.i]=4;pts[mid.i]=2;note='1\u20132\u20133 (4\u20132\u20130)';}
+    return{pts,note,sf};
+  }
 
-    const state = { scores:[0,0,0], history:[], usedDouble:[false,false,false], krStart:10, krNow:10, maxHoles:18, hole:1 };
+  function enTransfers(){
+    const p=enS.scores,kr=enS.krNow,mode=$('en-payMode').value,names=enNames(),res=[];
+    const leader=s=>{let mx=s[0],idx=0;for(let i=1;i<3;i++)if(s[i]>mx){mx=s[i];idx=i;}return idx;};
+    if(mode==='leader-diff'){const l=leader(p);for(let i=0;i<3;i++){if(i===l)continue;const a=(p[l]-p[i])*kr;if(a>0)res.push({from:names[i],to:names[l],amt:a});}}
+    else if(mode==='pairwise'){for(const[i,j]of[[0,1],[0,2],[1,2]]){if(p[i]===p[j])continue;const hi=p[i]>p[j]?i:j,lo=hi===i?j:i;const a=(p[hi]-p[lo])*kr;if(a>0)res.push({from:names[lo],to:names[hi],amt:a});}}
+    return res;
+  }
 
-    // ═══════════════════════════════
-    // COURSE DROPDOWNS
-    // ═══════════════════════════════
-    function buildCourseDropdown() {
-      els.courseSelect.innerHTML = '<option value="">Ingen bana</option>';
-      COURSES.forEach(c => { const o=document.createElement('option'); o.value=c.id; o.textContent=c.name; els.courseSelect.appendChild(o); });
-    }
-    function buildTeeDropdown(courseId) {
-      els.teeSelect.innerHTML = '<option value="">&#8211;</option>';
-      if (!courseId) return;
-      const course = COURSES.find(c=>c.id===courseId);
-      if (!course) return;
-      course.tees.forEach(t => { const o=document.createElement('option'); o.value=t.name; o.textContent=t.name+' (CR '+t.cr+' / Slope '+t.slope+')'; els.teeSelect.appendChild(o); });
-    }
-    els.courseSelect.addEventListener('change', () => {
-      buildTeeDropdown(els.courseSelect.value);
-      if (els.courseSelect.value) els.inputMode.value = 'brutto';
+  function enUI(){
+    const names=enNames();
+    [$('en-scoreTitleA'),$('en-scoreTitleB'),$('en-scoreTitleC')].forEach((el,i)=>el.textContent=names[i].toUpperCase());
+    [$('en-labelNameA'),$('en-labelNameB'),$('en-labelNameC')].forEach((el,i)=>el.textContent=names[i].toUpperCase());
+    [$('en-labelInputA'),$('en-labelInputB'),$('en-labelInputC')].forEach((el,i)=>el.textContent=names[i].toUpperCase().slice(0,8));
+    $('en-scoreA').textContent=enS.scores[0];$('en-scoreB').textContent=enS.scores[1];$('en-scoreC').textContent=enS.scores[2];
+    $('en-krNow').textContent=enS.krNow+' KR';
+    $('en-doublesUsed').textContent=names.map((n,i)=>n+':'+(enS.usedDouble[i]?'\u2713':'\u2013')).join(' ');
+    $('en-undoBtn').disabled=enS.history.length===0;
+    $('en-holeNo').value=enS.hole;
+    enUpdateDblDd();enStrokeBadges();
+    $('en-historyCount').textContent=enS.history.length+' H\u00c5L';
+    $('en-roundCompleteBar').classList.toggle('visible',enS.history.length>=(Number($('en-maxHoles').value)||18));
+    if(activeMode==='en')updateCourseBar('en-courseSelect','en-teeSelect');
+    updateParBadge('en-holeParBadge','en-courseSelect',Number($('en-holeNo').value)||enS.hole);
+    $('openPayments').classList.toggle('has-payments',enTransfers().length>0);
+    enSave();
+  }
+
+  function enAddRow(e,prepend=false){
+    const tr=document.createElement('tr');
+    const slag=e.sf?e.sf.join(' / ')+'<br><span style="font-size:10px;color:var(--chalk-dim)">brutto: '+e.values.join(' / ')+'</span>':e.values.join(' / ');
+    tr.innerHTML='<td>'+e.hole+'</td><td>'+slag+'</td><td>'+e.holePts.join(' / ')+'</td><td class="note-cell">'+e.note+'</td><td style="text-align:right">'+e.after.join(' / ')+'</td>';
+    if(prepend&&$('en-historyBody').firstChild)$('en-historyBody').insertBefore(tr,$('en-historyBody').firstChild);
+    else $('en-historyBody').appendChild(tr);
+  }
+  function enRerender(){$('en-historyBody').innerHTML='';for(let i=enS.history.length-1;i>=0;i--)enAddRow(enS.history[i]);}
+
+  function enUiState(){return{inputMode:$('en-inputMode').value,evilThreshold:$('en-evilThreshold').value,maxHoles:$('en-maxHoles').value,startHole:$('en-startHole').value,krPerPoint:$('en-krPerPoint').value,payMode:$('en-payMode').value,names:[$('en-nameA').value,$('en-nameB').value,$('en-nameC').value],hcps:[$('en-hcpA').value,$('en-hcpB').value,$('en-hcpC').value],courseId:$('en-courseSelect').value,tee:$('en-teeSelect').value};}
+  function enApplyUi(ui){
+    if(!ui)return;
+    if(ui.inputMode)$('en-inputMode').value=ui.inputMode;if(ui.evilThreshold!=null)$('en-evilThreshold').value=ui.evilThreshold;
+    if(ui.maxHoles)$('en-maxHoles').value=ui.maxHoles;if(ui.startHole)$('en-startHole').value=ui.startHole;
+    if(ui.krPerPoint!=null)$('en-krPerPoint').value=ui.krPerPoint;if(ui.payMode)$('en-payMode').value=ui.payMode;
+    const nm=ui.names||['','',''];$('en-nameA').value=nm[0]||'';$('en-nameB').value=nm[1]||'';$('en-nameC').value=nm[2]||'';
+    const hcps=ui.hcps||['','',''];$('en-hcpA').value=hcps[0]||'';$('en-hcpB').value=hcps[1]||'';$('en-hcpC').value=hcps[2]||'';
+    if(ui.courseId){$('en-courseSelect').value=ui.courseId;buildTeeDd('en-teeSelect',ui.courseId);}if(ui.tee)$('en-teeSelect').value=ui.tee;
+  }
+  function enSave(){localStorage.setItem(EN_KEY,JSON.stringify({state:enS,ui:enUiState()}));}
+  function enLoad(){
+    const raw=localStorage.getItem(EN_KEY);if(!raw)return false;
+    try{const p=JSON.parse(raw);if(!p||!p.state)return false;Object.assign(enS,p.state);enApplyUi(p.ui||{});enRerender();return true;}catch(e){return false;}
+  }
+  function enSnap(){return JSON.parse(JSON.stringify({state:enS,ui:{...enUiState(),holeNo:$('en-holeNo').value}}));}
+  function enRestore(snap){
+    Object.assign(enS,snap.state);enApplyUi(snap.ui||{});if(snap.ui&&snap.ui.holeNo)$('en-holeNo').value=snap.ui.holeNo;enRerender();enUI();
+  }
+  function enReset(){
+    enUndo=[];enS.scores=[0,0,0];enS.history=[];enS.usedDouble=[false,false,false];
+    enS.krStart=Number($('en-krPerPoint').value)||10;enS.krNow=enS.krStart;
+    enS.maxHoles=Number($('en-maxHoles').value)||18;enS.hole=Number($('en-startHole').value)||1;
+    enRerender();enSaveClose();
+  }
+  function enAddHole(){
+    const hole=Number($('en-holeNo').value),max=Number($('en-maxHoles').value)||18;
+    enS.maxHoles=max;
+    if(!Number.isFinite(hole)||hole<1||hole>18){alert('Ogiltigt h\u00e5l.');return;}
+    const raw=[Number($('en-valA').value),Number($('en-valB').value),Number($('en-valC').value)];
+    if(raw.some(v=>!Number.isFinite(v))){alert('Fyll i resultat f\u00f6r alla tre spelare.');return;}
+    if($('en-inputMode').value==='brutto'){const c=enCourse(),par=c?c.holes[hole-1].par:4;const sus=raw.filter(v=>v<1||v>par+8);if(sus.length&&!confirm('N\u00e5got slag verkar ovanligt ('+sus.join(', ')+').\nSt\u00e4mmer det?'))return;}
+    enUndo.push(enSnap());enS.hole=hole;
+    const dv=$('en-doubleWho').value===''?null:Number($('en-doubleWho').value);
+    let dNote='';
+    if(dv!=null&&hole>=12&&enS.scores[dv]===Math.min(...enS.scores)&&!enS.usedDouble[dv]){enS.scores=enS.scores.map(s=>Math.floor(s/2));enS.krNow*=2;enS.usedDouble[dv]=true;dNote='Press: kr/p nu '+enS.krNow+'.';}
+    const{pts,note,sf}=enCalcPts(raw,hole);
+    enS.scores=enS.scores.map((s,i)=>s+pts[i]);
+    const m=Math.min(...enS.scores);enS.scores=enS.scores.map(s=>s-m);
+    const entry={hole,values:raw,holePts:pts,sf:sf||null,note:[dNote,note,m>0?'Nedr\u00e4kning: -'+m:'Nedr\u00e4kning: 0'].filter(Boolean).join(' \u2022 '),after:[...enS.scores]};
+    enS.history.push(entry);enAddRow(entry,true);
+    enS.hole=Math.min(hole+1,18);
+    $('en-valA').value='';$('en-valB').value='';$('en-valC').value='';$('en-valA').focus();
+    enUI();if(enS.history.length>=max)setTimeout(()=>openSummary('en'),400);
+  }
+
+  let enSettSnap=null;
+  function enOpenSet(){enSettSnap=enSnap();}
+  function enDiscardSet(){if(enSettSnap)enRestore(enSettSnap);enSettSnap=null;}
+  function enSaveClose(){enSettSnap=null;$('modalOverlay').classList.remove('open');const ns=Number($('en-krPerPoint').value)||10;if(enS.krNow===enS.krStart)enS.krNow=ns;enS.krStart=ns;enUI();}
+
+  $('openPayments').addEventListener('click',()=>{renderPay();$('payModalOverlay').classList.add('open');});
+  $('closePayments').addEventListener('click',()=>$('payModalOverlay').classList.remove('open'));
+  $('payModalOverlay').addEventListener('click',e=>{if(e.target===$('payModalOverlay'))$('payModalOverlay').classList.remove('open');});
+  function renderPay(){
+    $('payKrBadge').textContent=enS.krNow+' KR / PO\u00c4NG';
+    const tr=enTransfers();$('openPayments').classList.toggle('has-payments',tr.length>0);
+    if(!tr.length){$('payLines').innerHTML='<div class="pay-empty">Ingen betalning \u2014 alla \u00e4r lika.</div>';return;}
+    $('payLines').innerHTML=tr.map(t=>'<div class="pay-line"><div><div class="pay-line-names">'+t.from+'</div><div class="pay-line-arrow">\u25bc BETALAR TILL</div><div class="pay-line-names">'+t.to+'</div></div><div class="pay-line-amount">'+t.amt+' KR</div></div>').join('');
+  }
+
+  $('en-addHoleBtn').addEventListener('click',enAddHole);
+  $('en-undoBtn').addEventListener('click',()=>{const s=enUndo.pop();if(s)enRestore(s);});
+  $('en-resetBtn').addEventListener('click',()=>{$('en-resetConfirmBar').classList.add('visible');$('en-resetConfirmBar').scrollIntoView({behavior:'smooth',block:'nearest'});});
+  $('en-resetYes').addEventListener('click',()=>{$('en-resetConfirmBar').classList.remove('visible');enReset();});
+  $('en-resetNo').addEventListener('click',()=>$('en-resetConfirmBar').classList.remove('visible'));
+  $('en-resetBtn2').addEventListener('click',()=>$('en-resetConfirm').style.display='block');
+  $('en-resetConfirmNo').addEventListener('click',()=>$('en-resetConfirm').style.display='none');
+  $('en-resetConfirmYes').addEventListener('click',()=>{localStorage.removeItem(EN_KEY);$('en-resetConfirm').style.display='none';enReset();});
+  $('en-saveSettings').addEventListener('click',enSaveClose);
+  $('en-holeNo').addEventListener('input',()=>{enUpdateDblDd();enStrokeBadges();updateParBadge('en-holeParBadge','en-courseSelect',Number($('en-holeNo').value));});
+  $('en-historyToggle').addEventListener('click',()=>$('en-historySection').classList.toggle('open'));
+  $('en-showSummaryBtn').addEventListener('click',()=>openSummary('en'));
+
+  // ════════════════════════════════
+  // TALIBAN
+  // ════════════════════════════════
+  const TB_KEY='talibanJihad_v2_state';
+  const tbS={history:[],hole:1};
+  let tbUndo=[];
+
+  buildCourseDd('tb-courseSelect');
+  $('tb-courseSelect').addEventListener('change',()=>buildTeeDd('tb-teeSelect',$('tb-courseSelect').value));
+
+  function tbName(i){return($(['tb-name1','tb-name2','tb-name3','tb-name4'][i]).value||'').trim()||'Spelare '+(i+1);}
+  function tbTeams(){return[[parseInt($('tb-pair1a').value),parseInt($('tb-pair1b').value)],[parseInt($('tb-pair2a').value),parseInt($('tb-pair2b').value)]];}
+  function tbTname(t){return tbTeams()[t].map(i=>tbName(i).split(' ')[0]).join(' & ');}
+  function tbCA(){return courseActive('tb-courseSelect','tb-teeSelect');}
+  function tbCourse(){return getCourse('tb-courseSelect');}
+  function tbTee(){return getTee('tb-courseSelect','tb-teeSelect');}
+  function tbHcps(){const t=tbTee();if(!t)return[0,0,0,0];return[1,2,3,4].map(n=>playHcp(parseFloat($('tb-hcp'+n).value)||0,t.slope));}
+
+  function tbBuildPairing(){
+    const ids=['tb-pair1a','tb-pair1b','tb-pair2a','tb-pair2b'];
+    if(ids.some(id=>!$(id))) return;
+    const vals=ids.map(id=>$(id).value);
+    ids.forEach((sid,si)=>{
+      const sel=$(sid),cur=vals[si];
+      const taken=vals.filter((_,i)=>i!==si).map(v=>String(v));
+      sel.innerHTML='';
+      [0,1,2,3].forEach(i=>{
+        if(taken.includes(String(i))) return;
+        const o=document.createElement('option');o.value=i;o.textContent=tbName(i);sel.appendChild(o);
+      });
+      if([...sel.options].some(o=>o.value===cur)) sel.value=cur;
+      else sel.value=sel.options[0]?.value||'0';
     });
-    buildCourseDropdown();
+  }
+  [1,2,3,4].forEach(n=>{ const el=$('tb-name'+n); if(el) el.addEventListener('input',tbBuildPairing); });
+  ['tb-pair1a','tb-pair1b','tb-pair2a','tb-pair2b'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('change',tbBuildPairing); });
 
-    function getActiveCourse() { const id=els.courseSelect.value; return id ? COURSES.find(c=>c.id===id)||null : null; }
-    function getActiveTee() { const c=getActiveCourse(); if(!c) return null; const n=els.teeSelect.value; return n ? c.tees.find(t=>t.name===n)||null : null; }
-    function courseIsActive() { return !!(getActiveCourse() && getActiveTee()); }
-    function getPlayingHcps() {
-      const tee=getActiveTee();
-      if (!tee) return [0,0,0];
-      return [
-        playingHcp(parseFloat(els.hcpA.value)||0, tee.slope),
-        playingHcp(parseFloat(els.hcpB.value)||0, tee.slope),
-        playingHcp(parseFloat(els.hcpC.value)||0, tee.slope),
-      ];
+  function tbColors(){
+    const teams=tbTeams();
+    [1,2,3,4].forEach(n=>{$('tb-col'+n).classList.remove('team1','team2');$('tb-badge'+n).textContent='';$('tb-badge'+n).className='team-badge';});
+    teams[0].forEach(i=>{$('tb-col'+(i+1)).classList.add('team1');$('tb-badge'+(i+1)).textContent='LAG 1';$('tb-badge'+(i+1)).className='team-badge t1';});
+    teams[1].forEach(i=>{$('tb-col'+(i+1)).classList.add('team2');$('tb-badge'+(i+1)).textContent='LAG 2';$('tb-badge'+(i+1)).className='team-badge t2';});
+  }
+
+  function tbCalcScore(){
+    const ut={w1:0,w2:0,d:0},inp={w1:0,w2:0,d:0};
+    tbS.history.forEach(e=>{const p=e.hole<=9?ut:inp;if(e.winner===0)p.w1++;else if(e.winner===1)p.w2++;else p.d++;});
+    return{ut,in:inp,tot:{w1:ut.w1+inp.w1,w2:ut.w2+inp.w2,d:ut.d+inp.d}};
+  }
+
+  function tbCalcHole(bruttos,holeNum){
+    let nettos;
+    if(tbCA()){const c=tbCourse(),hd=c.holes[holeNum-1],ph=tbHcps();nettos=bruttos.map((b,i)=>netto(b,hd.par,extraStrokes(ph[i],hd.si)));}
+    else nettos=bruttos.slice();
+    const teams=tbTeams(),tn=teams.map(t=>t.map(i=>nettos[i]));
+    const best=tn.map(ns=>Math.min(...ns)),worst=tn.map(ns=>Math.max(...ns));
+    let winner,note;
+    if(best[0]<best[1]){winner=0;note='B\u00e4stboll: '+best[0]+' mot '+best[1];}
+    else if(best[1]<best[0]){winner=1;note='B\u00e4stboll: '+best[1]+' mot '+best[0];}
+    else{
+      note='Lika b\u00e4stboll ('+best[0]+') \u2192 Taliban: '+worst[0]+' mot '+worst[1];
+      if(worst[0]<worst[1])winner=0;else if(worst[1]<worst[0])winner=1;else{winner=2;note='Lika b\u00e4stboll och s\u00e4mstboll \u2192 Delat h\u00e5l';}
     }
+    return{nettos,best,worst,winner,note};
+  }
 
-    // ═══════════════════════════════
-    // SETTINGS MODAL
-    // ═══════════════════════════════
-    let settingsSnapshot = null;
-    function captureSnap() {
-      return { nameA:els.nameA.value, nameB:els.nameB.value, nameC:els.nameC.value,
-        hcpA:els.hcpA.value, hcpB:els.hcpB.value, hcpC:els.hcpC.value,
-        krPerPoint:els.krPerPoint.value, maxHoles:els.maxHoles.value,
-        inputMode:els.inputMode.value, evilThreshold:els.evilThreshold.value,
-        payMode:els.payMode.value, courseId:els.courseSelect.value, tee:els.teeSelect.value };
+  function tbUI(){
+    const t1=tbTname(0),t2=tbTname(1);
+    $('tb-team1Name').textContent=t1;$('tb-team2Name').textContent=t2;
+    const teams=tbTeams(),ph=tbHcps();
+    $('tb-team1Players').innerHTML=teams[0].map(i=>tbName(i)+(tbCA()?' (spel-hcp: '+ph[i]+')':'')).join('<br>');
+    $('tb-team2Players').innerHTML=teams[1].map(i=>tbName(i)+(tbCA()?' (spel-hcp: '+ph[i]+')':'')).join('<br>');
+    [1,2,3,4].forEach(n=>$('tb-labelP'+n).textContent=tbName(n-1).toUpperCase().slice(0,8));
+    tbColors();
+    const sc=tbCalcScore();
+    function sl(w1,w2,d){if(!w1&&!w2&&!d)return{txt:'\u2013',cls:''};const net=w1-w2;return{txt:w1+'\u2013'+w2+(d?' ('+d+'d)':''),cls:net>0?'lead':'',win:net>0?t1:net<0?t2:null};}
+    const ul=sl(sc.ut.w1,sc.ut.w2,sc.ut.d),il=sl(sc.in.w1,sc.in.w2,sc.in.d),tl=sl(sc.tot.w1,sc.tot.w2,sc.tot.d);
+    $('tb-scoreUt').innerHTML=ul.txt;$('tb-scoreUt').className='score-val'+(ul.cls?' '+ul.cls:'');
+    $('tb-scoreIn').innerHTML=il.txt;$('tb-scoreIn').className='score-val'+(il.cls?' '+il.cls:'');
+    $('tb-scoreTot').innerHTML=tl.txt;$('tb-scoreTot').className='score-val'+(tl.cls?' '+tl.cls:'');
+    $('tb-resultUt').textContent=ul.win?'Leder: '+ul.win:'';
+    $('tb-resultIn').textContent=il.win?'Leder: '+il.win:'';
+    $('tb-resultTot').textContent=tl.win?'Leder: '+tl.win:'';
+    $('tb-holeNo').value=tbS.hole;
+    $('tb-undoBtn').disabled=tbS.history.length===0;
+    $('tb-historyCount').textContent=tbS.history.length+' H\u00c5L';
+    $('tb-roundCompleteBar').classList.toggle('visible',tbS.history.length>=(Number($('tb-maxHoles').value)||18));
+    if(activeMode==='tb')updateCourseBar('tb-courseSelect','tb-teeSelect');
+    updateParBadge('tb-holeParBadge','tb-courseSelect',Number($('tb-holeNo').value)||tbS.hole);
+    if(tbCA()){const h=Number($('tb-holeNo').value)||tbS.hole,c=tbCourse(),hd=c.holes[h-1];if(hd){const ex=ph.map(p=>extraStrokes(p,hd.si));$('tb-hint').textContent='Extra slag \u2192 '+[0,1,2,3].map(i=>tbName(i).split(' ')[0]+': '+(ex[i]>0?'+'+ex[i]:'0')).join(' \u00b7 ');}else $('tb-hint').textContent='';}else $('tb-hint').textContent='';
+    tbSave();
+  }
+
+  function tbAddRow(e,prepend=false){
+    const tr=document.createElement('tr'),teams=tbTeams();
+    const t1s=teams[0].map(i=>e.nettos[i]).join('/'),t2s=teams[1].map(i=>e.nettos[i]).join('/');
+    const wc=e.winner===0?'win':e.winner===1?'loss':'draw';
+    const wt=e.winner===0?tbTname(0)+' vinner':e.winner===1?tbTname(1)+' vinner':'Delat';
+    tr.innerHTML='<td>'+e.hole+'</td><td>'+t1s+' <span style="font-size:10px;color:var(--chalk-dim)">('+e.best[0]+')</span></td><td>'+t2s+' <span style="font-size:10px;color:var(--chalk-dim)">('+e.best[1]+')</span></td><td class="'+wc+'">'+wt+'</td><td class="note-cell">'+e.note+'</td>';
+    if(prepend&&$('tb-historyBody').firstChild)$('tb-historyBody').insertBefore(tr,$('tb-historyBody').firstChild);
+    else $('tb-historyBody').appendChild(tr);
+  }
+  function tbRerender(){$('tb-historyBody').innerHTML='';for(let i=tbS.history.length-1;i>=0;i--)tbAddRow(tbS.history[i]);}
+
+  function tbUiState(){return{names:[1,2,3,4].map(n=>$('tb-name'+n).value),hcps:[1,2,3,4].map(n=>$('tb-hcp'+n).value),pair1a:$('tb-pair1a').value,pair1b:$('tb-pair1b').value,pair2a:$('tb-pair2a').value,pair2b:$('tb-pair2b').value,courseId:$('tb-courseSelect').value,tee:$('tb-teeSelect').value,maxHoles:$('tb-maxHoles').value,startHole:$('tb-startHole').value,stakeUt:$('tb-stakeUt').value,stakeIn:$('tb-stakeIn').value,stakeTot:$('tb-stakeTot').value};}
+  function tbApplyUi(ui){
+    if(!ui)return;
+    const nm=ui.names||['','','',''];[1,2,3,4].forEach((n,i)=>$('tb-name'+n).value=nm[i]||'');
+    const hcps=ui.hcps||['','','',''];[1,2,3,4].forEach((n,i)=>$('tb-hcp'+n).value=hcps[i]||'');
+    tbBuildPairing();
+    if(ui.pair1a!=null)$('tb-pair1a').value=ui.pair1a;if(ui.pair1b!=null)$('tb-pair1b').value=ui.pair1b;
+    if(ui.pair2a!=null)$('tb-pair2a').value=ui.pair2a;if(ui.pair2b!=null)$('tb-pair2b').value=ui.pair2b;
+    if(ui.courseId){$('tb-courseSelect').value=ui.courseId;buildTeeDd('tb-teeSelect',ui.courseId);}if(ui.tee)$('tb-teeSelect').value=ui.tee;
+    if(ui.maxHoles)$('tb-maxHoles').value=ui.maxHoles;if(ui.startHole)$('tb-startHole').value=ui.startHole;
+    if(ui.stakeUt!=null)$('tb-stakeUt').value=ui.stakeUt;
+    if(ui.stakeIn!=null)$('tb-stakeIn').value=ui.stakeIn;
+    if(ui.stakeTot!=null)$('tb-stakeTot').value=ui.stakeTot;
+  }
+
+  function tbCalcPayments(){
+    const sc=tbCalcScore();
+    const stakes={ut:Number($('tb-stakeUt').value)||0,in:Number($('tb-stakeIn').value)||0,tot:Number($('tb-stakeTot').value)||0};
+    const teams=tbGetTeams();
+    const payments=[];
+    // Ut
+    if(sc.ut.w1>sc.ut.w2&&stakes.ut>0){
+      teams[1].forEach(loser=>teams[0].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.ut,part:'UT'})));
+    } else if(sc.ut.w2>sc.ut.w1&&stakes.ut>0){
+      teams[0].forEach(loser=>teams[1].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.ut,part:'UT'})));
     }
-    function applySnap(s) {
-      if (!s) return;
-      els.nameA.value=s.nameA; els.nameB.value=s.nameB; els.nameC.value=s.nameC;
-      els.hcpA.value=s.hcpA||""; els.hcpB.value=s.hcpB||""; els.hcpC.value=s.hcpC||"";
-      els.krPerPoint.value=s.krPerPoint; els.maxHoles.value=s.maxHoles;
-      els.inputMode.value=s.inputMode; els.evilThreshold.value=s.evilThreshold; els.payMode.value=s.payMode;
-      els.courseSelect.value=s.courseId||""; buildTeeDropdown(s.courseId||""); els.teeSelect.value=s.tee||"";
+    // In
+    if(sc.in.w1>sc.in.w2&&stakes.in>0){
+      teams[1].forEach(loser=>teams[0].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.in,part:'IN'})));
+    } else if(sc.in.w2>sc.in.w1&&stakes.in>0){
+      teams[0].forEach(loser=>teams[1].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.in,part:'IN'})));
     }
-    function openModal() { settingsSnapshot=captureSnap(); els.modalOverlay.classList.add('open'); }
-    function discardAndClose() { applySnap(settingsSnapshot); settingsSnapshot=null; els.modalOverlay.classList.remove('open'); updateUI(); }
-    function saveAndClose() {
-      const newStart=Number(els.krPerPoint.value)||10;
-      if (state.krNow===state.krStart) state.krNow=newStart;
-      state.krStart=newStart; settingsSnapshot=null; els.modalOverlay.classList.remove('open'); updateUI();
+    // Tot
+    if(sc.tot.w1>sc.tot.w2&&stakes.tot>0){
+      teams[1].forEach(loser=>teams[0].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.tot,part:'TOTALT'})));
+    } else if(sc.tot.w2>sc.tot.w1&&stakes.tot>0){
+      teams[0].forEach(loser=>teams[1].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.tot,part:'TOTALT'})));
     }
+    return payments;
+  }
 
-    // ═══════════════════════════════
-    // PAYMENT MODAL
-    // ═══════════════════════════════
-    els.openPayments.addEventListener('click', () => { renderPay(); els.payModalOverlay.classList.add('open'); });
-    els.closePayments.addEventListener('click', () => els.payModalOverlay.classList.remove('open'));
-    els.payModalOverlay.addEventListener('click', e => { if(e.target===els.payModalOverlay) els.payModalOverlay.classList.remove('open'); });
-    function renderPay() {
-      const [a,b,c]=displayNames(), names=[a,b,c], p=state.scores, kr=state.krNow, mode=els.payMode.value;
-      els.payKrBadge.textContent=kr+' KR / PO\u00c4NG';
-      const transfers=[];
-      if (mode==="leader-diff") { const l=idxLeader(p); for(let i=0;i<3;i++){if(i===l)continue;const amt=(p[l]-p[i])*kr;if(amt>0)transfers.push({from:names[i],to:names[l],amt});} }
-      else if (mode==="pairwise") { for(const [i,j] of [[0,1],[0,2],[1,2]]){if(p[i]===p[j])continue;const hi=p[i]>p[j]?i:j,lo=hi===i?j:i;const amt=(p[hi]-p[lo])*kr;if(amt>0)transfers.push({from:names[lo],to:names[hi],amt});} }
-      els.openPayments.classList.toggle('has-payments', transfers.length>0);
-      if (!transfers.length) { els.payLines.innerHTML='<div class="pay-empty">Ingen betalning \u2014 alla \u00e4r lika.</div>'; return; }
-      els.payLines.innerHTML=transfers.map(t=>'<div class="pay-line"><div><div class="pay-line-names">'+t.from+'</div><div class="pay-line-arrow">\u25bc BETALAR TILL</div><div class="pay-line-names">'+t.to+'</div></div><div class="pay-line-amount">'+t.amt+' KR</div></div>').join('');
+  function tbRenderPay(){
+    const payments=tbCalcPayments();
+    $('tb-openPayments').classList.toggle('has-payments',payments.length>0);
+    const overlay=$('payModalOverlay');
+    const badge=$('payKrBadge');
+    const lines=$('payLines');
+    badge.textContent='UT '+($('tb-stakeUt').value||0)+' kr \u00b7 IN '+($('tb-stakeIn').value||0)+' kr \u00b7 TOTALT '+($('tb-stakeTot').value||0)+' kr';
+    if(!payments.length){lines.innerHTML='<div class="pay-empty">Ingen betalning \u2014 j\u00e4mnt!</div>';return;}
+    // Group by person paying
+    const grouped={};
+    payments.forEach(p=>{
+      const key=p.from+'->'+p.to;
+      if(!grouped[key])grouped[key]={from:p.from,to:p.to,amt:0,parts:[]};
+      grouped[key].amt+=p.amt;grouped[key].parts.push(p.part);
+    });
+    lines.innerHTML=Object.values(grouped).map(p=>'<div class="pay-line"><div><div class="pay-line-names">'+p.from+'</div><div class="pay-line-arrow">\u25bc BETALAR TILL</div><div class="pay-line-names">'+p.to+'</div><div style="font-family:\'Courier Prime\',monospace;font-size:10px;color:var(--chalk-dim);margin-top:4px">'+p.parts.join(' + ')+'</div></div><div class="pay-line-amount">'+p.amt+' KR</div></div>').join('');
+    overlay.classList.add('open');
+  }
+  function tbSave(){localStorage.setItem(TB_KEY,JSON.stringify({state:tbS,ui:tbUiState()}));}
+  function tbLoad(){const raw=localStorage.getItem(TB_KEY);if(!raw)return false;try{const p=JSON.parse(raw);if(!p||!p.state)return false;Object.assign(tbS,p.state);tbApplyUi(p.ui||{});tbRerender();return true;}catch(e){return false;}}
+  function tbSnap(){return JSON.parse(JSON.stringify({state:tbS,ui:{...tbUiState(),holeNo:$('tb-holeNo').value}}));}
+  function tbRestore(snap){Object.assign(tbS,snap.state);tbApplyUi(snap.ui||{});if(snap.ui&&snap.ui.holeNo)$('tb-holeNo').value=snap.ui.holeNo;tbRerender();tbUI();}
+  function tbReset(){tbUndo=[];tbS.history=[];tbS.hole=Number($('tb-startHole').value)||1;tbRerender();tbSaveClose();}
+
+  function tbAddHole(){
+    const hole=Number($('tb-holeNo').value),max=Number($('tb-maxHoles').value)||18;
+    if(!Number.isFinite(hole)||hole<1||hole>18){alert('Ogiltigt h\u00e5l.');return;}
+    const bruttos=[1,2,3,4].map(n=>Number($('tb-val'+n).value));
+    if(bruttos.some(v=>!Number.isFinite(v))){alert('Fyll i slag f\u00f6r alla fyra spelare.');return;}
+    tbUndo.push(tbSnap());
+    const{nettos,best,worst,winner,note}=tbCalcHole(bruttos,hole);
+    tbS.history.push({hole,bruttos,nettos,best,worst,winner,note});
+    tbAddRow(tbS.history[tbS.history.length-1],true);
+    tbS.hole=Math.min(hole+1,18);
+    [1,2,3,4].forEach(n=>$('tb-val'+n).value='');$('tb-val1').focus();
+    tbUI();if(tbS.history.length>=max)setTimeout(()=>openSummary('tb'),400);
+  }
+
+  let tbSettSnap=null;
+  function tbOpenSet(){tbSettSnap=tbSnap();}
+  function tbDiscardSet(){if(tbSettSnap)tbRestore(tbSettSnap);tbSettSnap=null;}
+  function tbSaveClose(){tbSettSnap=null;$('modalOverlay').classList.remove('open');tbS.hole=Number($('tb-startHole').value)||1;tbUI();}
+
+  $('tb-addHoleBtn').addEventListener('click',tbAddHole);
+  $('tb-undoBtn').addEventListener('click',()=>{const s=tbUndo.pop();if(s)tbRestore(s);});
+  $('tb-resetBtn').addEventListener('click',()=>{$('tb-resetConfirmBar').classList.add('visible');$('tb-resetConfirmBar').scrollIntoView({behavior:'smooth',block:'nearest'});});
+  $('tb-resetYes').addEventListener('click',()=>{$('tb-resetConfirmBar').classList.remove('visible');tbReset();});
+  $('tb-resetNo').addEventListener('click',()=>$('tb-resetConfirmBar').classList.remove('visible'));
+  $('tb-resetBtn2').addEventListener('click',()=>$('tb-resetConfirm').style.display='block');
+  $('tb-resetConfirmNo').addEventListener('click',()=>$('tb-resetConfirm').style.display='none');
+  $('tb-resetConfirmYes').addEventListener('click',()=>{localStorage.removeItem(TB_KEY);$('tb-resetConfirm').style.display='none';tbReset();});
+  $('tb-saveSettings').addEventListener('click',tbSaveClose);
+  $('tb-openPayments').addEventListener('click',()=>tbRenderPay());
+  $('tb-holeNo').addEventListener('input',tbUI);
+  $('tb-historyToggle').addEventListener('click',()=>$('tb-historySection').classList.toggle('open'));
+  $('tb-showSummaryBtn').addEventListener('click',()=>openSummary('tb'));
+
+  // ════════════════════════════════
+  // SHARED SETTINGS MODAL
+  // ════════════════════════════════
+  $('openSettings').addEventListener('click',()=>{if(activeMode==='en')enOpenSet();else tbOpenSet();$('modalOverlay').classList.add('open');});
+  $('closeSettings').addEventListener('click',()=>{if(activeMode==='en')enDiscardSet();else tbDiscardSet();$('modalOverlay').classList.remove('open');if(activeMode==='en')enUI();else tbUI();});
+  $('modalOverlay').addEventListener('click',e=>{if(e.target===$('modalOverlay')){if(activeMode==='en')enDiscardSet();else tbDiscardSet();$('modalOverlay').classList.remove('open');if(activeMode==='en')enUI();else tbUI();}});
+  $('courseBarInner').addEventListener('click',()=>{if(activeMode==='en')enOpenSet();else tbOpenSet();$('modalOverlay').classList.add('open');});
+
+  // ════════════════════════════════
+  // SUMMARY MODAL
+  // ════════════════════════════════
+  function openSummary(mode){renderSummary(mode);$('summaryOverlay').classList.add('open');}
+  $('closeSummary').addEventListener('click',()=>$('summaryOverlay').classList.remove('open'));
+  $('summaryOverlay').addEventListener('click',e=>{if(e.target===$('summaryOverlay'))$('summaryOverlay').classList.remove('open');});
+
+  function renderSummary(mode){
+    if(mode==='en'){
+      $('summaryTitle').textContent='EVIL NINE \u2014 RUNDAN KLAR';
+      const names=enNames(),p=enS.scores;
+      const sorted=[0,1,2].map(i=>({i,name:names[i],score:p[i]})).sort((a,b)=>b.score-a.score);
+      const ranks=['\ud83e\udd47 1:A','\ud83e\udd48 2:A','\ud83e\udd49 3:E'];
+      let html='<div class="summary-podium">'+sorted.map((pl,r)=>'<div class="podium-col'+(r===0?' first':'')+'"><div class="podium-rank">'+ranks[r]+'</div><div class="podium-name">'+pl.name+'</div><div class="podium-score">'+pl.score+'</div></div>').join('')+'</div>';
+      html+='<div class="summary-section-label">BETALNING</div>';
+      const tr=enTransfers();
+      if(!tr.length)html+='<div class="summary-no-pay">Ingen betalning \u2014 alla \u00e4r lika.</div>';
+      else html+='<div class="summary-pay-lines">'+tr.map(t=>'<div class="summary-pay-line"><span class="summary-pay-from-to">'+t.from+' \u2192 '+t.to+'</span><span class="summary-pay-amt">'+t.amt+' KR</span></div>').join('')+'</div>';
+      html+='<div class="summary-actions"><button class="summary-btn" id="sumExport">EXPORTERA</button><button class="summary-btn primary" id="sumClose">ST\u00c4NG</button></div>';
+      $('summaryBody').innerHTML=html;
+      $('sumExport').addEventListener('click',()=>{
+        const date=new Date().toLocaleDateString('sv-SE'),c=enCourse(),t=enTee();
+        let txt='EVIL NINE \u2014 '+date+'\n';if(c&&t)txt+=c.name+' \u00b7 '+t.name+'\n';
+        txt+='\nST\u00c4LLNING\n';sorted.forEach((pl,i)=>txt+=(i+1)+'. '+pl.name+': '+pl.score+' po\u00e4ng\n');
+        txt+='\nBETALNING ('+enS.krNow+' kr/po\u00e4ng)\n';
+        const tr2=enTransfers();if(!tr2.length)txt+='Ingen betalning.\n';else tr2.forEach(t=>txt+=t.from+' betalar '+t.to+': '+t.amt+' kr\n');
+        navigator.clipboard.writeText(txt).then(()=>{const b=$('sumExport');if(!b)return;const o=b.textContent;b.textContent='KOPIERAT!';setTimeout(()=>{if($('sumExport'))$('sumExport').textContent=o;},2000);}).catch(()=>alert(txt));
+      });
+      $('sumClose').addEventListener('click',()=>$('summaryOverlay').classList.remove('open'));
+    } else {
+      $('summaryTitle').textContent='TALIBAN \u2014 RUNDAN KLAR';
+      const sc=tbCalcScore(),t1=tbTname(0),t2=tbTname(1);
+      const sec=(label,w1,w2,d)=>{const net=w1-w2,lead=net>0?t1:net<0?t2:null;return '<div class="summary-section"><div class="summary-section-title">'+label+'</div><div class="summary-result-row"><span class="summary-result-label">'+t1+'</span><span class="summary-result-val'+(net>0?' win':'')+'">'+w1+' h\u00e5l</span></div><div class="summary-result-row"><span class="summary-result-label">'+t2+'</span><span class="summary-result-val'+(net<0?' win':'')+'">'+w2+' h\u00e5l</span></div>'+(d?'<div class="summary-result-row"><span class="summary-result-label">Delade</span><span class="summary-result-val">'+d+'</span></div>':'')+(lead?'<div style="font-family:\'Courier Prime\',monospace;font-size:12px;color:var(--lime-dim);margin-top:6px">Vinnare: '+lead+'</div>':'<div style="font-family:\'Courier Prime\',monospace;font-size:12px;color:var(--chalk-dim);margin-top:6px">J\u00e4mnt!</div>')+'</div>';};
+      const tot=sc.tot.w1-sc.tot.w2,winner=tot>0?t1:tot<0?t2:null;
+      let html=sec('UT (H\u00c5L 1\u20139)',sc.ut.w1,sc.ut.w2,sc.ut.d)+sec('IN (H\u00c5L 10\u201318)',sc.in.w1,sc.in.w2,sc.in.d)+sec('TOTALT',sc.tot.w1,sc.tot.w2,sc.tot.d);
+      html+=winner?'<div class="summary-winner-banner"><div class="summary-winner-text">\ud83c\udfc6 '+winner+'</div><div class="summary-winner-sub">Vinner matchen</div></div>':'<div class="summary-winner-banner"><div class="summary-winner-text">J\u00c4MT!</div><div class="summary-winner-sub">Matchen slutade delat</div></div>';
+      html+='<div class="summary-actions"><button class="summary-btn" id="sumExport">EXPORTERA</button><button class="summary-btn primary" id="sumClose">ST\u00c4NG</button></div>';
+      $('summaryBody').innerHTML=html;
+      $('sumExport').addEventListener('click',()=>{
+        const date=new Date().toLocaleDateString('sv-SE'),c=tbCourse(),t=tbTee();
+        let txt='B\u00c4STBOLL TALIBAN \u2014 '+date+'\n';if(c&&t)txt+=c.name+' \u00b7 '+t.name+'\n';
+        txt+='\n'+t1+' mot '+t2+'\n\nUT: '+t1+' '+sc.ut.w1+' \u2013 '+sc.ut.w2+' '+t2+'\nIN: '+t1+' '+sc.in.w1+' \u2013 '+sc.in.w2+' '+t2+'\nTOTALT: '+t1+' '+sc.tot.w1+' \u2013 '+sc.tot.w2+' '+t2;
+        txt+=tot>0?'\n\nVinnare: '+t1:tot<0?'\n\nVinnare: '+t2:'\n\nResultat: J\u00e4mt';
+        navigator.clipboard.writeText(txt).then(()=>{const b=$('sumExport');if(!b)return;const o=b.textContent;b.textContent='KOPIERAT!';setTimeout(()=>{if($('sumExport'))$('sumExport').textContent=o;},2000);}).catch(()=>alert(txt));
+      });
+      $('sumClose').addEventListener('click',()=>$('summaryOverlay').classList.remove('open'));
     }
+  }
 
-    els.openSettings.addEventListener('click', openModal);
-    els.closeSettings.addEventListener('click', discardAndClose);
-    els.saveSettings.addEventListener('click', saveAndClose);
-    els.modalOverlay.addEventListener('click', e => { if(e.target===els.modalOverlay) discardAndClose(); });
-    els.historyToggle.addEventListener('click', () => els.historySection.classList.toggle('open'));
-    els.courseBarInner.addEventListener('click', openModal);
-    els.resetBtn.addEventListener('click', () => { els.resetConfirmBar.classList.add('visible'); els.resetConfirmBar.scrollIntoView({behavior:'smooth',block:'nearest'}); });
-    els.resetConfirmNoInline.addEventListener('click', () => els.resetConfirmBar.classList.remove('visible'));
-    els.resetConfirmYesInline.addEventListener('click', () => { els.resetConfirmBar.classList.remove('visible'); doReset(); });
-
-    // ═══════════════════════════════
-    // GAME LOGIC
-    // ═══════════════════════════════
-    function displayNames() { const r=[els.nameA.value,els.nameB.value,els.nameC.value].map(s=>(s||"").trim()); return [r[0]||"Spelare 1",r[1]||"Spelare 2",r[2]||"Spelare 3"]; }
-    function updateNames() {
-      const [a,b,c]=displayNames();
-      els.labelNameA.textContent=a.toUpperCase(); els.labelNameB.textContent=b.toUpperCase(); els.labelNameC.textContent=c.toUpperCase();
-      els.labelInputA.textContent=a.toUpperCase().slice(0,8); els.labelInputB.textContent=b.toUpperCase().slice(0,8); els.labelInputC.textContent=c.toUpperCase().slice(0,8);
-      els.scoreTitleA.textContent=a.toUpperCase(); els.scoreTitleB.textContent=b.toUpperCase(); els.scoreTitleC.textContent=c.toUpperCase();
-    }
-    function minS(s){return Math.min(...s);}
-    function lastIdxs(s){const m=minS(s);return s.map((v,i)=>v===m?i:-1).filter(i=>i!==-1);}
-    function idxLeader(s){let mx=s[0],idx=0;for(let i=1;i<3;i++)if(s[i]>mx){mx=s[i];idx=i;}return idx;}
-    function floorH(n){return Math.floor(n/2);}
-
-    function updateDoubleDropdown() {
-      const [a,b,c]=displayNames(), nm=[a,b,c];
-      const hole=Number(els.holeNo.value)||state.hole;
-      els.doubleWho.innerHTML='<option value="">Ingen</option>';
-      const hints=[];
-      if (hole>=12) {
-        const elig=lastIdxs(state.scores).filter(i=>!state.usedDouble[i]);
-        if (elig.length>0) { for(const i of elig) els.doubleWho.innerHTML+='<option value="'+i+'">'+(nm[i].charAt(0).toUpperCase()+nm[i].slice(1))+'</option>'; hints.push('H\u00c5L '+hole+': '+elig.map(i=>nm[i]).join(" & ")+' kan pressa.'); }
-        else hints.push('H\u00c5L '+hole+': Press redan anv\u00e4nd.');
-      }
-      if (courseIsActive()) {
-        const course=getActiveCourse(), hd=course.holes[hole-1];
-        if (hd) {
-          const pHcps=getPlayingHcps(), names=displayNames();
-          const exs=pHcps.map(ph=>extraStrokes(ph,hd.si));
-          hints.push('Extra slag \u2192 '+exs.map((e,i)=>names[i].split(' ')[0]+': '+(e>0?'+'+e:'0')).join(' \u00b7 '));
-        }
-      }
-      els.hint.textContent=hints.join('  |  ');
-    }
-
-    function updateCourseBar() {
-      const c=getActiveCourse(), t=getActiveTee();
-      if (c&&t) {
-        els.courseBarName.textContent=c.name.toUpperCase();
-        els.courseBarTee.textContent=t.name+' \u00b7 CR '+t.cr+' \u00b7 Slope '+t.slope;
-        els.courseBarPar.textContent='Par '+c.par;
-        els.courseBar.classList.add('visible');
-      } else { els.courseBar.classList.remove('visible'); }
-    }
-
-    function updateHoleParBadge() {
-      const c=getActiveCourse(), hole=Number(els.holeNo.value)||state.hole;
-      if (c&&hole>=1&&hole<=c.holes.length) {
-        const hd=c.holes[hole-1];
-        els.holeParBadge.textContent='PAR '+hd.par+' \u00b7 SI '+hd.si;
-        els.holeParBadge.classList.add('visible');
-      } else { els.holeParBadge.classList.remove('visible'); }
-    }
-
-    function applyDouble(idx, holeNum) {
-      if (idx===null||idx===undefined) return {applied:false,note:""};
-      if (holeNum<12) return {applied:false,note:"(ej till\u00e5ten f\u00f6re h\u00e5l 12)"};
-      if (state.scores[idx]!==minS(state.scores)) return {applied:false,note:"(nekad: inte sist)"};
-      if (state.usedDouble[idx]) return {applied:false,note:"(nekad: redan anv\u00e4nd)"};
-      state.scores=state.scores.map(floorH); state.krNow*=2; state.usedDouble[idx]=true;
-      return {applied:true,note:'Press: kr/p nu '+state.krNow+'.'};
-    }
-
-    function calcHolePts(rawVals, holeNum) {
-      const mode=els.inputMode.value, thr=Math.max(1,Number(els.evilThreshold.value)||2);
-      let vals=rawVals.slice(), stableford=null;
-
-      if (mode==='brutto' && courseIsActive()) {
-        const c=getActiveCourse(), hd=c.holes[holeNum-1], pHcps=getPlayingHcps();
-        stableford=rawVals.map((b,i)=>bruttoToStableford(b,hd.par,extraStrokes(pHcps[i],hd.si)));
-        vals=stableford;
-      }
-
-      const lowerIsBetter=(mode==="strokes"||(mode==="brutto"&&!courseIsActive()));
-      const sorted=vals.map((v,i)=>({v,i})).sort((x,y)=>lowerIsBetter?x.v-y.v:y.v-x.v);
-      const [best,mid,last]=sorted;
-      const diff=lowerIsBetter?(mid.v-best.v):(best.v-mid.v);
-      let pts, note;
-      if (diff>=thr) { pts=[0,0,0]; pts[best.i]=9; note='Evil Nine (\u2265'+thr+')'; }
-      else if (best.v===mid.v&&mid.v===last.v) { pts=[0,0,0]; note="Alla lika (0\u20130\u20130)"; }
-      else if (best.v===mid.v) { pts=[0,0,0]; pts[best.i]=3; pts[mid.i]=3; note="Tv\u00e5 delar 1:a (3\u20133\u20130)"; }
-      else if (mid.v===last.v) { pts=[0,0,0]; pts[best.i]=3; note="Ensam vinnare (3\u20130\u20130)"; }
-      else { pts=[0,0,0]; pts[best.i]=4; pts[mid.i]=2; note="1\u20132\u20133 (4\u20132\u20130)"; }
-      return {pts, note, stableford};
-    }
-
-    function normalizeToZero() { const m=Math.min(...state.scores); state.scores=state.scores.map(s=>s-m); return m; }
-
-    function calcPayText() {
-      const [a,b,c]=displayNames(),names=[a,b,c],p=state.scores,kr=state.krNow;
-      const ln=(f,t,amt)=>names[f]+' \u2192 '+names[t]+': '+amt+' kr';
-      if (els.payMode.value==="leader-diff") { const l=idxLeader(p),lines=[]; for(let i=0;i<3;i++){if(i===l)continue;const amt=(p[l]-p[i])*kr;if(amt>0)lines.push(ln(i,l,amt));} return lines.length===0?"Ingen betalning (lika).":lines.join("\n"); }
-      if (els.payMode.value==="pairwise") { const lines=[]; for(const [i,j] of [[0,1],[0,2],[1,2]]){if(p[i]===p[j])continue;const hi=p[i]>p[j]?i:j,lo=hi===i?j:i;const amt=(p[hi]-p[lo])*kr;if(amt>0)lines.push(ln(lo,hi,amt));} return lines.length===0?"Ingen betalning (lika).":lines.join("\n"); }
-      return "\u2013";
-    }
-
-    function addHistoryRow(entry, prepend=false) {
-      const tr=document.createElement('tr');
-      const slagCell = entry.stableford
-        ? entry.stableford.join(' / ')+'<br><span style="font-size:10px;color:var(--chalk-dim)">brutto: '+entry.values.join(' / ')+'</span>'
-        : entry.values.join(' / ');
-      tr.innerHTML='<td>'+entry.hole+'</td><td>'+slagCell+'</td><td>'+entry.holePts.join(" / ")+'</td><td class="note-cell">'+entry.note+'</td><td style="text-align:right">'+entry.after.join(" / ")+'</td>';
-      if (prepend&&els.historyBody.firstChild) els.historyBody.insertBefore(tr,els.historyBody.firstChild);
-      else els.historyBody.appendChild(tr);
-    }
-    function rerenderHistory() { els.historyBody.innerHTML=""; for(let i=state.history.length-1;i>=0;i--) addHistoryRow(state.history[i]); updateHistCount(); }
-    function updateHistCount() { els.historyCount.textContent=state.history.length+' H\u00c5L'; }
-
-    // ═══════════════════════════════
-    // STORAGE
-    // ═══════════════════════════════
-    function uiState() {
-      return { inputMode:els.inputMode.value, evilThreshold:els.evilThreshold.value, maxHoles:els.maxHoles.value,
-        krPerPoint:els.krPerPoint.value, payMode:els.payMode.value,
-        names:[els.nameA.value,els.nameB.value,els.nameC.value],
-        hcps:[els.hcpA.value,els.hcpB.value,els.hcpC.value],
-        courseId:els.courseSelect.value, tee:els.teeSelect.value };
-    }
-    function applyUiState(ui) {
-      if (!ui) return;
-      if (ui.inputMode) els.inputMode.value=ui.inputMode;
-      if (ui.evilThreshold!=null) els.evilThreshold.value=ui.evilThreshold;
-      if (ui.maxHoles) els.maxHoles.value=ui.maxHoles;
-      if (ui.krPerPoint!=null) els.krPerPoint.value=ui.krPerPoint;
-      if (ui.payMode) els.payMode.value=ui.payMode;
-      const nm=ui.names||["","",""]; els.nameA.value=nm[0]||""; els.nameB.value=nm[1]||""; els.nameC.value=nm[2]||"";
-      const hcps=ui.hcps||["","",""]; els.hcpA.value=hcps[0]||""; els.hcpB.value=hcps[1]||""; els.hcpC.value=hcps[2]||"";
-      if (ui.courseId) { els.courseSelect.value=ui.courseId; buildTeeDropdown(ui.courseId); }
-      if (ui.tee) els.teeSelect.value=ui.tee;
-    }
-    function saveToStorage() { localStorage.setItem(STORAGE_KEY,JSON.stringify({state,ui:uiState()})); }
-    function loadFromStorage() {
-      const raw=localStorage.getItem(STORAGE_KEY); if(!raw) return false;
-      try { const p=JSON.parse(raw); if(!p||!p.state) return false; Object.assign(state,p.state); applyUiState(p.ui||{}); rerenderHistory(); return true; } catch(e){return false;}
-    }
-    function snapshot() { return JSON.parse(JSON.stringify({state,ui:{...uiState(),holeNo:els.holeNo.value}})); }
-    function restore(snap) { Object.assign(state,snap.state); const ui=snap.ui||{}; applyUiState(ui); if(ui.holeNo) els.holeNo.value=ui.holeNo; rerenderHistory(); updateUI(); }
-
-    let undoStack=[];
-
-    // ═══════════════════════════════
-    // UPDATE UI
-    // ═══════════════════════════════
-    function updateUI() {
-      updateNames();
-      els.scoreA.textContent=state.scores[0]; els.scoreB.textContent=state.scores[1]; els.scoreC.textContent=state.scores[2];
-      els.krNow.textContent=state.krNow+' KR';
-      const [a,b,c]=displayNames();
-      els.doublesUsed.textContent=a+':'+(state.usedDouble[0]?'\u2713':'\u2013')+' '+b+':'+(state.usedDouble[1]?'\u2713':'\u2013')+' '+c+':'+(state.usedDouble[2]?'\u2713':'\u2013');
-      els.undoBtn.disabled=state.history.length===0;
-      els.holeNo.value=state.hole;
-      updateDoubleDropdown(); updateHistCount(); updateCourseBar(); updateHoleParBadge();
-      const pt=calcPayText();
-      els.openPayments.classList.toggle('has-payments', pt!=='\u2013'&&pt!=='Ingen betalning (lika).');
-      saveToStorage();
-    }
-
-    // ═══════════════════════════════
-    // ADD HOLE
-    // ═══════════════════════════════
-    function onAddHole() {
-      const hole=Number(els.holeNo.value), maxHoles=Number(els.maxHoles.value);
-      state.maxHoles=maxHoles;
-      if (!Number.isFinite(hole)||hole<1||hole>maxHoles){alert('Ogiltigt h\u00e5l. Ange 1\u2013'+maxHoles+'.');return;}
-      const rawVals=[Number(els.valA.value),Number(els.valB.value),Number(els.valC.value)];
-      if (rawVals.some(v=>!Number.isFinite(v))){alert("Fyll i resultat f\u00f6r alla tre spelare.");return;}
-      undoStack.push(snapshot());
-      state.hole=hole;
-      const dblVal=els.doubleWho.value===""?null:Number(els.doubleWho.value);
-      const dblRes=applyDouble(dblVal,hole);
-      const {pts,note,stableford}=calcHolePts(rawVals,hole);
-      state.scores=state.scores.map((s,i)=>s+pts[i]);
-      const deducted=normalizeToZero();
-      const after=[...state.scores];
-      const entry={hole,values:rawVals,holePts:pts,stableford:stableford||null,
-        note:[dblRes.applied?dblRes.note:"",note,deducted>0?'Nedr\u00e4kning: -'+deducted:'Nedr\u00e4kning: 0'].filter(Boolean).join(" \u2022 "),after};
-      state.history.push(entry);
-      addHistoryRow(entry,true);
-      state.hole=Math.min(hole+1,maxHoles);
-      els.valA.value=""; els.valB.value=""; els.valC.value="";
-      els.valA.focus();
-      updateUI();
-    }
-
-    function doReset() {
-      undoStack=[];
-      state.scores=[0,0,0]; state.history=[]; state.usedDouble=[false,false,false];
-      state.krStart=Number(els.krPerPoint.value)||10; state.krNow=state.krStart;
-      state.maxHoles=Number(els.maxHoles.value)||18; state.hole=1;
-      rerenderHistory(); saveAndClose();
-    }
-
-    // ═══════════════════════════════
-    // EVENTS
-    // ═══════════════════════════════
-    els.addHoleBtn.addEventListener('click', onAddHole);
-    els.resetBtn2.addEventListener('click', () => { $('resetConfirm').style.display='block'; });
-    $('resetConfirmNo').addEventListener('click', () => { $('resetConfirm').style.display='none'; });
-    $('resetConfirmYes').addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); $('resetConfirm').style.display='none'; doReset(); });
-    els.undoBtn.addEventListener('click', () => { const s=undoStack.pop(); if(s) restore(s); });
-    els.holeNo.addEventListener('input', () => { updateDoubleDropdown(); updateHoleParBadge(); });
-
-    // ═══════════════════════════════
-    // INIT
-    // ═══════════════════════════════
-    const loaded=loadFromStorage();
-    if (!loaded) { state.krStart=Number(els.krPerPoint.value)||10; state.krNow=state.krStart; state.maxHoles=Number(els.maxHoles.value)||18; }
-    updateUI();
-  })();
-  </script>
+  // ════════════════════════════════
+  // INIT
+  // ════════════════════════════════
+  setTimeout(()=>tbBuildPairing(), 0);
+  const savedMode=localStorage.getItem('golfActiveMode');
+  if(savedMode==='tb'){
+    activeMode='tb';
+    $('viewEN').classList.remove('active');$('viewTB').classList.add('active');
+    $('appTitle').innerHTML='B\u00c4STBOLL <em>TALIBAN</em>';$('modeBtnLabel').textContent='Evil Nine';
+    $('openPayments').classList.add('hidden');
+    $('tb-openPayments').classList.remove('hidden');
+    $('en-settings').classList.remove('active');$('tb-settings').classList.add('active');
+    $('settingsModeLabel').textContent='B\u00c4STBOLL TALIBAN';
+  }
+  const enLoaded=enLoad();
+  if(!enLoaded){enS.krStart=Number($('en-krPerPoint').value)||10;enS.krNow=enS.krStart;enS.hole=1;}
+  const tbLoaded=tbLoad();
+  if(!tbLoaded)tbS.hole=1;
+  enUI();tbUI();
+  if(activeMode==='en')updateCourseBar('en-courseSelect','en-teeSelect');
+  else updateCourseBar('tb-courseSelect','tb-teeSelect');
+})();
+</script>
 </body>
 </html>
