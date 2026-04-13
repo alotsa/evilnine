@@ -70,10 +70,8 @@
     .players-row { display: grid; grid-template-columns: 1fr 1fr 1fr; }
     .player-col { padding: 14px 12px 18px; border-right: 1px solid var(--rule); text-align: center; position: relative; transition: background 0.25s; }
     .player-col:last-child { border-right: none; }
-    .p-name { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--chalk-dim); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .p-name { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--chalk-dim); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .p-score { font-family: 'Bebas Neue', sans-serif; font-size: 64px; line-height: 1; color: var(--chalk); transition: color 0.3s; }
-    /* HCP stroke dot badge */
-    .p-stroke-badge { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 1px; color: var(--lime); margin-top: 2px; min-height: 14px; }
     .meta-strip { display: grid; grid-template-columns: 1fr 1px 1fr; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
     .meta-divider { background: var(--rule); }
     .meta-cell { padding: 10px 16px; display: flex; flex-direction: column; gap: 3px; }
@@ -135,48 +133,6 @@
     td:first-child { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: var(--lime-dim); }
     tr:hover td { background: rgba(255,255,255,0.02); }
 
-    /* ══ END OF ROUND SUMMARY MODAL ══ */
-    .summary-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 300; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
-    .summary-overlay.open { opacity: 1; pointer-events: all; }
-    .summary-modal { background: var(--felt); border-top: 3px solid var(--lime); width: 100%; max-width: var(--hole-w); max-height: 90vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1); }
-    .summary-overlay.open .summary-modal { transform: translateY(0); }
-    .summary-header { display: flex; align-items: center; justify-content: space-between; padding: 0 0 0 16px; border-bottom: 1px solid var(--rule); height: 52px; }
-    .summary-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 4px; color: var(--lime); }
-    .summary-x { width: 52px; height: 52px; border: none; border-left: 1px solid var(--rule); background: none; cursor: pointer; font-family: 'Courier Prime', monospace; font-size: 18px; color: var(--chalk-dim); transition: background 0.15s, color 0.15s; }
-    .summary-x:hover { background: var(--rule); color: var(--chalk); }
-    .summary-body { padding: 0 0 24px; }
-    /* Podium */
-    .summary-podium { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 3px solid var(--rule); }
-    .podium-col { padding: 20px 12px 16px; text-align: center; border-right: 1px solid var(--rule); }
-    .podium-col:last-child { border-right: none; }
-    .podium-col.first { background: rgba(198,240,64,0.05); }
-    .podium-rank { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 3px; color: var(--chalk-dim); margin-bottom: 6px; }
-    .podium-col.first .podium-rank { color: var(--lime); }
-    .podium-name { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--chalk-dim); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .podium-score { font-family: 'Bebas Neue', sans-serif; font-size: 52px; line-height: 1; color: var(--chalk); }
-    .podium-col.first .podium-score { color: var(--lime); font-size: 64px; }
-    /* Summary payments */
-    .summary-section-label { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--chalk-dim); padding: 10px 16px 6px; border-bottom: 1px solid var(--rule); }
-    .summary-pay-lines { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
-    .summary-pay-line { display: flex; align-items: center; justify-content: space-between; }
-    .summary-pay-from-to { font-family: 'Courier Prime', monospace; font-size: 14px; color: var(--chalk); }
-    .summary-pay-amt { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--lime); letter-spacing: 1px; }
-    .summary-no-pay { font-family: 'Courier Prime', monospace; font-size: 13px; color: var(--chalk-dim); font-style: italic; padding: 12px 16px; }
-    /* Export button */
-    .summary-actions { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--rule); }
-    .summary-btn { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 2px; padding: 14px 8px; background: none; border: none; border-right: 1px solid var(--rule); cursor: pointer; color: var(--chalk-dim); transition: background 0.15s, color 0.15s; }
-    .summary-btn:last-child { border-right: none; }
-    .summary-btn:hover { background: var(--rule); color: var(--chalk); }
-    .summary-btn.primary { color: var(--bg); background: var(--lime); }
-    .summary-btn.primary:hover { background: #d4f050; }
-    /* Round complete banner */
-    .round-complete-bar { display: none; background: rgba(198,240,64,0.07); border-top: 2px solid var(--lime); padding: 10px 16px; align-items: center; justify-content: space-between; gap: 10px; }
-    .round-complete-bar.visible { display: flex; }
-    .round-complete-text { font-family: 'Courier Prime', monospace; font-size: 12px; color: var(--lime-dim); flex: 1; font-style: italic; }
-    .round-complete-btn { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px; background: var(--lime); color: var(--bg); border: none; padding: 8px 14px; cursor: pointer; flex-shrink: 0; }
-    .round-complete-btn:hover { background: #d4f050; }
-
-    /* SETTINGS MODAL */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal { background: var(--felt); border-top: 3px solid var(--lime); width: 100%; max-width: var(--hole-w); max-height: 88vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
@@ -211,8 +167,6 @@
     @media (min-width: 500px) {
       .modal-overlay { align-items: center; }
       .modal { border: 2px solid var(--lime); border-top: 3px solid var(--lime); max-height: 85vh; }
-      .summary-overlay { align-items: center; }
-      .summary-modal { border: 2px solid var(--lime); border-top: 3px solid var(--lime); max-height: 85vh; }
     }
   </style>
 </head>
@@ -250,21 +204,9 @@
     <div class="scoreboard">
       <div class="section-label">ST&#196;LLNING</div>
       <div class="players-row">
-        <div class="player-col" id="cardA">
-          <div class="p-name" id="scoreTitleA">SPELARE 1</div>
-          <div class="p-score" id="scoreA">0</div>
-          <div class="p-stroke-badge" id="strokeBadgeA"></div>
-        </div>
-        <div class="player-col" id="cardB">
-          <div class="p-name" id="scoreTitleB">SPELARE 2</div>
-          <div class="p-score" id="scoreB">0</div>
-          <div class="p-stroke-badge" id="strokeBadgeB"></div>
-        </div>
-        <div class="player-col" id="cardC">
-          <div class="p-name" id="scoreTitleC">SPELARE 3</div>
-          <div class="p-score" id="scoreC">0</div>
-          <div class="p-stroke-badge" id="strokeBadgeC"></div>
-        </div>
+        <div class="player-col" id="cardA"><div class="p-name" id="scoreTitleA">SPELARE 1</div><div class="p-score" id="scoreA">0</div></div>
+        <div class="player-col" id="cardB"><div class="p-name" id="scoreTitleB">SPELARE 2</div><div class="p-score" id="scoreB">0</div></div>
+        <div class="player-col" id="cardC"><div class="p-name" id="scoreTitleC">SPELARE 3</div><div class="p-score" id="scoreC">0</div></div>
       </div>
       <div class="meta-strip">
         <div class="meta-cell"><span class="meta-key">KR / PO&#196;NG</span><span class="meta-val" id="krNow">10 KR</span></div>
@@ -302,11 +244,6 @@
           <button class="reset-no" id="resetConfirmNoInline">NEJ</button>
         </div>
       </div>
-      <!-- Round complete banner -->
-      <div class="round-complete-bar" id="roundCompleteBar">
-        <span class="round-complete-text">Rundan &#228;r klar! &#127920;</span>
-        <button class="round-complete-btn" id="showSummaryBtn">SE SAMMANFATTNING</button>
-      </div>
     </div>
 
     <div class="history-section" id="historySection">
@@ -328,7 +265,6 @@
     </div>
   </main>
 
-  <!-- Payment modal -->
   <div class="pay-modal-overlay" id="payModalOverlay">
     <div class="pay-modal">
       <div class="pay-modal-header"><span class="pay-modal-title">BETALNING</span><button class="pay-modal-x" id="closePayments">&#x2715;</button></div>
@@ -339,23 +275,6 @@
     </div>
   </div>
 
-  <!-- End of round summary modal -->
-  <div class="summary-overlay" id="summaryOverlay">
-    <div class="summary-modal">
-      <div class="summary-header"><span class="summary-title">RUNDAN KLAR</span><button class="summary-x" id="closeSummary">&#x2715;</button></div>
-      <div class="summary-body">
-        <div class="summary-podium" id="summaryPodium"></div>
-        <div class="summary-section-label">BETALNING</div>
-        <div id="summaryPayLines"></div>
-        <div class="summary-actions">
-          <button class="summary-btn" id="exportRoundBtn">EXPORTERA</button>
-          <button class="summary-btn primary" id="closeSummary2">ST&#196;NG</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Settings modal -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <div class="modal-header"><span class="modal-title">INST&#196;LLNINGAR</span><button class="modal-x" id="closeSettings">&#x2715;</button></div>
@@ -383,7 +302,6 @@
           <div class="settings-grid2">
             <div class="sf"><label class="sf-label">KR / PO&#196;NG (START)</label><input id="krPerPoint" type="number" value="10" min="1" /></div>
             <div class="sf"><label class="sf-label">MAX H&#197;L</label><select id="maxHoles"><option value="9">9 h&#229;l</option><option value="18" selected>18 h&#229;l</option></select></div>
-            <div class="sf"><label class="sf-label">STARTANDE H&#197;L</label><select id="startHole"><option value="1" selected>H&#229;l 1 (ute)</option><option value="10">H&#229;l 10 (in)</option></select></div>
             <div class="sf"><label class="sf-label">INMATNINGSTYP</label><select id="inputMode"><option value="points" selected>Po&#228;ng</option><option value="strokes">Slag/netto</option><option value="brutto">Slag/brutto</option></select></div>
             <div class="sf"><label class="sf-label">EVIL NINE-TR&#214;SKEL</label><input id="evilThreshold" type="number" value="2" min="1" /></div>
             <div class="sf"><label class="sf-label">BETALMODELL</label><select id="payMode"><option value="leader-diff" selected>Alla &#x2192; ledaren</option><option value="pairwise">Parvis</option></select></div>
@@ -416,9 +334,9 @@
       {
         id:"wasaby", name:"W\u00e4sby GK", par:72,
         holes:[
-          {par:4,si:11},{par:3,si:17},{par:4,si:3},{par:4,si:13},{par:3,si:9},{par:5,si:1},
-          {par:4,si:7},{par:4,si:15},{par:4,si:5},{par:4,si:14},{par:5,si:4},{par:3,si:8},
-          {par:4,si:12},{par:4,si:2},{par:4,si:16},{par:3,si:18},{par:4,si:6},{par:4,si:10}
+          {par:4,si:9},{par:3,si:17},{par:5,si:3},{par:4,si:11},{par:4,si:5},{par:3,si:15},
+          {par:5,si:1},{par:4,si:13},{par:4,si:7},{par:4,si:10},{par:3,si:16},{par:5,si:4},
+          {par:4,si:12},{par:4,si:6},{par:3,si:18},{par:5,si:2},{par:4,si:14},{par:4,si:8}
         ],
         tees:[
           {name:"Vit",cr:74.0,slope:141},{name:"Gul",cr:71.9,slope:137},
@@ -428,9 +346,9 @@
       {
         id:"brohof_stadium", name:"Bro Hof Stadium", par:72,
         holes:[
-          {par:5,si:8},{par:4,si:4},{par:4,si:18},{par:3,si:16},{par:4,si:2},{par:4,si:14},
-          {par:3,si:12},{par:4,si:10},{par:5,si:6},{par:4,si:3},{par:3,si:15},{par:5,si:7},
-          {par:5,si:9},{par:4,si:17},{par:5,si:1},{par:3,si:11},{par:3,si:5},{par:4,si:13}
+          {par:4,si:7},{par:5,si:11},{par:3,si:17},{par:4,si:3},{par:4,si:13},{par:3,si:15},
+          {par:5,si:1},{par:4,si:5},{par:4,si:9},{par:4,si:6},{par:3,si:18},{par:5,si:2},
+          {par:4,si:10},{par:4,si:4},{par:3,si:16},{par:5,si:8},{par:4,si:14},{par:4,si:12}
         ],
         tees:[
           {name:"Vit",cr:77.3,slope:148},{name:"Gul",cr:73.1,slope:132},
@@ -440,9 +358,9 @@
       {
         id:"brohof_castle", name:"Bro Hof Castle", par:72,
         holes:[
-          {par:5,si:5},{par:3,si:13},{par:4,si:11},{par:3,si:9},{par:5,si:7},{par:4,si:1},
-          {par:3,si:17},{par:4,si:15},{par:5,si:3},{par:5,si:4},{par:3,si:16},{par:3,si:18},
-          {par:5,si:6},{par:4,si:14},{par:5,si:2},{par:4,si:12},{par:3,si:10},{par:4,si:8}
+          {par:4,si:8},{par:4,si:4},{par:3,si:16},{par:5,si:2},{par:4,si:12},{par:4,si:6},
+          {par:3,si:18},{par:5,si:10},{par:4,si:14},{par:4,si:7},{par:4,si:3},{par:3,si:17},
+          {par:5,si:1},{par:4,si:11},{par:4,si:5},{par:3,si:15},{par:5,si:9},{par:4,si:13}
         ],
         tees:[
           {name:"Vit",cr:74.2,slope:145},{name:"Gul",cr:71.2,slope:139},
@@ -450,11 +368,11 @@
         ]
       },
       {
-        id:"osteraker", name:"\u00d6ster by Stenson", par:72,
+        id:"osteraker", name:"\u00d6ster\u00e5ker GK", par:72,
         holes:[
-          {par:4,si:11},{par:4,si:15},{par:4,si:1},{par:3,si:17},{par:5,si:7},{par:4,si:3},
-          {par:3,si:13},{par:5,si:9},{par:4,si:5},{par:4,si:10},{par:3,si:18},{par:4,si:2},
-          {par:5,si:12},{par:4,si:14},{par:3,si:4},{par:4,si:16},{par:4,si:8},{par:5,si:6}
+          {par:4,si:5},{par:3,si:15},{par:5,si:1},{par:4,si:11},{par:4,si:7},{par:3,si:17},
+          {par:5,si:3},{par:4,si:13},{par:4,si:9},{par:4,si:6},{par:3,si:16},{par:5,si:2},
+          {par:4,si:12},{par:4,si:8},{par:3,si:18},{par:5,si:4},{par:4,si:14},{par:4,si:10}
         ],
         tees:[
           {name:"Vit",cr:73.2,slope:131},{name:"Gul",cr:70.6,slope:129},
@@ -462,11 +380,11 @@
         ]
       },
       {
-        id:"omberg", name:"Omberg GK", par:71,
+        id:"omberg", name:"Omberg GK", par:72,
         holes:[
-          {par:4,si:11},{par:4,si:17},{par:4,si:1},{par:4,si:13},{par:3,si:9},{par:4,si:7},
-          {par:4,si:5},{par:5,si:3},{par:3,si:15},{par:4,si:10},{par:3,si:16},{par:4,si:12},
-          {par:3,si:18},{par:5,si:4},{par:3,si:14},{par:5,si:8},{par:4,si:2},{par:5,si:6}
+          {par:4,si:7},{par:3,si:15},{par:5,si:3},{par:4,si:11},{par:4,si:5},{par:3,si:17},
+          {par:5,si:1},{par:4,si:13},{par:4,si:9},{par:4,si:8},{par:3,si:16},{par:5,si:2},
+          {par:4,si:12},{par:4,si:6},{par:3,si:18},{par:5,si:4},{par:4,si:14},{par:4,si:10}
         ],
         tees:[
           {name:"Vit",cr:72.4,slope:135},{name:"Gul",cr:70.8,slope:132},
@@ -493,14 +411,14 @@
     // ═══════════════════════════════
     // ELEMENTS
     // ═══════════════════════════════
-    const STORAGE_KEY = "evilNine_v6_state";
+    const STORAGE_KEY = "evilNine_v5_state";
     const $ = id => document.getElementById(id);
     const els = {
       labelNameA:$('labelNameA'), labelNameB:$('labelNameB'), labelNameC:$('labelNameC'),
       nameA:$('nameA'), nameB:$('nameB'), nameC:$('nameC'),
       hcpA:$('hcpA'), hcpB:$('hcpB'), hcpC:$('hcpC'),
-      krPerPoint:$('krPerPoint'), maxHoles:$('maxHoles'), startHole:$('startHole'),
-      inputMode:$('inputMode'), evilThreshold:$('evilThreshold'), payMode:$('payMode'),
+      krPerPoint:$('krPerPoint'), maxHoles:$('maxHoles'), inputMode:$('inputMode'),
+      evilThreshold:$('evilThreshold'), payMode:$('payMode'),
       courseSelect:$('courseSelect'), teeSelect:$('teeSelect'),
       holeNo:$('holeNo'), doubleWho:$('doubleWho'),
       labelInputA:$('labelInputA'), labelInputB:$('labelInputB'), labelInputC:$('labelInputC'),
@@ -509,7 +427,6 @@
       hint:$('hint'),
       scoreTitleA:$('scoreTitleA'), scoreTitleB:$('scoreTitleB'), scoreTitleC:$('scoreTitleC'),
       scoreA:$('scoreA'), scoreB:$('scoreB'), scoreC:$('scoreC'),
-      strokeBadgeA:$('strokeBadgeA'), strokeBadgeB:$('strokeBadgeB'), strokeBadgeC:$('strokeBadgeC'),
       cardA:$('cardA'), cardB:$('cardB'), cardC:$('cardC'),
       krNow:$('krNow'), doublesUsed:$('doublesUsed'),
       historyBody:$('historyBody'), historyCount:$('historyCount'),
@@ -523,10 +440,6 @@
       courseBar:$('courseBar'), courseBarInner:$('courseBarInner'),
       courseBarName:$('courseBarName'), courseBarTee:$('courseBarTee'), courseBarPar:$('courseBarPar'),
       holeParBadge:$('holeParBadge'),
-      roundCompleteBar:$('roundCompleteBar'), showSummaryBtn:$('showSummaryBtn'),
-      summaryOverlay:$('summaryOverlay'), closeSummary:$('closeSummary'), closeSummary2:$('closeSummary2'),
-      summaryPodium:$('summaryPodium'), summaryPayLines:$('summaryPayLines'),
-      exportRoundBtn:$('exportRoundBtn'),
     };
 
     const state = { scores:[0,0,0], history:[], usedDouble:[false,false,false], krStart:10, krNow:10, maxHoles:18, hole:1 };
@@ -571,7 +484,7 @@
     function captureSnap() {
       return { nameA:els.nameA.value, nameB:els.nameB.value, nameC:els.nameC.value,
         hcpA:els.hcpA.value, hcpB:els.hcpB.value, hcpC:els.hcpC.value,
-        krPerPoint:els.krPerPoint.value, maxHoles:els.maxHoles.value, startHole:els.startHole.value,
+        krPerPoint:els.krPerPoint.value, maxHoles:els.maxHoles.value,
         inputMode:els.inputMode.value, evilThreshold:els.evilThreshold.value,
         payMode:els.payMode.value, courseId:els.courseSelect.value, tee:els.teeSelect.value };
     }
@@ -580,7 +493,6 @@
       els.nameA.value=s.nameA; els.nameB.value=s.nameB; els.nameC.value=s.nameC;
       els.hcpA.value=s.hcpA||""; els.hcpB.value=s.hcpB||""; els.hcpC.value=s.hcpC||"";
       els.krPerPoint.value=s.krPerPoint; els.maxHoles.value=s.maxHoles;
-      if (s.startHole) els.startHole.value=s.startHole;
       els.inputMode.value=s.inputMode; els.evilThreshold.value=s.evilThreshold; els.payMode.value=s.payMode;
       els.courseSelect.value=s.courseId||""; buildTeeDropdown(s.courseId||""); els.teeSelect.value=s.tee||"";
     }
@@ -598,90 +510,16 @@
     els.openPayments.addEventListener('click', () => { renderPay(); els.payModalOverlay.classList.add('open'); });
     els.closePayments.addEventListener('click', () => els.payModalOverlay.classList.remove('open'));
     els.payModalOverlay.addEventListener('click', e => { if(e.target===els.payModalOverlay) els.payModalOverlay.classList.remove('open'); });
-
-    function calcTransfers() {
-      const p=state.scores, kr=state.krNow, mode=els.payMode.value;
-      const names=displayNames();
-      const transfers=[];
-      if (mode==="leader-diff") {
-        const l=idxLeader(p);
-        for(let i=0;i<3;i++){ if(i===l) continue; const amt=(p[l]-p[i])*kr; if(amt>0) transfers.push({from:names[i],to:names[l],amt}); }
-      } else if (mode==="pairwise") {
-        for(const [i,j] of [[0,1],[0,2],[1,2]]){ if(p[i]===p[j]) continue; const hi=p[i]>p[j]?i:j,lo=hi===i?j:i; const amt=(p[hi]-p[lo])*kr; if(amt>0) transfers.push({from:names[lo],to:names[hi],amt}); }
-      }
-      return transfers;
-    }
-
     function renderPay() {
-      const kr=state.krNow;
+      const [a,b,c]=displayNames(), names=[a,b,c], p=state.scores, kr=state.krNow, mode=els.payMode.value;
       els.payKrBadge.textContent=kr+' KR / PO\u00c4NG';
-      const transfers=calcTransfers();
+      const transfers=[];
+      if (mode==="leader-diff") { const l=idxLeader(p); for(let i=0;i<3;i++){if(i===l)continue;const amt=(p[l]-p[i])*kr;if(amt>0)transfers.push({from:names[i],to:names[l],amt});} }
+      else if (mode==="pairwise") { for(const [i,j] of [[0,1],[0,2],[1,2]]){if(p[i]===p[j])continue;const hi=p[i]>p[j]?i:j,lo=hi===i?j:i;const amt=(p[hi]-p[lo])*kr;if(amt>0)transfers.push({from:names[lo],to:names[hi],amt});} }
       els.openPayments.classList.toggle('has-payments', transfers.length>0);
       if (!transfers.length) { els.payLines.innerHTML='<div class="pay-empty">Ingen betalning \u2014 alla \u00e4r lika.</div>'; return; }
       els.payLines.innerHTML=transfers.map(t=>'<div class="pay-line"><div><div class="pay-line-names">'+t.from+'</div><div class="pay-line-arrow">\u25bc BETALAR TILL</div><div class="pay-line-names">'+t.to+'</div></div><div class="pay-line-amount">'+t.amt+' KR</div></div>').join('');
     }
-
-    // ═══════════════════════════════
-    // SUMMARY MODAL
-    // ═══════════════════════════════
-    function openSummary() {
-      renderSummary();
-      els.summaryOverlay.classList.add('open');
-    }
-    function closeSummaryModal() { els.summaryOverlay.classList.remove('open'); }
-
-    function renderSummary() {
-      const names=displayNames(), p=state.scores;
-      // Sort players by score descending
-      const sorted=[0,1,2].map(i=>({i,name:names[i],score:p[i]})).sort((a,b)=>b.score-a.score);
-      const ranks=['\ud83e\udd47 1:A','\ud83e\udd48 2:A','\ud83e\udd49 3:E'];
-      els.summaryPodium.innerHTML=sorted.map((pl,rank)=>`
-        <div class="podium-col${rank===0?' first':''}">
-          <div class="podium-rank">${ranks[rank]}</div>
-          <div class="podium-name">${pl.name}</div>
-          <div class="podium-score">${pl.score}</div>
-        </div>`).join('');
-
-      // Payments
-      const transfers=calcTransfers();
-      if (!transfers.length) {
-        els.summaryPayLines.innerHTML='<div class="summary-no-pay">Ingen betalning \u2014 alla \u00e4r lika.</div>';
-      } else {
-        els.summaryPayLines.innerHTML='<div class="summary-pay-lines">'+transfers.map(t=>
-          '<div class="summary-pay-line"><span class="summary-pay-from-to">'+t.from+' \u2192 '+t.to+'</span><span class="summary-pay-amt">'+t.amt+' KR</span></div>'
-        ).join('')+'</div>';
-      }
-    }
-
-    function exportRound() {
-      const names=displayNames(), p=state.scores, kr=state.krNow;
-      const date=new Date().toLocaleDateString('sv-SE');
-      const course=getActiveCourse(), tee=getActiveTee();
-      let txt='EVIL NINE \u2014 '+date+'\n';
-      if (course&&tee) txt+=course.name+' \u00b7 '+tee.name+'\n';
-      txt+='\nST\u00c4LLNING\n';
-      const sorted=[0,1,2].map(i=>({name:names[i],score:p[i]})).sort((a,b)=>b.score-a.score);
-      sorted.forEach((pl,i)=>{ txt+=(i+1)+'. '+pl.name+': '+pl.score+' po\u00e4ng\n'; });
-      txt+='\nBETALNING ('+kr+' kr/po\u00e4ng)\n';
-      const transfers=calcTransfers();
-      if (!transfers.length) { txt+='Ingen betalning \u2014 alla \u00e4r lika.\n'; }
-      else { transfers.forEach(t=>{ txt+=t.from+' betalar '+t.to+': '+t.amt+' kr\n'; }); }
-      txt+='\nHISTORIK\n';
-      state.history.forEach(e=>{ txt+='H\u00e5l '+e.hole+': '+e.values.join('/')+' \u2192 '+e.holePts.join('/')+(e.note?' ('+e.note+')':'')+'\n'; });
-      // Copy to clipboard
-      navigator.clipboard.writeText(txt).then(()=>{
-        const btn=els.exportRoundBtn;
-        const orig=btn.textContent;
-        btn.textContent='KOPIERAT!';
-        setTimeout(()=>{ btn.textContent=orig; },2000);
-      }).catch(()=>{ alert(txt); });
-    }
-
-    els.showSummaryBtn.addEventListener('click', openSummary);
-    els.closeSummary.addEventListener('click', closeSummaryModal);
-    els.closeSummary2.addEventListener('click', closeSummaryModal);
-    els.summaryOverlay.addEventListener('click', e=>{ if(e.target===els.summaryOverlay) closeSummaryModal(); });
-    els.exportRoundBtn.addEventListener('click', exportRound);
 
     els.openSettings.addEventListener('click', openModal);
     els.closeSettings.addEventListener('click', discardAndClose);
@@ -707,18 +545,6 @@
     function lastIdxs(s){const m=minS(s);return s.map((v,i)=>v===m?i:-1).filter(i=>i!==-1);}
     function idxLeader(s){let mx=s[0],idx=0;for(let i=1;i<3;i++)if(s[i]>mx){mx=s[i];idx=i;}return idx;}
     function floorH(n){return Math.floor(n/2);}
-
-    function updateStrokeBadges() {
-      const badges=[els.strokeBadgeA,els.strokeBadgeB,els.strokeBadgeC];
-      if (!courseIsActive()) { badges.forEach(b=>b.textContent=''); return; }
-      const course=getActiveCourse(), hole=Number(els.holeNo.value)||state.hole;
-      if (!course||hole<1||hole>course.holes.length) { badges.forEach(b=>b.textContent=''); return; }
-      const hd=course.holes[hole-1], pHcps=getPlayingHcps();
-      pHcps.forEach((ph,i)=>{
-        const ex=extraStrokes(ph,hd.si);
-        badges[i].textContent = ex>0 ? '\u25cf'.repeat(ex) : '';
-      });
-    }
 
     function updateDoubleDropdown() {
       const [a,b,c]=displayNames(), nm=[a,b,c];
@@ -760,14 +586,6 @@
       } else { els.holeParBadge.classList.remove('visible'); }
     }
 
-    function updateRoundCompleteBanner() {
-      const maxHoles=Number(els.maxHoles.value)||18;
-      const startHole=Number(els.startHole.value)||1;
-      const holesPlayed=state.history.length;
-      const isComplete = holesPlayed >= maxHoles;
-      els.roundCompleteBar.classList.toggle('visible', isComplete);
-    }
-
     function applyDouble(idx, holeNum) {
       if (idx===null||idx===undefined) return {applied:false,note:""};
       if (holeNum<12) return {applied:false,note:"(ej till\u00e5ten f\u00f6re h\u00e5l 12)"};
@@ -780,11 +598,13 @@
     function calcHolePts(rawVals, holeNum) {
       const mode=els.inputMode.value, thr=Math.max(1,Number(els.evilThreshold.value)||2);
       let vals=rawVals.slice(), stableford=null;
+
       if (mode==='brutto' && courseIsActive()) {
         const c=getActiveCourse(), hd=c.holes[holeNum-1], pHcps=getPlayingHcps();
         stableford=rawVals.map((b,i)=>bruttoToStableford(b,hd.par,extraStrokes(pHcps[i],hd.si)));
         vals=stableford;
       }
+
       const lowerIsBetter=(mode==="strokes"||(mode==="brutto"&&!courseIsActive()));
       const sorted=vals.map((v,i)=>({v,i})).sort((x,y)=>lowerIsBetter?x.v-y.v:y.v-x.v);
       const [best,mid,last]=sorted;
@@ -801,8 +621,7 @@
     function normalizeToZero() { const m=Math.min(...state.scores); state.scores=state.scores.map(s=>s-m); return m; }
 
     function calcPayText() {
-      const p=state.scores,kr=state.krNow;
-      const names=displayNames();
+      const [a,b,c]=displayNames(),names=[a,b,c],p=state.scores,kr=state.krNow;
       const ln=(f,t,amt)=>names[f]+' \u2192 '+names[t]+': '+amt+' kr';
       if (els.payMode.value==="leader-diff") { const l=idxLeader(p),lines=[]; for(let i=0;i<3;i++){if(i===l)continue;const amt=(p[l]-p[i])*kr;if(amt>0)lines.push(ln(i,l,amt));} return lines.length===0?"Ingen betalning (lika).":lines.join("\n"); }
       if (els.payMode.value==="pairwise") { const lines=[]; for(const [i,j] of [[0,1],[0,2],[1,2]]){if(p[i]===p[j])continue;const hi=p[i]>p[j]?i:j,lo=hi===i?j:i;const amt=(p[hi]-p[lo])*kr;if(amt>0)lines.push(ln(lo,hi,amt));} return lines.length===0?"Ingen betalning (lika).":lines.join("\n"); }
@@ -826,7 +645,7 @@
     // ═══════════════════════════════
     function uiState() {
       return { inputMode:els.inputMode.value, evilThreshold:els.evilThreshold.value, maxHoles:els.maxHoles.value,
-        startHole:els.startHole.value, krPerPoint:els.krPerPoint.value, payMode:els.payMode.value,
+        krPerPoint:els.krPerPoint.value, payMode:els.payMode.value,
         names:[els.nameA.value,els.nameB.value,els.nameC.value],
         hcps:[els.hcpA.value,els.hcpB.value,els.hcpC.value],
         courseId:els.courseSelect.value, tee:els.teeSelect.value };
@@ -836,7 +655,6 @@
       if (ui.inputMode) els.inputMode.value=ui.inputMode;
       if (ui.evilThreshold!=null) els.evilThreshold.value=ui.evilThreshold;
       if (ui.maxHoles) els.maxHoles.value=ui.maxHoles;
-      if (ui.startHole) els.startHole.value=ui.startHole;
       if (ui.krPerPoint!=null) els.krPerPoint.value=ui.krPerPoint;
       if (ui.payMode) els.payMode.value=ui.payMode;
       const nm=ui.names||["","",""]; els.nameA.value=nm[0]||""; els.nameB.value=nm[1]||""; els.nameC.value=nm[2]||"";
@@ -866,7 +684,6 @@
       els.undoBtn.disabled=state.history.length===0;
       els.holeNo.value=state.hole;
       updateDoubleDropdown(); updateHistCount(); updateCourseBar(); updateHoleParBadge();
-      updateStrokeBadges(); updateRoundCompleteBanner();
       const pt=calcPayText();
       els.openPayments.classList.toggle('has-payments', pt!=='\u2013'&&pt!=='Ingen betalning (lika).');
       saveToStorage();
@@ -878,21 +695,9 @@
     function onAddHole() {
       const hole=Number(els.holeNo.value), maxHoles=Number(els.maxHoles.value);
       state.maxHoles=maxHoles;
-      if (!Number.isFinite(hole)||hole<1||hole>18){alert('Ogiltigt h\u00e5l. Ange 1\u201318.');return;}
-
+      if (!Number.isFinite(hole)||hole<1||hole>maxHoles){alert('Ogiltigt h\u00e5l. Ange 1\u2013'+maxHoles+'.');return;}
       const rawVals=[Number(els.valA.value),Number(els.valB.value),Number(els.valC.value)];
       if (rawVals.some(v=>!Number.isFinite(v))){alert("Fyll i resultat f\u00f6r alla tre spelare.");return;}
-
-      // Sanity check for brutto mode
-      if (els.inputMode.value==='brutto') {
-        const course=getActiveCourse();
-        const par = course ? course.holes[hole-1].par : 4;
-        const suspicious = rawVals.filter(v => v < 1 || v > par + 8);
-        if (suspicious.length > 0) {
-          if (!confirm('N\u00e5got slag verkar ovanligt ('+suspicious.join(', ')+').\nSt\u00e4mmer det?')) return;
-        }
-      }
-
       undoStack.push(snapshot());
       state.hole=hole;
       const dblVal=els.doubleWho.value===""?null:Number(els.doubleWho.value);
@@ -905,33 +710,17 @@
         note:[dblRes.applied?dblRes.note:"",note,deducted>0?'Nedr\u00e4kning: -'+deducted:'Nedr\u00e4kning: 0'].filter(Boolean).join(" \u2022 "),after};
       state.history.push(entry);
       addHistoryRow(entry,true);
-
-      // Advance to next hole
-      const startHole=Number(els.startHole.value)||1;
-      if (startHole===10) {
-        // Back 9: holes 10-18
-        const next = hole + 1;
-        state.hole = next > 18 ? 10 : next;
-      } else {
-        state.hole=Math.min(hole+1, maxHoles===9 ? 9 : 18);
-      }
-
+      state.hole=Math.min(hole+1,maxHoles);
       els.valA.value=""; els.valB.value=""; els.valC.value="";
       els.valA.focus();
       updateUI();
-
-      // Auto-open summary when round is complete
-      if (state.history.length >= maxHoles) {
-        setTimeout(() => openSummary(), 400);
-      }
     }
 
     function doReset() {
       undoStack=[];
       state.scores=[0,0,0]; state.history=[]; state.usedDouble=[false,false,false];
       state.krStart=Number(els.krPerPoint.value)||10; state.krNow=state.krStart;
-      state.maxHoles=Number(els.maxHoles.value)||18;
-      state.hole=Number(els.startHole.value)||1;
+      state.maxHoles=Number(els.maxHoles.value)||18; state.hole=1;
       rerenderHistory(); saveAndClose();
     }
 
@@ -943,17 +732,13 @@
     $('resetConfirmNo').addEventListener('click', () => { $('resetConfirm').style.display='none'; });
     $('resetConfirmYes').addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); $('resetConfirm').style.display='none'; doReset(); });
     els.undoBtn.addEventListener('click', () => { const s=undoStack.pop(); if(s) restore(s); });
-    els.holeNo.addEventListener('input', () => { updateDoubleDropdown(); updateHoleParBadge(); updateStrokeBadges(); });
+    els.holeNo.addEventListener('input', () => { updateDoubleDropdown(); updateHoleParBadge(); });
 
     // ═══════════════════════════════
     // INIT
     // ═══════════════════════════════
     const loaded=loadFromStorage();
-    if (!loaded) {
-      state.krStart=Number(els.krPerPoint.value)||10; state.krNow=state.krStart;
-      state.maxHoles=Number(els.maxHoles.value)||18;
-      state.hole=Number(els.startHole.value)||1;
-    }
+    if (!loaded) { state.krStart=Number(els.krPerPoint.value)||10; state.krNow=state.krStart; state.maxHoles=Number(els.maxHoles.value)||18; }
     updateUI();
   })();
   </script>
