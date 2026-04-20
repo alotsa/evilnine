@@ -1,14 +1,24 @@
-<!DOCTYPE html>
-<html lang="sv"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a120a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Golf" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icon-180.png" />
   <title>Golf Games</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:wght@400;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
     :root { --bg:#0a120a;--felt:#101c10;--rule:#1e3320;--rule-lt:#2d4d30;--chalk:#e8f0d8;--chalk-dim:#8faa82;--lime:#c6f040;--lime-dim:#7ab828;--red:#e05a4a;--hole-w:640px; }
     *,*::before,*::after { box-sizing:border-box;margin:0;padding:0; }
     body { font-family:'Manrope',sans-serif;background:var(--bg);color:var(--chalk);min-height:100vh;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); }
-    header { border-bottom:3px solid var(--lime);position:sticky;top:0;background:var(--bg);z-index:50; }
+    header { border-bottom:3px solid var(--lime);position:sticky;top:0;background:var(--bg);z-index:50;padding-top:env(safe-area-inset-top); }
     .header-inner { max-width:var(--hole-w);margin:0 auto;display:flex;align-items:stretch;height:56px; }
     .header-title { flex:1;display:flex;align-items:center;padding:0 16px;border-right:2px solid var(--rule);overflow:hidden; }
     h1 { font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--chalk);line-height:1;white-space:nowrap; }
@@ -34,7 +44,7 @@
     .course-bar-tee,.course-bar-par { font-family:'Courier Prime',monospace;font-size:11px;color:var(--chalk-dim); }
     .view { display:none; }
     .view.active { display:block; }
-    main { max-width:var(--hole-w);margin:0 auto;padding-bottom:48px; }
+    main { max-width:var(--hole-w);margin:0 auto;padding-bottom:calc(48px + env(safe-area-inset-bottom)); }
     .section-label { font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:var(--chalk-dim);padding:10px 16px 6px;border-bottom:1px solid var(--rule); }
     .scoreboard { border-bottom:3px solid var(--rule); }
     .players-row { display:grid;grid-template-columns:1fr 1fr 1fr; }
@@ -140,7 +150,7 @@
     .pay-modal-title { font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:var(--chalk); }
     .pay-modal-x { width:52px;height:52px;border:none;border-left:1px solid var(--rule);background:none;cursor:pointer;font-family:'Courier Prime',monospace;font-size:18px;color:var(--chalk-dim);transition:background 0.15s,color 0.15s; }
     .pay-modal-x:hover { background:var(--rule);color:var(--chalk); }
-    .pay-modal-body { padding:20px 16px 28px; }
+    .pay-modal-body { padding:20px 16px calc(28px + env(safe-area-inset-bottom)); }
     .pay-kr-badge { font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--lime-dim);margin-bottom:16px; }
     .pay-lines { display:flex;flex-direction:column;gap:12px; }
     .pay-line { display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--rule);padding-bottom:12px; }
@@ -181,7 +191,7 @@
     .summary-winner-banner { background:rgba(198,240,64,0.07);border:1px solid var(--lime-dim);padding:12px 16px;margin:14px 16px 0;text-align:center; }
     .summary-winner-text { font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--lime); }
     .summary-winner-sub { font-family:'Courier Prime',monospace;font-size:11px;color:var(--chalk-dim);margin-top:4px; }
-    .summary-actions { display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule); }
+    .summary-actions { display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom); }
     .summary-btn { font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:14px 8px;background:none;border:none;border-right:1px solid var(--rule);cursor:pointer;color:var(--chalk-dim);transition:background 0.15s,color 0.15s; }
     .summary-btn:last-child { border-right:none; }
     .summary-btn:hover { background:var(--rule);color:var(--chalk); }
@@ -195,7 +205,7 @@
     .modal-title { font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:var(--chalk); }
     .modal-x { width:52px;height:52px;border:none;border-left:1px solid var(--rule);background:none;cursor:pointer;font-family:'Courier Prime',monospace;font-size:18px;color:var(--chalk-dim);flex-shrink:0; }
     .modal-x:hover { background:var(--rule);color:var(--chalk); }
-    .modal-body { padding-bottom:16px; }
+    .modal-body { padding-bottom:calc(16px + env(safe-area-inset-bottom)); }
     .settings-mode-indicator { font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--lime-dim);padding:8px 16px;border-bottom:1px solid var(--rule);background:rgba(198,240,64,0.04); }
     .settings-section { display:none; }
     .settings-section.active { display:block; }
@@ -234,19 +244,19 @@
 <body>
 <header>
   <div class="header-inner">
-    <div class="header-title"><h1 id="appTitle">BÄSTBOLL <em>TALIBAN</em></h1></div>
+    <div class="header-title"><h1 id="appTitle">EVIL <em>NINE</em></h1></div>
     <button class="mode-btn" id="modeBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
-      <span id="modeBtnLabel">Evil Nine</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      <span id="modeBtnLabel">Taliban</span>
     </button>
-    <button class="pay-btn hidden" id="openPayments">
-      <svg width="32" height="32" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="currentColor" opacity="0.18"></circle><text x="20" y="27" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="22" fill="currentColor">$</text></svg>
+    <button class="pay-btn" id="openPayments">
+      <svg width="32" height="32" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="currentColor" opacity="0.18"/><text x="20" y="27" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="22" fill="currentColor">$</text></svg>
     </button>
-    <button class="pay-btn" id="tb-openPayments">
-      <svg width="32" height="32" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="currentColor" opacity="0.18"></circle><text x="20" y="27" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="22" fill="currentColor">$</text></svg>
+    <button class="pay-btn hidden" id="tb-openPayments">
+      <svg width="32" height="32" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="currentColor" opacity="0.18"/><text x="20" y="27" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="22" fill="currentColor">$</text></svg>
     </button>
     <button class="cog-btn" id="openSettings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
   <div class="course-bar" id="courseBar">
@@ -258,119 +268,119 @@
 </header>
 <main>
 <!-- EVIL NINE VIEW -->
-<div class="view" id="viewEN">
+<div class="view active" id="viewEN">
   <div class="scoreboard">
-    <div class="section-label">STÄLLNING</div>
+    <div class="section-label">ST&#196;LLNING</div>
     <div class="players-row">
       <div class="player-col"><div class="p-name" id="en-scoreTitleA">SPELARE 1</div><div class="p-score" id="en-scoreA">0</div><div class="p-stroke-badge" id="en-strokeBadgeA"></div></div>
       <div class="player-col"><div class="p-name" id="en-scoreTitleB">SPELARE 2</div><div class="p-score" id="en-scoreB">0</div><div class="p-stroke-badge" id="en-strokeBadgeB"></div></div>
       <div class="player-col"><div class="p-name" id="en-scoreTitleC">SPELARE 3</div><div class="p-score" id="en-scoreC">0</div><div class="p-stroke-badge" id="en-strokeBadgeC"></div></div>
     </div>
     <div class="meta-strip">
-      <div class="meta-cell"><span class="meta-key">KR / POÄNG</span><span class="meta-val" id="en-krNow">10 KR</span></div>
+      <div class="meta-cell"><span class="meta-key">KR / PO&#196;NG</span><span class="meta-val" id="en-krNow">10 KR</span></div>
       <div class="meta-divider"></div>
-      <div class="meta-cell"><span class="meta-key">PRESS</span><span class="meta-val" style="font-size:14px;padding-top:4px" id="en-doublesUsed">Spelare 1:– Spelare 2:– Spelare 3:–</span></div>
+      <div class="meta-cell"><span class="meta-key">PRESS</span><span class="meta-val" style="font-size:14px;padding-top:4px" id="en-doublesUsed">&#8211;</span></div>
     </div>
   </div>
   <div class="register-section">
     <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
-      <span>REGISTRERA HÅL</span>
-      <span class="double-key">PRESS <span style="opacity:0.5;font-size:9px;letter-spacing:1px">FRÅN HÅL 12</span></span>
+      <span>REGISTRERA H&#197;L</span>
+      <span class="double-key">PRESS <span style="opacity:0.5;font-size:9px;letter-spacing:1px">FR&#197;N H&#197;L 12</span></span>
     </div>
     <div class="hole-banner">
-      <span class="hole-label-text">HÅL</span>
-      <input class="hole-no-input" id="en-holeNo" type="number" value="1" min="1" max="18">
+      <span class="hole-label-text">H&#197;L</span>
+      <input class="hole-no-input" id="en-holeNo" type="number" value="1" min="1" max="18" />
       <span class="hole-par-badge" id="en-holeParBadge" style="margin-left:12px"></span>
       <div class="hole-banner-right">
         <select id="en-doubleWho"><option value="">Ingen</option></select>
       </div>
     </div>
     <div class="score-inputs-3">
-      <div class="score-input-col"><label class="si-label" id="en-labelInputA">SPELARE </label><input class="si-input" id="en-valA" type="number" inputmode="numeric" placeholder="–"></div>
-      <div class="score-input-col"><label class="si-label" id="en-labelInputB">SPELARE </label><input class="si-input" id="en-valB" type="number" inputmode="numeric" placeholder="–"></div>
-      <div class="score-input-col"><label class="si-label" id="en-labelInputC">SPELARE </label><input class="si-input" id="en-valC" type="number" inputmode="numeric" placeholder="–"></div>
+      <div class="score-input-col"><label class="si-label" id="en-labelInputA">SP. 1</label><input class="si-input" id="en-valA" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+      <div class="score-input-col"><label class="si-label" id="en-labelInputB">SP. 2</label><input class="si-input" id="en-valB" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+      <div class="score-input-col"><label class="si-label" id="en-labelInputC">SP. 3</label><input class="si-input" id="en-valC" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
     </div>
     <div id="en-hint"></div>
     <div class="action-row">
-      <button class="act-btn primary" id="en-addHoleBtn" disabled="">LÄGG TILL</button>
-      <button class="act-btn secondary" id="en-undoBtn" disabled="">ÅNGRA</button>
-      <button class="act-btn secondary" id="en-resetBtn">NOLLSTÄLL</button>
+      <button class="act-btn primary" id="en-addHoleBtn">L&#196;GG TILL</button>
+      <button class="act-btn secondary" id="en-undoBtn" disabled>&#197;NGRA</button>
+      <button class="act-btn secondary" id="en-resetBtn">NOLLST&#196;LL</button>
     </div>
     <div class="reset-confirm-bar" id="en-resetConfirmBar">
-      <span class="reset-confirm-text">Är du säker?</span>
+      <span class="reset-confirm-text">&#196;r du s&#228;ker?</span>
       <div class="reset-confirm-btns"><button class="reset-yes" id="en-resetYes">JA</button><button class="reset-no" id="en-resetNo">NEJ</button></div>
     </div>
     <div class="round-complete-bar" id="en-roundCompleteBar">
-      <span class="round-complete-text">Rundan är klar! 🎰</span>
+      <span class="round-complete-text">Rundan &#228;r klar! &#127920;</span>
       <button class="round-complete-btn" id="en-showSummaryBtn">SE SAMMANFATTNING</button>
     </div>
   </div>
   <div class="history-section" id="en-historySection">
     <button class="history-toggle" id="en-historyToggle">
-      <div class="history-toggle-left"><span class="ht-label">HISTORIK</span><span class="ht-count" id="en-historyCount">0 HÅL</span></div>
-      <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      <div class="history-toggle-left"><span class="ht-label">HISTORIK</span><span class="ht-count" id="en-historyCount">0 H&#197;L</span></div>
+      <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <div class="history-body"><div class="history-inner">
-      <table><thead><tr><th>HÅL</th><th>SLAG/POÄNG</th><th>HÅLPOÄNG</th><th>NOTERING</th><th style="text-align:right">EFTER</th></tr></thead><tbody id="en-historyBody"></tbody></table>
+      <table><thead><tr><th>H&#197;L</th><th>SLAG/PO&#196;NG</th><th>H&#197;LPO&#196;NG</th><th>NOTERING</th><th style="text-align:right">EFTER</th></tr></thead><tbody id="en-historyBody"></tbody></table>
     </div></div>
   </div>
 </div>
 <!-- TALIBAN VIEW -->
-<div class="view active" id="viewTB">
+<div class="view" id="viewTB">
   <div class="scoreboard">
-    <div class="section-label">STÄLLNING</div>
+    <div class="section-label">ST&#196;LLNING</div>
     <div class="match-header">
-      <div class="team-name-disp" id="tb-team1Name">Spelare &amp; Spelare</div>
+      <div class="team-name-disp" id="tb-team1Name">LAG 1</div>
       <div class="vs-label">MOT</div>
-      <div class="team-name-disp right" id="tb-team2Name">Spelare &amp; Spelare</div>
+      <div class="team-name-disp right" id="tb-team2Name">LAG 2</div>
     </div>
     <div class="score-strip">
-      <div class="score-cell"><div class="score-key">UT</div><div class="score-val lead" id="tb-scoreUt">1 UP</div><div class="score-result" id="tb-resultUt">Spelare &amp; Spelare</div></div>
+      <div class="score-cell"><div class="score-key">UT</div><div class="score-val" id="tb-scoreUt">&#8211;</div><div class="score-result" id="tb-resultUt"></div></div>
       <div class="score-divider"></div>
-      <div class="score-cell"><div class="score-key">IN</div><div class="score-val" id="tb-scoreIn">–</div><div class="score-result" id="tb-resultIn"></div></div>
+      <div class="score-cell"><div class="score-key">IN</div><div class="score-val" id="tb-scoreIn">&#8211;</div><div class="score-result" id="tb-resultIn"></div></div>
       <div class="score-divider"></div>
-      <div class="score-cell"><div class="score-key">TOTALT</div><div class="score-val lead" id="tb-scoreTot">1 UP</div><div class="score-result" id="tb-resultTot">Spelare &amp; Spelare</div></div>
+      <div class="score-cell"><div class="score-key">TOTALT</div><div class="score-val" id="tb-scoreTot">&#8211;</div><div class="score-result" id="tb-resultTot"></div></div>
     </div>
     <div class="teams-row">
-      <div class="team-col"><div class="team-label">LAG 1</div><div class="team-players" id="tb-team1Players">Spelare 1<br>Spelare 2</div></div>
-      <div class="team-col"><div class="team-label">LAG 2</div><div class="team-players" id="tb-team2Players">Spelare 3<br>Spelare 4</div></div>
+      <div class="team-col"><div class="team-label">LAG 1</div><div class="team-players" id="tb-team1Players">&#8211;</div></div>
+      <div class="team-col"><div class="team-label">LAG 2</div><div class="team-players" id="tb-team2Players">&#8211;</div></div>
     </div>
   </div>
   <div class="register-section">
-    <div class="section-label">REGISTRERA HÅL</div>
+    <div class="section-label">REGISTRERA H&#197;L</div>
     <div class="hole-banner">
-      <span class="hole-label-text">HÅL</span>
-      <input class="hole-no-input" id="tb-holeNo" type="number" value="1" min="1" max="18">
+      <span class="hole-label-text">H&#197;L</span>
+      <input class="hole-no-input" id="tb-holeNo" type="number" value="1" min="1" max="18" />
       <div class="hole-banner-right"><span class="hole-par-badge" id="tb-holeParBadge"></span></div>
     </div>
     <div class="score-inputs-4">
-      <div class="score-input-col team1" id="tb-col1"><div class="team-badge t1" id="tb-badge1">LAG 1</div><label class="si-label" id="tb-labelP1">SPELARE </label><input class="si-input si-input-sm" id="tb-val1" type="number" inputmode="numeric" placeholder="–"></div>
-      <div class="score-input-col team1" id="tb-col2"><div class="team-badge t1" id="tb-badge2">LAG 1</div><label class="si-label" id="tb-labelP2">SPELARE </label><input class="si-input si-input-sm" id="tb-val2" type="number" inputmode="numeric" placeholder="–"></div>
-      <div class="score-input-col team2" id="tb-col3"><div class="team-badge t2" id="tb-badge3">LAG 2</div><label class="si-label" id="tb-labelP3">SPELARE </label><input class="si-input si-input-sm" id="tb-val3" type="number" inputmode="numeric" placeholder="–"></div>
-      <div class="score-input-col team2" id="tb-col4"><div class="team-badge t2" id="tb-badge4">LAG 2</div><label class="si-label" id="tb-labelP4">SPELARE </label><input class="si-input si-input-sm" id="tb-val4" type="number" inputmode="numeric" placeholder="–"></div>
+      <div class="score-input-col" id="tb-col1"><div class="team-badge" id="tb-badge1"></div><label class="si-label" id="tb-labelP1">SP 1</label><input class="si-input si-input-sm" id="tb-val1" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+      <div class="score-input-col" id="tb-col2"><div class="team-badge" id="tb-badge2"></div><label class="si-label" id="tb-labelP2">SP 2</label><input class="si-input si-input-sm" id="tb-val2" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+      <div class="score-input-col" id="tb-col3"><div class="team-badge" id="tb-badge3"></div><label class="si-label" id="tb-labelP3">SP 3</label><input class="si-input si-input-sm" id="tb-val3" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
+      <div class="score-input-col" id="tb-col4"><div class="team-badge" id="tb-badge4"></div><label class="si-label" id="tb-labelP4">SP 4</label><input class="si-input si-input-sm" id="tb-val4" type="number" inputmode="numeric" placeholder="&#8211;" /></div>
     </div>
     <div id="tb-hint"></div>
     <div class="action-row">
-      <button class="act-btn primary" id="tb-addHoleBtn" disabled="">LÄGG TILL</button>
-      <button class="act-btn secondary" id="tb-undoBtn">ÅNGRA</button>
-      <button class="act-btn secondary" id="tb-resetBtn">NOLLSTÄLL</button>
+      <button class="act-btn primary" id="tb-addHoleBtn">L&#196;GG TILL</button>
+      <button class="act-btn secondary" id="tb-undoBtn" disabled>&#197;NGRA</button>
+      <button class="act-btn secondary" id="tb-resetBtn">NOLLST&#196;LL</button>
     </div>
     <div class="reset-confirm-bar" id="tb-resetConfirmBar">
-      <span class="reset-confirm-text">Är du säker?</span>
+      <span class="reset-confirm-text">&#196;r du s&#228;ker?</span>
       <div class="reset-confirm-btns"><button class="reset-yes" id="tb-resetYes">JA</button><button class="reset-no" id="tb-resetNo">NEJ</button></div>
     </div>
     <div class="round-complete-bar" id="tb-roundCompleteBar">
-      <span class="round-complete-text">Rundan är klar! 🎰</span>
+      <span class="round-complete-text">Rundan &#228;r klar! &#127920;</span>
       <button class="round-complete-btn" id="tb-showSummaryBtn">SE SAMMANFATTNING</button>
     </div>
   </div>
   <div class="history-section" id="tb-historySection">
     <button class="history-toggle" id="tb-historyToggle">
-      <div class="history-toggle-left"><span class="ht-label">HISTORIK</span><span class="ht-count" id="tb-historyCount">1 HÅL</span></div>
-      <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      <div class="history-toggle-left"><span class="ht-label">HISTORIK</span><span class="ht-count" id="tb-historyCount">0 H&#197;L</span></div>
+      <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <div class="history-body"><div class="history-inner">
-      <table><thead><tr><th>HÅL</th><th>LAG 1</th><th>LAG 2</th><th>RESULTAT</th><th>NOTERING</th></tr></thead><tbody id="tb-historyBody"><tr><td>1</td><td>3/3 <span style="font-size:10px;color:var(--chalk-dim)">(3)</span></td><td>54/5 <span style="font-size:10px;color:var(--chalk-dim)">(5)</span></td><td class="win">Spelare &amp; Spelare vinner</td><td class="note-cell">Bästboll: 3 mot 5</td></tr></tbody></table>
+      <table><thead><tr><th>H&#197;L</th><th>LAG 1</th><th>LAG 2</th><th>RESULTAT</th><th>NOTERING</th></tr></thead><tbody id="tb-historyBody"></tbody></table>
     </div></div>
   </div>
 </div>
@@ -378,113 +388,113 @@
 <!-- Payment modal -->
 <div class="pay-modal-overlay" id="payModalOverlay">
   <div class="pay-modal">
-    <div class="pay-modal-header"><span class="pay-modal-title">BETALNING</span><button class="pay-modal-x" id="closePayments">✕</button></div>
-    <div class="pay-modal-body"><div class="pay-kr-badge" id="payKrBadge">10 KR / POÄNG</div><div class="pay-lines" id="payLines"></div></div>
+    <div class="pay-modal-header"><span class="pay-modal-title">BETALNING</span><button class="pay-modal-x" id="closePayments">&#x2715;</button></div>
+    <div class="pay-modal-body"><div class="pay-kr-badge" id="payKrBadge">10 KR / PO&#196;NG</div><div class="pay-lines" id="payLines"></div></div>
   </div>
 </div>
 <!-- Summary modal -->
 <div class="summary-overlay" id="summaryOverlay">
   <div class="summary-modal">
-    <div class="summary-header"><span class="summary-title" id="summaryTitle">RUNDAN KLAR</span><button class="summary-x" id="closeSummary">✕</button></div>
+    <div class="summary-header"><span class="summary-title" id="summaryTitle">RUNDAN KLAR</span><button class="summary-x" id="closeSummary">&#x2715;</button></div>
     <div id="summaryBody"></div>
   </div>
 </div>
 <!-- Settings modal -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <div class="modal-header"><span class="modal-title">INSTÄLLNINGAR</span><button class="modal-x" id="closeSettings">✕</button></div>
+    <div class="modal-header"><span class="modal-title">INST&#196;LLNINGAR</span><button class="modal-x" id="closeSettings">&#x2715;</button></div>
     <div class="modal-body">
-      <div class="settings-mode-indicator" id="settingsModeLabel">BÄSTBOLL TALIBAN</div>
+      <div class="settings-mode-indicator" id="settingsModeLabel">EVIL NINE</div>
       <!-- Evil Nine settings -->
-      <div class="settings-section" id="en-settings">
+      <div class="settings-section active" id="en-settings">
         <div class="settings-group">
           <div class="sg-title">SPELARE</div>
           <div class="settings-grid3">
-            <div class="sf"><label class="sf-label" id="en-labelNameA">SPELARE 1</label><input id="en-nameA" type="text" placeholder="NAMN"></div>
-            <div class="sf"><label class="sf-label" id="en-labelNameB">SPELARE 2</label><input id="en-nameB" type="text" placeholder="NAMN"></div>
-            <div class="sf"><label class="sf-label" id="en-labelNameC">SPELARE 3</label><input id="en-nameC" type="text" placeholder="NAMN"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpA" type="text" placeholder="0.0" inputmode="decimal"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpB" type="text" placeholder="0.0" inputmode="decimal"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpC" type="text" placeholder="0.0" inputmode="decimal"></div>
+            <div class="sf"><label class="sf-label" id="en-labelNameA">SPELARE 1</label><input id="en-nameA" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label" id="en-labelNameB">SPELARE 2</label><input id="en-nameB" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label" id="en-labelNameC">SPELARE 3</label><input id="en-nameC" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpA" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpB" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpC" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
           </div>
         </div>
         <div class="settings-group">
           <div class="sg-title">BANA</div>
           <div class="settings-grid2">
-            <div class="sf"><label class="sf-label">VÄLJ BANA</label><select id="en-courseSelect"><option value="">Ingen bana</option><option value="wasaby">Wäsby GK</option><option value="brohof_stadium">Bro Hof Stadium</option><option value="brohof_castle">Bro Hof Castle</option><option value="osteraker">Öster by Stenson</option><option value="omberg">Omberg GK</option><option value="marco_simone">Marco Simone G&amp;CC</option><option value="parco_medici">Parco De' Medici</option></select></div>
-            <div class="sf"><label class="sf-label">TEE</label><select id="en-teeSelect"><option value="">–</option></select></div>
+            <div class="sf"><label class="sf-label">V&#196;LJ BANA</label><select id="en-courseSelect"></select></div>
+            <div class="sf"><label class="sf-label">TEE</label><select id="en-teeSelect"><option value="">&#8211;</option></select></div>
           </div>
         </div>
         <div class="settings-group">
           <div class="sg-title">SPELREGLER</div>
           <div class="settings-grid2">
-            <div class="sf"><label class="sf-label">KR / POÄNG (START)</label><input id="en-krPerPoint" type="number" value="10" min="1"></div>
-            <div class="sf"><label class="sf-label">MAX HÅL</label><select id="en-maxHoles"><option value="9">9 hål</option><option value="18" selected="">18 hål</option></select></div>
-            <div class="sf"><label class="sf-label">STARTANDE HÅL</label><select id="en-startHole"><option value="1" selected="">Hål 1 (ut)</option><option value="10">Hål 10 (in)</option></select></div>
-            <div class="sf"><label class="sf-label">INMATNINGSTYP</label><select id="en-inputMode"><option value="points" selected="">Poäng</option><option value="strokes">Slag/netto</option><option value="brutto">Slag/brutto</option></select></div>
-            <div class="sf"><label class="sf-label">EVIL NINE-TRÖSKEL</label><input id="en-evilThreshold" type="number" value="2" min="1"></div>
-            <div class="sf"><label class="sf-label">BETALMODELL</label><select id="en-payMode"><option value="leader-diff" selected="">Alla → ledaren</option><option value="pairwise">Parvis</option></select></div>
+            <div class="sf"><label class="sf-label">KR / PO&#196;NG (START)</label><input id="en-krPerPoint" type="number" value="10" min="1" /></div>
+            <div class="sf"><label class="sf-label">MAX H&#197;L</label><select id="en-maxHoles"><option value="9">9 h&#229;l</option><option value="18" selected>18 h&#229;l</option></select></div>
+            <div class="sf"><label class="sf-label">STARTANDE H&#197;L</label><select id="en-startHole"><option value="1" selected>H&#229;l 1 (ut)</option><option value="10">H&#229;l 10 (in)</option></select></div>
+            <div class="sf"><label class="sf-label">INMATNINGSTYP</label><select id="en-inputMode"><option value="points" selected>Po&#228;ng</option><option value="strokes">Slag/netto</option><option value="brutto">Slag/brutto</option></select></div>
+            <div class="sf"><label class="sf-label">EVIL NINE-TR&#214;SKEL</label><input id="en-evilThreshold" type="number" value="2" min="1" /></div>
+            <div class="sf"><label class="sf-label">BETALMODELL</label><select id="en-payMode"><option value="leader-diff" selected>Alla &#x2192; ledaren</option><option value="pairwise">Parvis</option></select></div>
           </div>
         </div>
-        <div class="settings-group" style="border-bottom:none"><div class="sg-title">HANTERA RUNDA</div><button class="save-btn" id="en-saveSettings">SPARA INSTÄLLNINGAR</button></div>
+        <div class="settings-group" style="border-bottom:none"><div class="sg-title">HANTERA RUNDA</div><button class="save-btn" id="en-saveSettings">SPARA INST&#196;LLNINGAR</button></div>
         <div class="danger-group">
           <div class="danger-confirm" id="en-resetConfirm" style="display:none">
-            <span class="danger-confirm-text">Är du säker? All data raderas.</span>
+            <span class="danger-confirm-text">&#196;r du s&#228;ker? All data raderas.</span>
             <div class="danger-confirm-btns"><button class="danger-btn-confirm" id="en-resetConfirmYes">JA, STARTA OM</button><button class="danger-btn-cancel" id="en-resetConfirmNo">AVBRYT</button></div>
           </div>
           <button class="danger-btn" id="en-resetBtn2">STARTA NY RUNDA</button>
         </div>
       </div>
       <!-- Taliban settings -->
-      <div class="settings-section active" id="tb-settings">
+      <div class="settings-section" id="tb-settings">
         <div class="settings-group">
           <div class="sg-title">SPELARE</div>
           <div class="settings-grid4">
-            <div class="sf"><label class="sf-label">SPELARE 1</label><input id="tb-name1" type="text" placeholder="NAMN"></div>
-            <div class="sf"><label class="sf-label">SPELARE 2</label><input id="tb-name2" type="text" placeholder="NAMN"></div>
-            <div class="sf"><label class="sf-label">SPELARE 3</label><input id="tb-name3" type="text" placeholder="NAMN"></div>
-            <div class="sf"><label class="sf-label">SPELARE 4</label><input id="tb-name4" type="text" placeholder="NAMN"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp1" type="text" placeholder="0.0" inputmode="decimal"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp2" type="text" placeholder="0.0" inputmode="decimal"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp3" type="text" placeholder="0.0" inputmode="decimal"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp4" type="text" placeholder="0.0" inputmode="decimal"></div>
+            <div class="sf"><label class="sf-label">SPELARE 1</label><input id="tb-name1" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label">SPELARE 2</label><input id="tb-name2" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label">SPELARE 3</label><input id="tb-name3" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label">SPELARE 4</label><input id="tb-name4" type="text" placeholder="NAMN" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp1" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp2" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp3" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp4" type="number" placeholder="0.0" step="0.1" min="0" max="54" /></div>
           </div>
         </div>
         <div class="settings-group">
           <div class="sg-title">PARNING</div>
           <div class="settings-grid2">
-            <div class="sf"><label class="sf-label">LAG 1 — SPELARE A</label><select id="tb-pair1a"><option value="0">Spelare 1</option><option value="1">Spelare 2</option><option value="2">Spelare 3</option><option value="3">Spelare 4</option></select></div>
-            <div class="sf"><label class="sf-label">LAG 1 — SPELARE B</label><select id="tb-pair1b"><option value="1">Spelare 2</option><option value="2">Spelare 3</option><option value="3">Spelare 4</option></select></div>
-            <div class="sf"><label class="sf-label">LAG 2 — SPELARE A</label><select id="tb-pair2a" disabled=""><option value="2">Spelare 3</option></select></div>
-            <div class="sf"><label class="sf-label">LAG 2 — SPELARE B</label><select id="tb-pair2b" disabled=""><option value="3">Spelare 4</option></select></div>
+            <div class="sf"><label class="sf-label">LAG 1 &#8212; SPELARE A</label><select id="tb-pair1a"></select></div>
+            <div class="sf"><label class="sf-label">LAG 1 &#8212; SPELARE B</label><select id="tb-pair1b"></select></div>
+            <div class="sf"><label class="sf-label">LAG 2 &#8212; SPELARE A</label><select id="tb-pair2a"></select></div>
+            <div class="sf"><label class="sf-label">LAG 2 &#8212; SPELARE B</label><select id="tb-pair2b"></select></div>
           </div>
         </div>
         <div class="settings-group">
           <div class="sg-title">BANA</div>
           <div class="settings-grid2">
-            <div class="sf"><label class="sf-label">VÄLJ BANA</label><select id="tb-courseSelect"><option value="">Ingen bana</option><option value="wasaby">Wäsby GK</option><option value="brohof_stadium">Bro Hof Stadium</option><option value="brohof_castle">Bro Hof Castle</option><option value="osteraker">Öster by Stenson</option><option value="omberg">Omberg GK</option><option value="marco_simone">Marco Simone G&amp;CC</option><option value="parco_medici">Parco De' Medici</option></select></div>
-            <div class="sf"><label class="sf-label">TEE</label><select id="tb-teeSelect"><option value="">–</option></select></div>
+            <div class="sf"><label class="sf-label">V&#196;LJ BANA</label><select id="tb-courseSelect"></select></div>
+            <div class="sf"><label class="sf-label">TEE</label><select id="tb-teeSelect"><option value="">&#8211;</option></select></div>
           </div>
         </div>
         <div class="settings-group">
           <div class="sg-title">SPELREGLER</div>
           <div class="settings-grid2">
-            <div class="sf"><label class="sf-label">MAX HÅL</label><select id="tb-maxHoles"><option value="9">9 hål</option><option value="18" selected="">18 hål</option></select></div>
-            <div class="sf"><label class="sf-label">STARTANDE HÅL</label><select id="tb-startHole"><option value="1" selected="">Hål 1 (ut)</option><option value="10">Hål 10 (in)</option></select></div>
+            <div class="sf"><label class="sf-label">MAX H&#197;L</label><select id="tb-maxHoles"><option value="9">9 h&#229;l</option><option value="18" selected>18 h&#229;l</option></select></div>
+            <div class="sf"><label class="sf-label">STARTANDE H&#197;L</label><select id="tb-startHole"><option value="1" selected>H&#229;l 1 (ut)</option><option value="10">H&#229;l 10 (in)</option></select></div>
           </div>
         </div>
         <div class="settings-group">
           <div class="sg-title">INSATSER (KR)</div>
           <div class="settings-grid3">
-            <div class="sf"><label class="sf-label">UT</label><input id="tb-stakeUt" type="number" value="100" min="0"></div>
-            <div class="sf"><label class="sf-label">IN</label><input id="tb-stakeIn" type="number" value="100" min="0"></div>
-            <div class="sf"><label class="sf-label">TOTALT</label><input id="tb-stakeTot" type="number" value="200" min="0"></div>
+            <div class="sf"><label class="sf-label">UT</label><input id="tb-stakeUt" type="number" value="100" min="0" /></div>
+            <div class="sf"><label class="sf-label">IN</label><input id="tb-stakeIn" type="number" value="100" min="0" /></div>
+            <div class="sf"><label class="sf-label">TOTALT</label><input id="tb-stakeTot" type="number" value="200" min="0" /></div>
           </div>
         </div>
-        <div class="settings-group" style="border-bottom:none"><div class="sg-title">HANTERA RUNDA</div><button class="save-btn" id="tb-saveSettings">SPARA INSTÄLLNINGAR</button></div>
+        <div class="settings-group" style="border-bottom:none"><div class="sg-title">HANTERA RUNDA</div><button class="save-btn" id="tb-saveSettings">SPARA INST&#196;LLNINGAR</button></div>
         <div class="danger-group">
           <div class="danger-confirm" id="tb-resetConfirm" style="display:none">
-            <span class="danger-confirm-text">Är du säker? All data raderas.</span>
+            <span class="danger-confirm-text">&#196;r du s&#228;ker? All data raderas.</span>
             <div class="danger-confirm-btns"><button class="danger-btn-confirm" id="tb-resetConfirmYes">JA, STARTA OM</button><button class="danger-btn-cancel" id="tb-resetConfirmNo">AVBRYT</button></div>
           </div>
           <button class="danger-btn" id="tb-resetBtn2">STARTA NY RUNDA</button>
@@ -494,6 +504,33 @@
   </div>
 </div>
 
+<script>
+  // --- PWA bootstrap ---------------------------------------------------
+  // Register the service worker so the app works offline and can be installed.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => {
+        console.warn('[PWA] Service worker registration failed:', err);
+      });
+    });
+  }
+
+  // Keep the screen awake while the app is in view — so the phone doesn't
+  // sleep between holes. Silently does nothing on browsers that don't
+  // support it (notably iOS Safari <16.4). Re-requests on tab focus.
+  (() => {
+    if (!('wakeLock' in navigator)) return;
+    let lock = null;
+    const request = async () => {
+      try { lock = await navigator.wakeLock.request('screen'); }
+      catch (e) { /* denied or unavailable — fine */ }
+    };
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') request();
+    });
+    request();
+  })();
+</script>
 <script>
 (() => {
   const COURSES = [
@@ -524,23 +561,8 @@
   let activeMode = 'en';
 
   // ── HCP ──
-  function parseHcp(val){
-    // "5" or "5.0" → 5.0 (normal golfer)
-    // "+5" or "+5.0" → -5.0 (plus golfer, internally negative)
-    if(typeof val!=='string') val=String(val||'');
-    val=val.trim();
-    if(!val) return 0;
-    if(val.startsWith('+')){const n=parseFloat(val.slice(1));return isNaN(n)?0:-n;}
-    const n=parseFloat(val);return isNaN(n)?0:n;
-  }
-  function playHcp(hcp,slope,cr,par){return Math.round(hcp*(slope/113)+(cr-par))||0;}
-  function extraStrokes(ph,si){
-    if(ph===0) return 0;
-    if(ph>0){let s=0;if(si<=ph)s++;if(si<=ph-18)s++;return s;}
-    // Negative playing hcp: minusslag on easiest holes first (SI 18, 17, ...)
-    const absPh=Math.abs(ph);
-    let s=0;if(si>=19-absPh)s--;if(si>=37-absPh)s--;return s;
-  }
+  function playHcp(hcp,slope){return Math.round(hcp*(slope/113));}
+  function extraStrokes(ph,si){if(ph<=0)return 0;let s=0;if(si<=ph)s++;if(si<=ph-18)s++;return s;}
   function b2sf(brutto,par,ex){return Math.max(0,2-(brutto-par-ex));}
   function netto(brutto,par,ex){return brutto-par-ex;}
 
@@ -601,7 +623,7 @@
   function enCA(){return courseActive('en-courseSelect','en-teeSelect');}
   function enCourse(){return getCourse('en-courseSelect');}
   function enTee(){return getTee('en-courseSelect','en-teeSelect');}
-  function enHcps(){const t=enTee(),c=enCourse();if(!t||!c)return[0,0,0];return[$('en-hcpA'),$('en-hcpB'),$('en-hcpC')].map(el=>playHcp(parseHcp(el.value),t.slope,t.cr,c.par));}
+  function enHcps(){const t=enTee();if(!t)return[0,0,0];return[$('en-hcpA'),$('en-hcpB'),$('en-hcpC')].map(el=>playHcp(parseFloat(el.value)||0,t.slope));}
 
   function enStrokeBadges(){
     const bs=[$('en-strokeBadgeA'),$('en-strokeBadgeB'),$('en-strokeBadgeC')];
@@ -609,7 +631,7 @@
     const c=enCourse(),h=Number($('en-holeNo').value)||enS.hole;
     if(!c||h<1||h>c.holes.length){bs.forEach(b=>b.textContent='');return;}
     const hd=c.holes[h-1],ph=enHcps();
-    ph.forEach((p,i)=>{const ex=extraStrokes(p,hd.si);if(ex>0)bs[i].textContent='\u25cf'.repeat(ex);else if(ex<0)bs[i].textContent='\u2212'.repeat(Math.abs(ex));else bs[i].textContent='';});
+    ph.forEach((p,i)=>{const ex=extraStrokes(p,hd.si);bs[i].textContent=ex>0?'\u25cf'.repeat(ex):'';});
   }
 
   function enUpdateDblDd(){
@@ -706,7 +728,7 @@
     const hole=Number($('en-holeNo').value),max=Number($('en-maxHoles').value)||18;
     enS.maxHoles=max;
     if(!Number.isFinite(hole)||hole<1||hole>18){alert('Ogiltigt h\u00e5l.');return;}
-    const raw=[$('en-valA'),$('en-valB'),$('en-valC')].map(el=>el.value.trim()===''?NaN:Number(el.value));
+    const raw=[Number($('en-valA').value),Number($('en-valB').value),Number($('en-valC').value)];
     if(raw.some(v=>!Number.isFinite(v))){alert('Fyll i resultat f\u00f6r alla tre spelare.');return;}
     if($('en-inputMode').value==='brutto'){const c=enCourse(),par=c?c.holes[hole-1].par:4;const sus=raw.filter(v=>v<1||v>par+8);if(sus.length&&!confirm('N\u00e5got slag verkar ovanligt ('+sus.join(', ')+').\nSt\u00e4mmer det?'))return;}
     enUndo.push(enSnap());enS.hole=hole;
@@ -719,7 +741,7 @@
     const entry={hole,values:raw,holePts:pts,sf:sf||null,note:[dNote,note,m>0?'Nedr\u00e4kning: -'+m:'Nedr\u00e4kning: 0'].filter(Boolean).join(' \u2022 '),after:[...enS.scores]};
     enS.history.push(entry);enAddRow(entry,true);
     enS.hole=Math.min(hole+1,18);
-    $('en-valA').value='';$('en-valB').value='';$('en-valC').value='';$('en-valA').focus();enCheckInputs();
+    $('en-valA').value='';$('en-valB').value='';$('en-valC').value='';$('en-valA').focus();
     enUI();if(enS.history.length>=max)setTimeout(()=>openSummary('en'),400);
   }
 
@@ -738,9 +760,6 @@
     $('payLines').innerHTML=tr.map(t=>'<div class="pay-line"><div><div class="pay-line-names">'+t.from+'</div><div class="pay-line-arrow">\u25bc BETALAR TILL</div><div class="pay-line-names">'+t.to+'</div></div><div class="pay-line-amount">'+t.amt+' KR</div></div>').join('');
   }
 
-  function enCheckInputs(){const filled=['en-valA','en-valB','en-valC'].every(id=>$(id).value.trim()!=='');$('en-addHoleBtn').disabled=!filled;}
-  ['en-valA','en-valB','en-valC'].forEach(id=>$(id).addEventListener('input',enCheckInputs));
-  enCheckInputs();
   $('en-addHoleBtn').addEventListener('click',enAddHole);
   $('en-undoBtn').addEventListener('click',()=>{const s=enUndo.pop();if(s)enRestore(s);});
   $('en-resetBtn').addEventListener('click',()=>{$('en-resetConfirmBar').classList.add('visible');$('en-resetConfirmBar').scrollIntoView({behavior:'smooth',block:'nearest'});});
@@ -770,34 +789,26 @@
   function tbCA(){return courseActive('tb-courseSelect','tb-teeSelect');}
   function tbCourse(){return getCourse('tb-courseSelect');}
   function tbTee(){return getTee('tb-courseSelect','tb-teeSelect');}
-  function tbHcps(){const t=tbTee(),c=tbCourse();if(!t||!c)return[0,0,0,0];return[1,2,3,4].map(n=>playHcp(parseHcp($('tb-hcp'+n).value),t.slope,t.cr,c.par));}
+  function tbHcps(){const t=tbTee();if(!t)return[0,0,0,0];return[1,2,3,4].map(n=>playHcp(parseFloat($('tb-hcp'+n).value)||0,t.slope));}
 
   function tbBuildPairing(){
-    const all=[0,1,2,3];
-    // Lag 1: two free dropdowns, no duplicate allowed between them
-    const sel1a=$('tb-pair1a'), sel1b=$('tb-pair1b');
-    const sel2a=$('tb-pair2a'), sel2b=$('tb-pair2b');
-    if(!sel1a||!sel1b||!sel2a||!sel2b) return;
-    const cur1a=sel1a.value, cur1b=sel1b.value;
-    // Build Lag 1 Spelare A: all four available
-    sel1a.innerHTML='';
-    all.forEach(i=>{const o=document.createElement('option');o.value=i;o.textContent=tbName(i);sel1a.appendChild(o);});
-    if([...sel1a.options].some(o=>o.value===cur1a)) sel1a.value=cur1a;
-    // Build Lag 1 Spelare B: exclude whoever is picked in 1a
-    sel1b.innerHTML='';
-    all.filter(i=>String(i)!==String(sel1a.value)).forEach(i=>{const o=document.createElement('option');o.value=i;o.textContent=tbName(i);sel1b.appendChild(o);});
-    if([...sel1b.options].some(o=>o.value===cur1b)) sel1b.value=cur1b;
-    // Lag 2: auto-assigned from the two remaining players
-    const picked=new Set([String(sel1a.value),String(sel1b.value)]);
-    const remaining=all.filter(i=>!picked.has(String(i)));
-    sel2a.innerHTML='';sel2b.innerHTML='';
-    if(remaining.length>=2){
-      const o1=document.createElement('option');o1.value=remaining[0];o1.textContent=tbName(remaining[0]);sel2a.appendChild(o1);sel2a.value=remaining[0];
-      const o2=document.createElement('option');o2.value=remaining[1];o2.textContent=tbName(remaining[1]);sel2b.appendChild(o2);sel2b.value=remaining[1];
-    }
+    const ids=['tb-pair1a','tb-pair1b','tb-pair2a','tb-pair2b'];
+    if(ids.some(id=>!$(id))) return;
+    const vals=ids.map(id=>$(id).value);
+    ids.forEach((sid,si)=>{
+      const sel=$(sid),cur=vals[si];
+      const taken=vals.filter((_,i)=>i!==si).map(v=>String(v));
+      sel.innerHTML='';
+      [0,1,2,3].forEach(i=>{
+        if(taken.includes(String(i))) return;
+        const o=document.createElement('option');o.value=i;o.textContent=tbName(i);sel.appendChild(o);
+      });
+      if([...sel.options].some(o=>o.value===cur)) sel.value=cur;
+      else sel.value=sel.options[0]?.value||'0';
+    });
   }
   [1,2,3,4].forEach(n=>{ const el=$('tb-name'+n); if(el) el.addEventListener('input',tbBuildPairing); });
-  ['tb-pair1a','tb-pair1b'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('change',tbBuildPairing); });
+  ['tb-pair1a','tb-pair1b','tb-pair2a','tb-pair2b'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('change',tbBuildPairing); });
 
   function tbColors(){
     const teams=tbTeams();
@@ -807,9 +818,9 @@
   }
 
   function tbCalcScore(){
-    const ut={w1:0,w2:0,d:0,played:0},inp={w1:0,w2:0,d:0,played:0};
-    tbS.history.forEach(e=>{const p=e.hole<=9?ut:inp;p.played++;if(e.winner===0)p.w1++;else if(e.winner===1)p.w2++;else p.d++;});
-    return{ut,in:inp,tot:{w1:ut.w1+inp.w1,w2:ut.w2+inp.w2,d:ut.d+inp.d,played:ut.played+inp.played}};
+    const ut={w1:0,w2:0,d:0},inp={w1:0,w2:0,d:0};
+    tbS.history.forEach(e=>{const p=e.hole<=9?ut:inp;if(e.winner===0)p.w1++;else if(e.winner===1)p.w2++;else p.d++;});
+    return{ut,in:inp,tot:{w1:ut.w1+inp.w1,w2:ut.w2+inp.w2,d:ut.d+inp.d}};
   }
 
   function tbCalcHole(bruttos,holeNum){
@@ -837,25 +848,14 @@
     [1,2,3,4].forEach(n=>$('tb-labelP'+n).textContent=tbName(n-1).toUpperCase().slice(0,8));
     tbColors();
     const sc=tbCalcScore();
-    function sl(w1,w2,d,played,totalHoles){
-      if(!played)return{txt:'\u2013',cls:'',sub:''};
-      const lead=Math.abs(w1-w2),remaining=totalHoles-played;
-      const leader=w1>w2?t1:w2>w1?t2:null;
-      if(!leader) return{txt:'ALL SQUARE',cls:'',sub:''};
-      if(remaining===0) return{txt:lead+' UP',cls:'lead',sub:leader};
-      if(lead>remaining) return{txt:lead+' & '+remaining,cls:'lead',sub:leader};
-      if(lead===remaining) return{txt:'DORMY',cls:'lead',sub:leader};
-      return{txt:lead+' UP',cls:'lead',sub:leader};
-    }
-    const ul=sl(sc.ut.w1,sc.ut.w2,sc.ut.d,sc.ut.played,9);
-    const il=sl(sc.in.w1,sc.in.w2,sc.in.d,sc.in.played,9);
-    const tl=sl(sc.tot.w1,sc.tot.w2,sc.tot.d,sc.tot.played,18);
+    function sl(w1,w2,d){if(!w1&&!w2&&!d)return{txt:'\u2013',cls:''};const net=w1-w2;return{txt:w1+'\u2013'+w2+(d?' ('+d+'d)':''),cls:net>0?'lead':'',win:net>0?t1:net<0?t2:null};}
+    const ul=sl(sc.ut.w1,sc.ut.w2,sc.ut.d),il=sl(sc.in.w1,sc.in.w2,sc.in.d),tl=sl(sc.tot.w1,sc.tot.w2,sc.tot.d);
     $('tb-scoreUt').innerHTML=ul.txt;$('tb-scoreUt').className='score-val'+(ul.cls?' '+ul.cls:'');
     $('tb-scoreIn').innerHTML=il.txt;$('tb-scoreIn').className='score-val'+(il.cls?' '+il.cls:'');
     $('tb-scoreTot').innerHTML=tl.txt;$('tb-scoreTot').className='score-val'+(tl.cls?' '+tl.cls:'');
-    $('tb-resultUt').textContent=ul.sub?ul.sub:'';
-    $('tb-resultIn').textContent=il.sub?il.sub:'';
-    $('tb-resultTot').textContent=tl.sub?tl.sub:'';
+    $('tb-resultUt').textContent=ul.win?'Leder: '+ul.win:'';
+    $('tb-resultIn').textContent=il.win?'Leder: '+il.win:'';
+    $('tb-resultTot').textContent=tl.win?'Leder: '+tl.win:'';
     $('tb-holeNo').value=tbS.hole;
     $('tb-undoBtn').disabled=tbS.history.length===0;
     $('tb-historyCount').textContent=tbS.history.length+' H\u00c5L';
@@ -883,8 +883,8 @@
     const nm=ui.names||['','','',''];[1,2,3,4].forEach((n,i)=>$('tb-name'+n).value=nm[i]||'');
     const hcps=ui.hcps||['','','',''];[1,2,3,4].forEach((n,i)=>$('tb-hcp'+n).value=hcps[i]||'');
     tbBuildPairing();
-    if(ui.pair1a!=null){$('tb-pair1a').value=ui.pair1a;tbBuildPairing();}
-    if(ui.pair1b!=null){$('tb-pair1b').value=ui.pair1b;tbBuildPairing();}
+    if(ui.pair1a!=null)$('tb-pair1a').value=ui.pair1a;if(ui.pair1b!=null)$('tb-pair1b').value=ui.pair1b;
+    if(ui.pair2a!=null)$('tb-pair2a').value=ui.pair2a;if(ui.pair2b!=null)$('tb-pair2b').value=ui.pair2b;
     if(ui.courseId){$('tb-courseSelect').value=ui.courseId;buildTeeDd('tb-teeSelect',ui.courseId);}if(ui.tee)$('tb-teeSelect').value=ui.tee;
     if(ui.maxHoles)$('tb-maxHoles').value=ui.maxHoles;if(ui.startHole)$('tb-startHole').value=ui.startHole;
     if(ui.stakeUt!=null)$('tb-stakeUt').value=ui.stakeUt;
@@ -895,16 +895,26 @@
   function tbCalcPayments(){
     const sc=tbCalcScore();
     const stakes={ut:Number($('tb-stakeUt').value)||0,in:Number($('tb-stakeIn').value)||0,tot:Number($('tb-stakeTot').value)||0};
-    const teams=tbTeams();
+    const teams=tbGetTeams();
     const payments=[];
-    function addPart(w1,w2,stake,part){
-      if(!stake||w1===w2)return;
-      const winTeam=w1>w2?0:1,loseTeam=1-winTeam;
-      for(let i=0;i<2;i++) payments.push({from:tbName(teams[loseTeam][i]),to:tbName(teams[winTeam][i]),amt:stake,part:part});
+    // Ut
+    if(sc.ut.w1>sc.ut.w2&&stakes.ut>0){
+      teams[1].forEach(loser=>teams[0].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.ut,part:'UT'})));
+    } else if(sc.ut.w2>sc.ut.w1&&stakes.ut>0){
+      teams[0].forEach(loser=>teams[1].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.ut,part:'UT'})));
     }
-    addPart(sc.ut.w1,sc.ut.w2,stakes.ut,'UT');
-    addPart(sc.in.w1,sc.in.w2,stakes.in,'IN');
-    addPart(sc.tot.w1,sc.tot.w2,stakes.tot,'TOTALT');
+    // In
+    if(sc.in.w1>sc.in.w2&&stakes.in>0){
+      teams[1].forEach(loser=>teams[0].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.in,part:'IN'})));
+    } else if(sc.in.w2>sc.in.w1&&stakes.in>0){
+      teams[0].forEach(loser=>teams[1].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.in,part:'IN'})));
+    }
+    // Tot
+    if(sc.tot.w1>sc.tot.w2&&stakes.tot>0){
+      teams[1].forEach(loser=>teams[0].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.tot,part:'TOTALT'})));
+    } else if(sc.tot.w2>sc.tot.w1&&stakes.tot>0){
+      teams[0].forEach(loser=>teams[1].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.tot,part:'TOTALT'})));
+    }
     return payments;
   }
 
@@ -935,14 +945,14 @@
   function tbAddHole(){
     const hole=Number($('tb-holeNo').value),max=Number($('tb-maxHoles').value)||18;
     if(!Number.isFinite(hole)||hole<1||hole>18){alert('Ogiltigt h\u00e5l.');return;}
-    const bruttos=[1,2,3,4].map(n=>{const v=$('tb-val'+n).value.trim();return v===''?NaN:Number(v);});
+    const bruttos=[1,2,3,4].map(n=>Number($('tb-val'+n).value));
     if(bruttos.some(v=>!Number.isFinite(v))){alert('Fyll i slag f\u00f6r alla fyra spelare.');return;}
     tbUndo.push(tbSnap());
     const{nettos,best,worst,winner,note}=tbCalcHole(bruttos,hole);
     tbS.history.push({hole,bruttos,nettos,best,worst,winner,note});
     tbAddRow(tbS.history[tbS.history.length-1],true);
     tbS.hole=Math.min(hole+1,18);
-    [1,2,3,4].forEach(n=>$('tb-val'+n).value='');$('tb-val1').focus();tbCheckInputs();
+    [1,2,3,4].forEach(n=>$('tb-val'+n).value='');$('tb-val1').focus();
     tbUI();if(tbS.history.length>=max)setTimeout(()=>openSummary('tb'),400);
   }
 
@@ -951,9 +961,6 @@
   function tbDiscardSet(){if(tbSettSnap)tbRestore(tbSettSnap);tbSettSnap=null;}
   function tbSaveClose(){tbSettSnap=null;$('modalOverlay').classList.remove('open');tbS.hole=Number($('tb-startHole').value)||1;tbUI();}
 
-  function tbCheckInputs(){const filled=[1,2,3,4].every(n=>$('tb-val'+n).value.trim()!=='');$('tb-addHoleBtn').disabled=!filled;}
-  [1,2,3,4].forEach(n=>$('tb-val'+n).addEventListener('input',tbCheckInputs));
-  tbCheckInputs();
   $('tb-addHoleBtn').addEventListener('click',tbAddHole);
   $('tb-undoBtn').addEventListener('click',()=>{const s=tbUndo.pop();if(s)tbRestore(s);});
   $('tb-resetBtn').addEventListener('click',()=>{$('tb-resetConfirmBar').classList.add('visible');$('tb-resetConfirmBar').scrollIntoView({behavior:'smooth',block:'nearest'});});
@@ -1008,33 +1015,17 @@
     } else {
       $('summaryTitle').textContent='TALIBAN \u2014 RUNDAN KLAR';
       const sc=tbCalcScore(),t1=tbTname(0),t2=tbTname(1);
-      function sumSl(w1,w2,played,totalHoles){
-        const lead=Math.abs(w1-w2),remaining=totalHoles-played;
-        const leader=w1>w2?t1:w2>w1?t2:null;
-        if(!leader)return{txt:'ALL SQUARE',leader:null};
-        if(remaining===0)return{txt:lead+' UP',leader};
-        if(lead>remaining)return{txt:lead+' & '+remaining,leader};
-        if(lead===remaining)return{txt:'DORMY',leader};
-        return{txt:lead+' UP',leader};
-      }
-      const sec=(label,w1,w2,d,played,totalHoles)=>{
-        const r=sumSl(w1,w2,played,totalHoles);
-        return '<div class="summary-section"><div class="summary-section-title">'+label+'</div><div class="summary-result-row"><span class="summary-result-label">Resultat</span><span class="summary-result-val win">'+r.txt+'</span></div>'+(r.leader?'<div style="font-family:\'Courier Prime\',monospace;font-size:12px;color:var(--lime-dim);margin-top:6px">Vinnare: '+r.leader+'</div>':'<div style="font-family:\'Courier Prime\',monospace;font-size:12px;color:var(--chalk-dim);margin-top:6px">J\u00e4mnt!</div>')+'<div style="font-family:\'Courier Prime\',monospace;font-size:11px;color:var(--chalk-dim);margin-top:4px">'+t1+' '+w1+' \u2013 '+w2+' '+t2+(d?' ('+d+' delade)':'')+'</div></div>';
-      };
-      const rTot=sumSl(sc.tot.w1,sc.tot.w2,sc.tot.played,18);
-      let html=sec('UT (H\u00c5L 1\u20139)',sc.ut.w1,sc.ut.w2,sc.ut.d,sc.ut.played,9)+sec('IN (H\u00c5L 10\u201318)',sc.in.w1,sc.in.w2,sc.in.d,sc.in.played,9)+sec('TOTALT',sc.tot.w1,sc.tot.w2,sc.tot.d,sc.tot.played,18);
-      html+=rTot.leader?'<div class="summary-winner-banner"><div class="summary-winner-text">\ud83c\udfc6 '+rTot.leader+'</div><div class="summary-winner-sub">Vinner matchen</div></div>':'<div class="summary-winner-banner"><div class="summary-winner-text">J\u00c4MT!</div><div class="summary-winner-sub">Matchen slutade delat</div></div>';
+      const sec=(label,w1,w2,d)=>{const net=w1-w2,lead=net>0?t1:net<0?t2:null;return '<div class="summary-section"><div class="summary-section-title">'+label+'</div><div class="summary-result-row"><span class="summary-result-label">'+t1+'</span><span class="summary-result-val'+(net>0?' win':'')+'">'+w1+' h\u00e5l</span></div><div class="summary-result-row"><span class="summary-result-label">'+t2+'</span><span class="summary-result-val'+(net<0?' win':'')+'">'+w2+' h\u00e5l</span></div>'+(d?'<div class="summary-result-row"><span class="summary-result-label">Delade</span><span class="summary-result-val">'+d+'</span></div>':'')+(lead?'<div style="font-family:\'Courier Prime\',monospace;font-size:12px;color:var(--lime-dim);margin-top:6px">Vinnare: '+lead+'</div>':'<div style="font-family:\'Courier Prime\',monospace;font-size:12px;color:var(--chalk-dim);margin-top:6px">J\u00e4mnt!</div>')+'</div>';};
+      const tot=sc.tot.w1-sc.tot.w2,winner=tot>0?t1:tot<0?t2:null;
+      let html=sec('UT (H\u00c5L 1\u20139)',sc.ut.w1,sc.ut.w2,sc.ut.d)+sec('IN (H\u00c5L 10\u201318)',sc.in.w1,sc.in.w2,sc.in.d)+sec('TOTALT',sc.tot.w1,sc.tot.w2,sc.tot.d);
+      html+=winner?'<div class="summary-winner-banner"><div class="summary-winner-text">\ud83c\udfc6 '+winner+'</div><div class="summary-winner-sub">Vinner matchen</div></div>':'<div class="summary-winner-banner"><div class="summary-winner-text">J\u00c4MT!</div><div class="summary-winner-sub">Matchen slutade delat</div></div>';
       html+='<div class="summary-actions"><button class="summary-btn" id="sumExport">EXPORTERA</button><button class="summary-btn primary" id="sumClose">ST\u00c4NG</button></div>';
       $('summaryBody').innerHTML=html;
       $('sumExport').addEventListener('click',()=>{
         const date=new Date().toLocaleDateString('sv-SE'),c=tbCourse(),t=tbTee();
-        const rUt=sumSl(sc.ut.w1,sc.ut.w2,sc.ut.played,9),rIn=sumSl(sc.in.w1,sc.in.w2,sc.in.played,9);
         let txt='B\u00c4STBOLL TALIBAN \u2014 '+date+'\n';if(c&&t)txt+=c.name+' \u00b7 '+t.name+'\n';
-        txt+='\n'+t1+' mot '+t2;
-        txt+='\n\nUT: '+rUt.txt+(rUt.leader?' ('+rUt.leader+')':'')+' ['+sc.ut.w1+'\u2013'+sc.ut.w2+']';
-        txt+='\nIN: '+rIn.txt+(rIn.leader?' ('+rIn.leader+')':'')+' ['+sc.in.w1+'\u2013'+sc.in.w2+']';
-        txt+='\nTOTALT: '+rTot.txt+(rTot.leader?' ('+rTot.leader+')':'')+' ['+sc.tot.w1+'\u2013'+sc.tot.w2+']';
-        txt+=rTot.leader?'\n\nVinnare: '+rTot.leader:'\n\nResultat: J\u00e4mt';
+        txt+='\n'+t1+' mot '+t2+'\n\nUT: '+t1+' '+sc.ut.w1+' \u2013 '+sc.ut.w2+' '+t2+'\nIN: '+t1+' '+sc.in.w1+' \u2013 '+sc.in.w2+' '+t2+'\nTOTALT: '+t1+' '+sc.tot.w1+' \u2013 '+sc.tot.w2+' '+t2;
+        txt+=tot>0?'\n\nVinnare: '+t1:tot<0?'\n\nVinnare: '+t2:'\n\nResultat: J\u00e4mt';
         navigator.clipboard.writeText(txt).then(()=>{const b=$('sumExport');if(!b)return;const o=b.textContent;b.textContent='KOPIERAT!';setTimeout(()=>{if($('sumExport'))$('sumExport').textContent=o;},2000);}).catch(()=>alert(txt));
       });
       $('sumClose').addEventListener('click',()=>$('summaryOverlay').classList.remove('open'));
@@ -1064,5 +1055,5 @@
   else updateCourseBar('tb-courseSelect','tb-teeSelect');
 })();
 </script>
-
-</body></html>
+</body>
+</html>
