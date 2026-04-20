@@ -325,11 +325,11 @@
       <div class="team-name-disp right" id="tb-team2Name">Spelare &amp; Spelare</div>
     </div>
     <div class="score-strip">
-      <div class="score-cell"><div class="score-key">UT</div><div class="score-val lead" id="tb-scoreUt">1–0</div><div class="score-result" id="tb-resultUt">Leder: Spelare &amp; Spelare</div></div>
+      <div class="score-cell"><div class="score-key">UT</div><div class="score-val lead" id="tb-scoreUt">1 UP</div><div class="score-result" id="tb-resultUt">Spelare &amp; Spelare</div></div>
       <div class="score-divider"></div>
       <div class="score-cell"><div class="score-key">IN</div><div class="score-val" id="tb-scoreIn">–</div><div class="score-result" id="tb-resultIn"></div></div>
       <div class="score-divider"></div>
-      <div class="score-cell"><div class="score-key">TOTALT</div><div class="score-val lead" id="tb-scoreTot">1–0</div><div class="score-result" id="tb-resultTot">Leder: Spelare &amp; Spelare</div></div>
+      <div class="score-cell"><div class="score-key">TOTALT</div><div class="score-val lead" id="tb-scoreTot">1 UP</div><div class="score-result" id="tb-resultTot">Spelare &amp; Spelare</div></div>
     </div>
     <div class="teams-row">
       <div class="team-col"><div class="team-label">LAG 1</div><div class="team-players" id="tb-team1Players">Spelare 1<br>Spelare 2</div></div>
@@ -804,9 +804,9 @@
   }
 
   function tbCalcScore(){
-    const ut={w1:0,w2:0,d:0},inp={w1:0,w2:0,d:0};
-    tbS.history.forEach(e=>{const p=e.hole<=9?ut:inp;if(e.winner===0)p.w1++;else if(e.winner===1)p.w2++;else p.d++;});
-    return{ut,in:inp,tot:{w1:ut.w1+inp.w1,w2:ut.w2+inp.w2,d:ut.d+inp.d}};
+    const ut={w1:0,w2:0,d:0,played:0},inp={w1:0,w2:0,d:0,played:0};
+    tbS.history.forEach(e=>{const p=e.hole<=9?ut:inp;p.played++;if(e.winner===0)p.w1++;else if(e.winner===1)p.w2++;else p.d++;});
+    return{ut,in:inp,tot:{w1:ut.w1+inp.w1,w2:ut.w2+inp.w2,d:ut.d+inp.d,played:ut.played+inp.played}};
   }
 
   function tbCalcHole(bruttos,holeNum){
@@ -834,14 +834,25 @@
     [1,2,3,4].forEach(n=>$('tb-labelP'+n).textContent=tbName(n-1).toUpperCase().slice(0,8));
     tbColors();
     const sc=tbCalcScore();
-    function sl(w1,w2,d){if(!w1&&!w2&&!d)return{txt:'\u2013',cls:''};const net=w1-w2;return{txt:w1+'\u2013'+w2+(d?' ('+d+'d)':''),cls:net>0?'lead':'',win:net>0?t1:net<0?t2:null};}
-    const ul=sl(sc.ut.w1,sc.ut.w2,sc.ut.d),il=sl(sc.in.w1,sc.in.w2,sc.in.d),tl=sl(sc.tot.w1,sc.tot.w2,sc.tot.d);
+    function sl(w1,w2,d,played,totalHoles){
+      if(!played)return{txt:'\u2013',cls:'',sub:''};
+      const lead=Math.abs(w1-w2),remaining=totalHoles-played;
+      const leader=w1>w2?t1:w2>w1?t2:null;
+      if(!leader) return{txt:'ALL SQUARE',cls:'',sub:''};
+      if(remaining===0) return{txt:lead+' UP',cls:'lead',sub:leader};
+      if(lead>remaining) return{txt:lead+' & '+remaining,cls:'lead',sub:leader};
+      if(lead===remaining) return{txt:'DORMY',cls:'lead',sub:leader};
+      return{txt:lead+' UP',cls:'lead',sub:leader};
+    }
+    const ul=sl(sc.ut.w1,sc.ut.w2,sc.ut.d,sc.ut.played,9);
+    const il=sl(sc.in.w1,sc.in.w2,sc.in.d,sc.in.played,9);
+    const tl=sl(sc.tot.w1,sc.tot.w2,sc.tot.d,sc.tot.played,18);
     $('tb-scoreUt').innerHTML=ul.txt;$('tb-scoreUt').className='score-val'+(ul.cls?' '+ul.cls:'');
     $('tb-scoreIn').innerHTML=il.txt;$('tb-scoreIn').className='score-val'+(il.cls?' '+il.cls:'');
     $('tb-scoreTot').innerHTML=tl.txt;$('tb-scoreTot').className='score-val'+(tl.cls?' '+tl.cls:'');
-    $('tb-resultUt').textContent=ul.win?'Leder: '+ul.win:'';
-    $('tb-resultIn').textContent=il.win?'Leder: '+il.win:'';
-    $('tb-resultTot').textContent=tl.win?'Leder: '+tl.win:'';
+    $('tb-resultUt').textContent=ul.sub?ul.sub:'';
+    $('tb-resultIn').textContent=il.sub?il.sub:'';
+    $('tb-resultTot').textContent=tl.sub?tl.sub:'';
     $('tb-holeNo').value=tbS.hole;
     $('tb-undoBtn').disabled=tbS.history.length===0;
     $('tb-historyCount').textContent=tbS.history.length+' H\u00c5L';
@@ -869,8 +880,8 @@
     const nm=ui.names||['','','',''];[1,2,3,4].forEach((n,i)=>$('tb-name'+n).value=nm[i]||'');
     const hcps=ui.hcps||['','','',''];[1,2,3,4].forEach((n,i)=>$('tb-hcp'+n).value=hcps[i]||'');
     tbBuildPairing();
-    if(ui.pair1a!=null)$('tb-pair1a').value=ui.pair1a;if(ui.pair1b!=null)$('tb-pair1b').value=ui.pair1b;
-    tbBuildPairing();
+    if(ui.pair1a!=null){$('tb-pair1a').value=ui.pair1a;tbBuildPairing();}
+    if(ui.pair1b!=null){$('tb-pair1b').value=ui.pair1b;tbBuildPairing();}
     if(ui.courseId){$('tb-courseSelect').value=ui.courseId;buildTeeDd('tb-teeSelect',ui.courseId);}if(ui.tee)$('tb-teeSelect').value=ui.tee;
     if(ui.maxHoles)$('tb-maxHoles').value=ui.maxHoles;if(ui.startHole)$('tb-startHole').value=ui.startHole;
     if(ui.stakeUt!=null)$('tb-stakeUt').value=ui.stakeUt;
@@ -991,17 +1002,33 @@
     } else {
       $('summaryTitle').textContent='TALIBAN \u2014 RUNDAN KLAR';
       const sc=tbCalcScore(),t1=tbTname(0),t2=tbTname(1);
-      const sec=(label,w1,w2,d)=>{const net=w1-w2,lead=net>0?t1:net<0?t2:null;return '<div class="summary-section"><div class="summary-section-title">'+label+'</div><div class="summary-result-row"><span class="summary-result-label">'+t1+'</span><span class="summary-result-val'+(net>0?' win':'')+'">'+w1+' h\u00e5l</span></div><div class="summary-result-row"><span class="summary-result-label">'+t2+'</span><span class="summary-result-val'+(net<0?' win':'')+'">'+w2+' h\u00e5l</span></div>'+(d?'<div class="summary-result-row"><span class="summary-result-label">Delade</span><span class="summary-result-val">'+d+'</span></div>':'')+(lead?'<div style="font-family:\'Courier Prime\',monospace;font-size:12px;color:var(--lime-dim);margin-top:6px">Vinnare: '+lead+'</div>':'<div style="font-family:\'Courier Prime\',monospace;font-size:12px;color:var(--chalk-dim);margin-top:6px">J\u00e4mnt!</div>')+'</div>';};
-      const tot=sc.tot.w1-sc.tot.w2,winner=tot>0?t1:tot<0?t2:null;
-      let html=sec('UT (H\u00c5L 1\u20139)',sc.ut.w1,sc.ut.w2,sc.ut.d)+sec('IN (H\u00c5L 10\u201318)',sc.in.w1,sc.in.w2,sc.in.d)+sec('TOTALT',sc.tot.w1,sc.tot.w2,sc.tot.d);
-      html+=winner?'<div class="summary-winner-banner"><div class="summary-winner-text">\ud83c\udfc6 '+winner+'</div><div class="summary-winner-sub">Vinner matchen</div></div>':'<div class="summary-winner-banner"><div class="summary-winner-text">J\u00c4MT!</div><div class="summary-winner-sub">Matchen slutade delat</div></div>';
+      function sumSl(w1,w2,played,totalHoles){
+        const lead=Math.abs(w1-w2),remaining=totalHoles-played;
+        const leader=w1>w2?t1:w2>w1?t2:null;
+        if(!leader)return{txt:'ALL SQUARE',leader:null};
+        if(remaining===0)return{txt:lead+' UP',leader};
+        if(lead>remaining)return{txt:lead+' & '+remaining,leader};
+        if(lead===remaining)return{txt:'DORMY',leader};
+        return{txt:lead+' UP',leader};
+      }
+      const sec=(label,w1,w2,d,played,totalHoles)=>{
+        const r=sumSl(w1,w2,played,totalHoles);
+        return '<div class="summary-section"><div class="summary-section-title">'+label+'</div><div class="summary-result-row"><span class="summary-result-label">Resultat</span><span class="summary-result-val win">'+r.txt+'</span></div>'+(r.leader?'<div style="font-family:\'Courier Prime\',monospace;font-size:12px;color:var(--lime-dim);margin-top:6px">Vinnare: '+r.leader+'</div>':'<div style="font-family:\'Courier Prime\',monospace;font-size:12px;color:var(--chalk-dim);margin-top:6px">J\u00e4mnt!</div>')+'<div style="font-family:\'Courier Prime\',monospace;font-size:11px;color:var(--chalk-dim);margin-top:4px">'+t1+' '+w1+' \u2013 '+w2+' '+t2+(d?' ('+d+' delade)':'')+'</div></div>';
+      };
+      const rTot=sumSl(sc.tot.w1,sc.tot.w2,sc.tot.played,18);
+      let html=sec('UT (H\u00c5L 1\u20139)',sc.ut.w1,sc.ut.w2,sc.ut.d,sc.ut.played,9)+sec('IN (H\u00c5L 10\u201318)',sc.in.w1,sc.in.w2,sc.in.d,sc.in.played,9)+sec('TOTALT',sc.tot.w1,sc.tot.w2,sc.tot.d,sc.tot.played,18);
+      html+=rTot.leader?'<div class="summary-winner-banner"><div class="summary-winner-text">\ud83c\udfc6 '+rTot.leader+'</div><div class="summary-winner-sub">Vinner matchen</div></div>':'<div class="summary-winner-banner"><div class="summary-winner-text">J\u00c4MT!</div><div class="summary-winner-sub">Matchen slutade delat</div></div>';
       html+='<div class="summary-actions"><button class="summary-btn" id="sumExport">EXPORTERA</button><button class="summary-btn primary" id="sumClose">ST\u00c4NG</button></div>';
       $('summaryBody').innerHTML=html;
       $('sumExport').addEventListener('click',()=>{
         const date=new Date().toLocaleDateString('sv-SE'),c=tbCourse(),t=tbTee();
+        const rUt=sumSl(sc.ut.w1,sc.ut.w2,sc.ut.played,9),rIn=sumSl(sc.in.w1,sc.in.w2,sc.in.played,9);
         let txt='B\u00c4STBOLL TALIBAN \u2014 '+date+'\n';if(c&&t)txt+=c.name+' \u00b7 '+t.name+'\n';
-        txt+='\n'+t1+' mot '+t2+'\n\nUT: '+t1+' '+sc.ut.w1+' \u2013 '+sc.ut.w2+' '+t2+'\nIN: '+t1+' '+sc.in.w1+' \u2013 '+sc.in.w2+' '+t2+'\nTOTALT: '+t1+' '+sc.tot.w1+' \u2013 '+sc.tot.w2+' '+t2;
-        txt+=tot>0?'\n\nVinnare: '+t1:tot<0?'\n\nVinnare: '+t2:'\n\nResultat: J\u00e4mt';
+        txt+='\n'+t1+' mot '+t2;
+        txt+='\n\nUT: '+rUt.txt+(rUt.leader?' ('+rUt.leader+')':'')+' ['+sc.ut.w1+'\u2013'+sc.ut.w2+']';
+        txt+='\nIN: '+rIn.txt+(rIn.leader?' ('+rIn.leader+')':'')+' ['+sc.in.w1+'\u2013'+sc.in.w2+']';
+        txt+='\nTOTALT: '+rTot.txt+(rTot.leader?' ('+rTot.leader+')':'')+' ['+sc.tot.w1+'\u2013'+sc.tot.w2+']';
+        txt+=rTot.leader?'\n\nVinnare: '+rTot.leader:'\n\nResultat: J\u00e4mt';
         navigator.clipboard.writeText(txt).then(()=>{const b=$('sumExport');if(!b)return;const o=b.textContent;b.textContent='KOPIERAT!';setTimeout(()=>{if($('sumExport'))$('sumExport').textContent=o;},2000);}).catch(()=>alert(txt));
       });
       $('sumClose').addEventListener('click',()=>$('summaryOverlay').classList.remove('open'));
