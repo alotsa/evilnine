@@ -292,7 +292,7 @@
     </div>
     <div id="en-hint"></div>
     <div class="action-row">
-      <button class="act-btn primary" id="en-addHoleBtn">LÄGG TILL</button>
+      <button class="act-btn primary" id="en-addHoleBtn" disabled="">LÄGG TILL</button>
       <button class="act-btn secondary" id="en-undoBtn" disabled="">ÅNGRA</button>
       <button class="act-btn secondary" id="en-resetBtn">NOLLSTÄLL</button>
     </div>
@@ -351,7 +351,7 @@
     </div>
     <div id="tb-hint"></div>
     <div class="action-row">
-      <button class="act-btn primary" id="tb-addHoleBtn">LÄGG TILL</button>
+      <button class="act-btn primary" id="tb-addHoleBtn" disabled="">LÄGG TILL</button>
       <button class="act-btn secondary" id="tb-undoBtn">ÅNGRA</button>
       <button class="act-btn secondary" id="tb-resetBtn">NOLLSTÄLL</button>
     </div>
@@ -706,7 +706,7 @@
     const hole=Number($('en-holeNo').value),max=Number($('en-maxHoles').value)||18;
     enS.maxHoles=max;
     if(!Number.isFinite(hole)||hole<1||hole>18){alert('Ogiltigt h\u00e5l.');return;}
-    const raw=[Number($('en-valA').value),Number($('en-valB').value),Number($('en-valC').value)];
+    const raw=[$('en-valA'),$('en-valB'),$('en-valC')].map(el=>el.value.trim()===''?NaN:Number(el.value));
     if(raw.some(v=>!Number.isFinite(v))){alert('Fyll i resultat f\u00f6r alla tre spelare.');return;}
     if($('en-inputMode').value==='brutto'){const c=enCourse(),par=c?c.holes[hole-1].par:4;const sus=raw.filter(v=>v<1||v>par+8);if(sus.length&&!confirm('N\u00e5got slag verkar ovanligt ('+sus.join(', ')+').\nSt\u00e4mmer det?'))return;}
     enUndo.push(enSnap());enS.hole=hole;
@@ -719,7 +719,7 @@
     const entry={hole,values:raw,holePts:pts,sf:sf||null,note:[dNote,note,m>0?'Nedr\u00e4kning: -'+m:'Nedr\u00e4kning: 0'].filter(Boolean).join(' \u2022 '),after:[...enS.scores]};
     enS.history.push(entry);enAddRow(entry,true);
     enS.hole=Math.min(hole+1,18);
-    $('en-valA').value='';$('en-valB').value='';$('en-valC').value='';$('en-valA').focus();
+    $('en-valA').value='';$('en-valB').value='';$('en-valC').value='';$('en-valA').focus();enCheckInputs();
     enUI();if(enS.history.length>=max)setTimeout(()=>openSummary('en'),400);
   }
 
@@ -738,6 +738,9 @@
     $('payLines').innerHTML=tr.map(t=>'<div class="pay-line"><div><div class="pay-line-names">'+t.from+'</div><div class="pay-line-arrow">\u25bc BETALAR TILL</div><div class="pay-line-names">'+t.to+'</div></div><div class="pay-line-amount">'+t.amt+' KR</div></div>').join('');
   }
 
+  function enCheckInputs(){const filled=['en-valA','en-valB','en-valC'].every(id=>$(id).value.trim()!=='');$('en-addHoleBtn').disabled=!filled;}
+  ['en-valA','en-valB','en-valC'].forEach(id=>$(id).addEventListener('input',enCheckInputs));
+  enCheckInputs();
   $('en-addHoleBtn').addEventListener('click',enAddHole);
   $('en-undoBtn').addEventListener('click',()=>{const s=enUndo.pop();if(s)enRestore(s);});
   $('en-resetBtn').addEventListener('click',()=>{$('en-resetConfirmBar').classList.add('visible');$('en-resetConfirmBar').scrollIntoView({behavior:'smooth',block:'nearest'});});
@@ -932,14 +935,14 @@
   function tbAddHole(){
     const hole=Number($('tb-holeNo').value),max=Number($('tb-maxHoles').value)||18;
     if(!Number.isFinite(hole)||hole<1||hole>18){alert('Ogiltigt h\u00e5l.');return;}
-    const bruttos=[1,2,3,4].map(n=>Number($('tb-val'+n).value));
+    const bruttos=[1,2,3,4].map(n=>{const v=$('tb-val'+n).value.trim();return v===''?NaN:Number(v);});
     if(bruttos.some(v=>!Number.isFinite(v))){alert('Fyll i slag f\u00f6r alla fyra spelare.');return;}
     tbUndo.push(tbSnap());
     const{nettos,best,worst,winner,note}=tbCalcHole(bruttos,hole);
     tbS.history.push({hole,bruttos,nettos,best,worst,winner,note});
     tbAddRow(tbS.history[tbS.history.length-1],true);
     tbS.hole=Math.min(hole+1,18);
-    [1,2,3,4].forEach(n=>$('tb-val'+n).value='');$('tb-val1').focus();
+    [1,2,3,4].forEach(n=>$('tb-val'+n).value='');$('tb-val1').focus();tbCheckInputs();
     tbUI();if(tbS.history.length>=max)setTimeout(()=>openSummary('tb'),400);
   }
 
@@ -948,6 +951,9 @@
   function tbDiscardSet(){if(tbSettSnap)tbRestore(tbSettSnap);tbSettSnap=null;}
   function tbSaveClose(){tbSettSnap=null;$('modalOverlay').classList.remove('open');tbS.hole=Number($('tb-startHole').value)||1;tbUI();}
 
+  function tbCheckInputs(){const filled=[1,2,3,4].every(n=>$('tb-val'+n).value.trim()!=='');$('tb-addHoleBtn').disabled=!filled;}
+  [1,2,3,4].forEach(n=>$('tb-val'+n).addEventListener('input',tbCheckInputs));
+  tbCheckInputs();
   $('tb-addHoleBtn').addEventListener('click',tbAddHole);
   $('tb-undoBtn').addEventListener('click',()=>{const s=tbUndo.pop();if(s)tbRestore(s);});
   $('tb-resetBtn').addEventListener('click',()=>{$('tb-resetConfirmBar').classList.add('visible');$('tb-resetConfirmBar').scrollIntoView({behavior:'smooth',block:'nearest'});});
