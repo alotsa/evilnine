@@ -411,9 +411,9 @@
             <div class="sf"><label class="sf-label" id="en-labelNameA">SPELARE 1</label><input id="en-nameA" type="text" placeholder="NAMN"></div>
             <div class="sf"><label class="sf-label" id="en-labelNameB">SPELARE 2</label><input id="en-nameB" type="text" placeholder="NAMN"></div>
             <div class="sf"><label class="sf-label" id="en-labelNameC">SPELARE 3</label><input id="en-nameC" type="text" placeholder="NAMN"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpA" type="number" placeholder="0.0" step="0.1" min="0" max="54"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpB" type="number" placeholder="0.0" step="0.1" min="0" max="54"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpC" type="number" placeholder="0.0" step="0.1" min="0" max="54"></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpA" type="text" placeholder="0.0" inputmode="decimal"></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpB" type="text" placeholder="0.0" inputmode="decimal"></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpC" type="text" placeholder="0.0" inputmode="decimal"></div>
           </div>
         </div>
         <div class="settings-group">
@@ -452,10 +452,10 @@
             <div class="sf"><label class="sf-label">SPELARE 2</label><input id="tb-name2" type="text" placeholder="NAMN"></div>
             <div class="sf"><label class="sf-label">SPELARE 3</label><input id="tb-name3" type="text" placeholder="NAMN"></div>
             <div class="sf"><label class="sf-label">SPELARE 4</label><input id="tb-name4" type="text" placeholder="NAMN"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp1" type="number" placeholder="0.0" step="0.1" min="0" max="54"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp2" type="number" placeholder="0.0" step="0.1" min="0" max="54"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp3" type="number" placeholder="0.0" step="0.1" min="0" max="54"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp4" type="number" placeholder="0.0" step="0.1" min="0" max="54"></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp1" type="text" placeholder="0.0" inputmode="decimal"></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp2" type="text" placeholder="0.0" inputmode="decimal"></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp3" type="text" placeholder="0.0" inputmode="decimal"></div>
+            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp4" type="text" placeholder="0.0" inputmode="decimal"></div>
           </div>
         </div>
         <div class="settings-group">
@@ -562,8 +562,23 @@
   let activeMode = 'en';
 
   // ── HCP ──
-  function playHcp(hcp,slope){return Math.round(hcp*(slope/113));}
-  function extraStrokes(ph,si){if(ph<=0)return 0;let s=0;if(si<=ph)s++;if(si<=ph-18)s++;return s;}
+  function parseHcp(val){
+    // "5" or "5.0" → 5.0 (normal golfer)
+    // "+5" or "+5.0" → -5.0 (plus golfer, internally negative)
+    if(typeof val!=='string') val=String(val||'');
+    val=val.trim();
+    if(!val) return 0;
+    if(val.startsWith('+')){const n=parseFloat(val.slice(1));return isNaN(n)?0:-n;}
+    const n=parseFloat(val);return isNaN(n)?0:n;
+  }
+  function playHcp(hcp,slope,cr,par){return Math.round(hcp*(slope/113)+(cr-par))||0;}
+  function extraStrokes(ph,si){
+    if(ph===0) return 0;
+    if(ph>0){let s=0;if(si<=ph)s++;if(si<=ph-18)s++;return s;}
+    // Negative playing hcp: minusslag on easiest holes first (SI 18, 17, ...)
+    const absPh=Math.abs(ph);
+    let s=0;if(si>=19-absPh)s--;if(si>=37-absPh)s--;return s;
+  }
   function b2sf(brutto,par,ex){return Math.max(0,2-(brutto-par-ex));}
   function netto(brutto,par,ex){return brutto-par-ex;}
 
@@ -624,7 +639,7 @@
   function enCA(){return courseActive('en-courseSelect','en-teeSelect');}
   function enCourse(){return getCourse('en-courseSelect');}
   function enTee(){return getTee('en-courseSelect','en-teeSelect');}
-  function enHcps(){const t=enTee();if(!t)return[0,0,0];return[$('en-hcpA'),$('en-hcpB'),$('en-hcpC')].map(el=>playHcp(parseFloat(el.value)||0,t.slope));}
+  function enHcps(){const t=enTee(),c=enCourse();if(!t||!c)return[0,0,0];return[$('en-hcpA'),$('en-hcpB'),$('en-hcpC')].map(el=>playHcp(parseHcp(el.value),t.slope,t.cr,c.par));}
 
   function enStrokeBadges(){
     const bs=[$('en-strokeBadgeA'),$('en-strokeBadgeB'),$('en-strokeBadgeC')];
@@ -632,7 +647,7 @@
     const c=enCourse(),h=Number($('en-holeNo').value)||enS.hole;
     if(!c||h<1||h>c.holes.length){bs.forEach(b=>b.textContent='');return;}
     const hd=c.holes[h-1],ph=enHcps();
-    ph.forEach((p,i)=>{const ex=extraStrokes(p,hd.si);bs[i].textContent=ex>0?'\u25cf'.repeat(ex):'';});
+    ph.forEach((p,i)=>{const ex=extraStrokes(p,hd.si);if(ex>0)bs[i].textContent='\u25cf'.repeat(ex);else if(ex<0)bs[i].textContent='\u2212'.repeat(Math.abs(ex));else bs[i].textContent='';});
   }
 
   function enUpdateDblDd(){
@@ -790,7 +805,7 @@
   function tbCA(){return courseActive('tb-courseSelect','tb-teeSelect');}
   function tbCourse(){return getCourse('tb-courseSelect');}
   function tbTee(){return getTee('tb-courseSelect','tb-teeSelect');}
-  function tbHcps(){const t=tbTee();if(!t)return[0,0,0,0];return[1,2,3,4].map(n=>playHcp(parseFloat($('tb-hcp'+n).value)||0,t.slope));}
+  function tbHcps(){const t=tbTee(),c=tbCourse();if(!t||!c)return[0,0,0,0];return[1,2,3,4].map(n=>playHcp(parseHcp($('tb-hcp'+n).value),t.slope,t.cr,c.par));}
 
   // Previous values snapshot — used by tbPairChanged to perform swap-on-change
   // so that picking a player who's already in another slot swaps them rather
