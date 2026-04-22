@@ -333,11 +333,11 @@
       <div class="team-name-disp right" id="tb-team2Name">Björne &amp; Jurell</div>
     </div>
     <div class="score-strip">
-      <div class="score-cell"><div class="score-key">UT</div><div class="score-val lead" id="tb-scoreUt">1–0</div><div class="score-result" id="tb-resultUt">Leder: Phille &amp; Calle</div></div>
+      <div class="score-cell"><div class="score-key">UT</div><div class="score-val lead" id="tb-scoreUt">1 UP</div><div class="score-result" id="tb-resultUt">Phille &amp; Calle</div></div>
       <div class="score-divider"></div>
       <div class="score-cell"><div class="score-key">IN</div><div class="score-val" id="tb-scoreIn">–</div><div class="score-result" id="tb-resultIn"></div></div>
       <div class="score-divider"></div>
-      <div class="score-cell"><div class="score-key">TOTALT</div><div class="score-val lead" id="tb-scoreTot">1–0</div><div class="score-result" id="tb-resultTot">Leder: Phille &amp; Calle</div></div>
+      <div class="score-cell"><div class="score-key">TOTALT</div><div class="score-val lead" id="tb-scoreTot">1 UP</div><div class="score-result" id="tb-resultTot">Phille &amp; Calle</div></div>
     </div>
     <div class="teams-row">
       <div class="team-col"><div class="team-label">LAG 1</div><div class="team-players" id="tb-team1Players">Phille<br>Calle</div></div>
@@ -865,9 +865,9 @@
   }
 
   function tbCalcScore(){
-    const ut={w1:0,w2:0,d:0},inp={w1:0,w2:0,d:0};
-    tbS.history.forEach(e=>{const p=e.hole<=9?ut:inp;if(e.winner===0)p.w1++;else if(e.winner===1)p.w2++;else p.d++;});
-    return{ut,in:inp,tot:{w1:ut.w1+inp.w1,w2:ut.w2+inp.w2,d:ut.d+inp.d}};
+    const ut={w1:0,w2:0,d:0,played:0},inp={w1:0,w2:0,d:0,played:0};
+    tbS.history.forEach(e=>{const p=e.hole<=9?ut:inp;p.played++;if(e.winner===0)p.w1++;else if(e.winner===1)p.w2++;else p.d++;});
+    return{ut,in:inp,tot:{w1:ut.w1+inp.w1,w2:ut.w2+inp.w2,d:ut.d+inp.d,played:ut.played+inp.played}};
   }
 
   function tbCalcHole(bruttos,holeNum){
@@ -895,14 +895,25 @@
     [1,2,3,4].forEach(n=>$('tb-labelP'+n).textContent=tbName(n-1).toUpperCase().slice(0,8));
     tbColors();
     const sc=tbCalcScore();
-    function sl(w1,w2,d){if(!w1&&!w2&&!d)return{txt:'\u2013',cls:''};const net=w1-w2;return{txt:w1+'\u2013'+w2+(d?' ('+d+'d)':''),cls:net>0?'lead':'',win:net>0?t1:net<0?t2:null};}
-    const ul=sl(sc.ut.w1,sc.ut.w2,sc.ut.d),il=sl(sc.in.w1,sc.in.w2,sc.in.d),tl=sl(sc.tot.w1,sc.tot.w2,sc.tot.d);
+    function sl(w1,w2,d,played,totalHoles){
+      if(!played)return{txt:'\u2013',cls:'',sub:''};
+      const lead=Math.abs(w1-w2),remaining=totalHoles-played;
+      const leader=w1>w2?t1:w2>w1?t2:null;
+      if(!leader) return{txt:'ALL SQUARE',cls:'',sub:''};
+      if(remaining===0) return{txt:lead+' UP',cls:'lead',sub:leader};
+      if(lead>remaining) return{txt:lead+' & '+remaining,cls:'lead',sub:leader};
+      if(lead===remaining) return{txt:'DORMY',cls:'lead',sub:leader};
+      return{txt:lead+' UP',cls:'lead',sub:leader};
+    }
+    const ul=sl(sc.ut.w1,sc.ut.w2,sc.ut.d,sc.ut.played,9);
+    const il=sl(sc.in.w1,sc.in.w2,sc.in.d,sc.in.played,9);
+    const tl=sl(sc.tot.w1,sc.tot.w2,sc.tot.d,sc.tot.played,18);
     $('tb-scoreUt').innerHTML=ul.txt;$('tb-scoreUt').className='score-val'+(ul.cls?' '+ul.cls:'');
     $('tb-scoreIn').innerHTML=il.txt;$('tb-scoreIn').className='score-val'+(il.cls?' '+il.cls:'');
     $('tb-scoreTot').innerHTML=tl.txt;$('tb-scoreTot').className='score-val'+(tl.cls?' '+tl.cls:'');
-    $('tb-resultUt').textContent=ul.win?'Leder: '+ul.win:'';
-    $('tb-resultIn').textContent=il.win?'Leder: '+il.win:'';
-    $('tb-resultTot').textContent=tl.win?'Leder: '+tl.win:'';
+    $('tb-resultUt').textContent=ul.sub?ul.sub:'';
+    $('tb-resultIn').textContent=il.sub?il.sub:'';
+    $('tb-resultTot').textContent=tl.sub?tl.sub:'';
     $('tb-holeNo').value=tbS.hole;
     $('tb-undoBtn').disabled=tbS.history.length===0;
     $('tb-historyCount').textContent=tbS.history.length+' H\u00c5L';
