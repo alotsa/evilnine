@@ -55,19 +55,34 @@
     const s=$(selId);s.innerHTML='<option value="">Ingen bana</option>';
     COURSES.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;s.appendChild(o);});
   }
-  function buildTeeDd(selId,courseId){
-    const s=$(selId);s.innerHTML='<option value="">\u2013</option>';
-    if(!courseId)return;
-    const c=COURSES.find(x=>x.id===courseId);if(!c)return;
-    c.tees.forEach(t=>{const o=document.createElement('option');o.value=t.name;o.textContent=t.name+' (CR '+t.cr+' / Slope '+t.slope+')';s.appendChild(o);});
+  // Populates each player's individual tee dropdown for the given mode based on the
+  // currently-selected course. Preserves the previous selection if the new course
+  // still has a tee with that name; otherwise clears it.
+  function buildPlayerTeeDds(mode){
+    const courseId=$(`${mode}-courseSelect`).value;
+    const c=courseId?COURSES.find(x=>x.id===courseId)||null:null;
+    const ids=mode==='en'?['en-teeA','en-teeB','en-teeC']:['tb-tee1','tb-tee2','tb-tee3','tb-tee4'];
+    ids.forEach(id=>{
+      const sel=$(id);if(!sel)return;
+      const cur=sel.value;
+      sel.innerHTML='<option value="">\u2013</option>';
+      if(c){
+        c.tees.forEach(t=>{
+          const o=document.createElement('option');
+          o.value=t.name;
+          o.textContent=t.name+' ('+t.slope+')';
+          sel.appendChild(o);
+        });
+      }
+      if([...sel.options].some(o=>o.value===cur))sel.value=cur;
+      else sel.value='';
+    });
   }
   function getCourse(csel){const id=$(csel).value;return id?COURSES.find(c=>c.id===id)||null:null;}
-  function getTee(csel,tsel){const c=getCourse(csel);if(!c)return null;const n=$(tsel).value;return n?c.tees.find(t=>t.name===n)||null:null;}
-  function courseActive(csel,tsel){return !!(getCourse(csel)&&getTee(csel,tsel));}
 
-  function updateCourseBar(csel,tsel){
-    const c=getCourse(csel),t=getTee(csel,tsel);
-    if(c&&t){$('courseBarName').textContent=c.name.toUpperCase();$('courseBarTee').textContent=t.name+' \u00b7 CR '+t.cr+' \u00b7 Slope '+t.slope;$('courseBarPar').textContent='Par '+c.par;$('courseBar').classList.add('visible');}
+  function updateCourseBar(csel){
+    const c=getCourse(csel);
+    if(c){$('courseBarName').textContent=c.name.toUpperCase();$('courseBarPar').textContent='Par '+c.par;$('courseBar').classList.add('visible');}
     else $('courseBar').classList.remove('visible');
   }
   function updateParBadge(badgeId,csel,hole){
@@ -88,8 +103,8 @@
     $('en-settings').classList.toggle('active',activeMode==='en');
     $('tb-settings').classList.toggle('active',activeMode==='tb');
     $('settingsModeLabel').textContent=activeMode==='en'?'EVIL NINE':'B\u00c4STBOLL TALIBAN';
-    if(activeMode==='en')updateCourseBar('en-courseSelect','en-teeSelect');
-    else updateCourseBar('tb-courseSelect','tb-teeSelect');
+    if(activeMode==='en')updateCourseBar('en-courseSelect');
+    else updateCourseBar('tb-courseSelect');
     localStorage.setItem('golfActiveMode',activeMode);
   });
 
@@ -101,13 +116,14 @@
   let enUndo=[];
 
   buildCourseDd('en-courseSelect');
-  $('en-courseSelect').addEventListener('change',()=>{buildTeeDd('en-teeSelect',$('en-courseSelect').value);if($('en-courseSelect').value)$('en-inputMode').value='brutto';});
+  $('en-courseSelect').addEventListener('change',()=>{buildPlayerTeeDds('en');if($('en-courseSelect').value)$('en-inputMode').value='brutto';});
 
   function enNames(){return [0,1,2].map(i=>($(['en-nameA','en-nameB','en-nameC'][i]).value||'').trim()||'Spelare '+(i+1));}
-  function enCA(){return courseActive('en-courseSelect','en-teeSelect');}
+  function enCA(){return !!enCourse();}
   function enCourse(){return getCourse('en-courseSelect');}
-  function enTee(){return getTee('en-courseSelect','en-teeSelect');}
-  function enHcps(){const t=enTee(),c=enCourse();if(!t||!c)return[0,0,0];return[$('en-hcpA'),$('en-hcpB'),$('en-hcpC')].map(el=>playHcp(parseHcp(el.value),t.slope,t.cr,c.par));}
+  // Per-player tee lookup. Returns null if no course or this player has no tee selected.
+  function enTeeFor(i){const c=enCourse();if(!c)return null;const name=$(['en-teeA','en-teeB','en-teeC'][i]).value;return name?c.tees.find(t=>t.name===name)||null:null;}
+  function enHcps(){const c=enCourse();if(!c)return[0,0,0];return[0,1,2].map(i=>{const t=enTeeFor(i);if(!t)return 0;const el=$(['en-hcpA','en-hcpB','en-hcpC'][i]);return playHcp(parseHcp(el.value),t.slope,t.cr,c.par);});}
 
   function enStrokeBadges(){
     const bs=[$('en-strokeBadgeA'),$('en-strokeBadgeB'),$('en-strokeBadgeC')];
@@ -168,7 +184,7 @@
     enUpdateDblDd();enStrokeBadges();
     $('en-historyCount').textContent=enS.history.length+' H\u00c5L';
     $('en-roundCompleteBar').classList.toggle('visible',enS.history.length>=(Number($('en-maxHoles').value)||18));
-    if(activeMode==='en')updateCourseBar('en-courseSelect','en-teeSelect');
+    if(activeMode==='en')updateCourseBar('en-courseSelect');
     updateParBadge('en-holeParBadge','en-courseSelect',Number($('en-holeNo').value)||enS.hole);
     $('openPayments').classList.toggle('has-payments',enTransfers().length>0);
     enSave();
@@ -183,7 +199,7 @@
   }
   function enRerender(){$('en-historyBody').innerHTML='';for(let i=enS.history.length-1;i>=0;i--)enAddRow(enS.history[i]);}
 
-  function enUiState(){return{inputMode:$('en-inputMode').value,evilThreshold:$('en-evilThreshold').value,maxHoles:$('en-maxHoles').value,startHole:$('en-startHole').value,krPerPoint:$('en-krPerPoint').value,payMode:$('en-payMode').value,names:[$('en-nameA').value,$('en-nameB').value,$('en-nameC').value],hcps:[$('en-hcpA').value,$('en-hcpB').value,$('en-hcpC').value],courseId:$('en-courseSelect').value,tee:$('en-teeSelect').value};}
+  function enUiState(){return{inputMode:$('en-inputMode').value,evilThreshold:$('en-evilThreshold').value,maxHoles:$('en-maxHoles').value,startHole:$('en-startHole').value,krPerPoint:$('en-krPerPoint').value,payMode:$('en-payMode').value,names:[$('en-nameA').value,$('en-nameB').value,$('en-nameC').value],hcps:[$('en-hcpA').value,$('en-hcpB').value,$('en-hcpC').value],courseId:$('en-courseSelect').value,tees:['en-teeA','en-teeB','en-teeC'].map(id=>$(id).value)};}
   function enApplyUi(ui){
     if(!ui)return;
     if(ui.inputMode)$('en-inputMode').value=ui.inputMode;if(ui.evilThreshold!=null)$('en-evilThreshold').value=ui.evilThreshold;
@@ -191,7 +207,11 @@
     if(ui.krPerPoint!=null)$('en-krPerPoint').value=ui.krPerPoint;if(ui.payMode)$('en-payMode').value=ui.payMode;
     const nm=ui.names||['','',''];$('en-nameA').value=nm[0]||'';$('en-nameB').value=nm[1]||'';$('en-nameC').value=nm[2]||'';
     const hcps=ui.hcps||['','',''];$('en-hcpA').value=hcps[0]||'';$('en-hcpB').value=hcps[1]||'';$('en-hcpC').value=hcps[2]||'';
-    if(ui.courseId){$('en-courseSelect').value=ui.courseId;buildTeeDd('en-teeSelect',ui.courseId);}if(ui.tee)$('en-teeSelect').value=ui.tee;
+    if(ui.courseId){$('en-courseSelect').value=ui.courseId;buildPlayerTeeDds('en');}
+    // Apply per-player tees, with migration from old single `tee` field
+    let tees=ui.tees;
+    if(!tees&&ui.tee)tees=[ui.tee,ui.tee,ui.tee];
+    if(tees){['en-teeA','en-teeB','en-teeC'].forEach((id,i)=>{if(tees[i]&&$(id))$(id).value=tees[i];});}
     syncHcpPlusButtons();
   }
   function enSave(){localStorage.setItem(EN_KEY,JSON.stringify({state:enS,ui:enUiState()}));}
@@ -266,15 +286,15 @@
   let tbUndo=[];
 
   buildCourseDd('tb-courseSelect');
-  $('tb-courseSelect').addEventListener('change',()=>buildTeeDd('tb-teeSelect',$('tb-courseSelect').value));
+  $('tb-courseSelect').addEventListener('change',()=>buildPlayerTeeDds('tb'));
 
   function tbName(i){return($(['tb-name1','tb-name2','tb-name3','tb-name4'][i]).value||'').trim()||'Spelare '+(i+1);}
   function tbTeams(){return[[parseInt($('tb-pair1a').value),parseInt($('tb-pair1b').value)],[parseInt($('tb-pair2a').value),parseInt($('tb-pair2b').value)]];}
   function tbTname(t){return tbTeams()[t].map(i=>tbName(i).split(' ')[0]).join(' & ');}
-  function tbCA(){return courseActive('tb-courseSelect','tb-teeSelect');}
+  function tbCA(){return !!tbCourse();}
   function tbCourse(){return getCourse('tb-courseSelect');}
-  function tbTee(){return getTee('tb-courseSelect','tb-teeSelect');}
-  function tbHcps(){const t=tbTee(),c=tbCourse();if(!t||!c)return[0,0,0,0];return[1,2,3,4].map(n=>playHcp(parseHcp($('tb-hcp'+n).value),t.slope,t.cr,c.par));}
+  function tbTeeFor(i){const c=tbCourse();if(!c)return null;const name=$(['tb-tee1','tb-tee2','tb-tee3','tb-tee4'][i]).value;return name?c.tees.find(t=>t.name===name)||null:null;}
+  function tbHcps(){const c=tbCourse();if(!c)return[0,0,0,0];return[0,1,2,3].map(i=>{const t=tbTeeFor(i);if(!t)return 0;return playHcp(parseHcp($('tb-hcp'+(i+1)).value),t.slope,t.cr,c.par);});}
 
   // Previous values snapshot — used by tbPairChanged to perform swap-on-change
   // so that picking a player who's already in another slot swaps them rather
@@ -418,7 +438,7 @@
     $('tb-undoBtn').disabled=tbS.history.length===0;
     $('tb-historyCount').textContent=tbS.history.length+' H\u00c5L';
     $('tb-roundCompleteBar').classList.toggle('visible',tbS.history.length>=(Number($('tb-maxHoles').value)||18));
-    if(activeMode==='tb')updateCourseBar('tb-courseSelect','tb-teeSelect');
+    if(activeMode==='tb')updateCourseBar('tb-courseSelect');
     updateParBadge('tb-holeParBadge','tb-courseSelect',Number($('tb-holeNo').value)||tbS.hole);
     if(tbCA()){const h=Number($('tb-holeNo').value)||tbS.hole,c=tbCourse(),hd=c.holes[h-1];if(hd){const ex=ph.map(p=>extraStrokes(p,hd.si));$('tb-hint').textContent='Extra slag \u2192 '+[0,1,2,3].map(i=>tbName(i).split(' ')[0]+': '+(ex[i]>0?'+'+ex[i]:'0')).join(' \u00b7 ');}else $('tb-hint').textContent='';}else $('tb-hint').textContent='';
     tbSave();
@@ -435,7 +455,7 @@
   }
   function tbRerender(){$('tb-historyBody').innerHTML='';for(let i=tbS.history.length-1;i>=0;i--)tbAddRow(tbS.history[i]);}
 
-  function tbUiState(){return{names:[1,2,3,4].map(n=>$('tb-name'+n).value),hcps:[1,2,3,4].map(n=>$('tb-hcp'+n).value),pair1a:$('tb-pair1a').value,pair1b:$('tb-pair1b').value,pair2a:$('tb-pair2a').value,pair2b:$('tb-pair2b').value,courseId:$('tb-courseSelect').value,tee:$('tb-teeSelect').value,maxHoles:$('tb-maxHoles').value,startHole:$('tb-startHole').value,stakeUt:$('tb-stakeUt').value,stakeIn:$('tb-stakeIn').value,stakeTot:$('tb-stakeTot').value};}
+  function tbUiState(){return{names:[1,2,3,4].map(n=>$('tb-name'+n).value),hcps:[1,2,3,4].map(n=>$('tb-hcp'+n).value),pair1a:$('tb-pair1a').value,pair1b:$('tb-pair1b').value,pair2a:$('tb-pair2a').value,pair2b:$('tb-pair2b').value,courseId:$('tb-courseSelect').value,tees:['tb-tee1','tb-tee2','tb-tee3','tb-tee4'].map(id=>$(id).value),maxHoles:$('tb-maxHoles').value,startHole:$('tb-startHole').value,stakeUt:$('tb-stakeUt').value,stakeIn:$('tb-stakeIn').value,stakeTot:$('tb-stakeTot').value};}
   function tbApplyUi(ui){
     if(!ui)return;
     const nm=ui.names||['','','',''];[1,2,3,4].forEach((n,i)=>$('tb-name'+n).value=nm[i]||'');
@@ -445,7 +465,10 @@
     if(ui.pair2a!=null)$('tb-pair2a').value=ui.pair2a;if(ui.pair2b!=null)$('tb-pair2b').value=ui.pair2b;
     // Re-run so _tbPairPrev snapshot matches the just-restored values
     tbBuildPairing();
-    if(ui.courseId){$('tb-courseSelect').value=ui.courseId;buildTeeDd('tb-teeSelect',ui.courseId);}if(ui.tee)$('tb-teeSelect').value=ui.tee;
+    if(ui.courseId){$('tb-courseSelect').value=ui.courseId;buildPlayerTeeDds('tb');}
+    let tbTees=ui.tees;
+    if(!tbTees&&ui.tee)tbTees=[ui.tee,ui.tee,ui.tee,ui.tee];
+    if(tbTees){['tb-tee1','tb-tee2','tb-tee3','tb-tee4'].forEach((id,i)=>{if(tbTees[i]&&$(id))$(id).value=tbTees[i];});}
     if(ui.maxHoles)$('tb-maxHoles').value=ui.maxHoles;if(ui.startHole)$('tb-startHole').value=ui.startHole;
     if(ui.stakeUt!=null)$('tb-stakeUt').value=ui.stakeUt;
     if(ui.stakeIn!=null)$('tb-stakeIn').value=ui.stakeIn;
@@ -560,8 +583,8 @@
       html+='<div class="summary-actions"><button class="summary-btn" id="sumExport">EXPORTERA</button><button class="summary-btn primary" id="sumClose">ST\u00c4NG</button></div>';
       $('summaryBody').innerHTML=html;
       $('sumExport').addEventListener('click',()=>{
-        const date=new Date().toLocaleDateString('sv-SE'),c=enCourse(),t=enTee();
-        let txt='EVIL NINE \u2014 '+date+'\n';if(c&&t)txt+=c.name+' \u00b7 '+t.name+'\n';
+        const date=new Date().toLocaleDateString('sv-SE'),c=enCourse();
+        let txt='EVIL NINE \u2014 '+date+'\n';if(c)txt+=c.name+'\n';
         txt+='\nST\u00c4LLNING\n';sorted.forEach((pl,i)=>txt+=(i+1)+'. '+pl.name+': '+pl.score+' po\u00e4ng\n');
         txt+='\nBETALNING ('+enS.krNow+' kr/po\u00e4ng)\n';
         const tr2=enTransfers();if(!tr2.length)txt+='Ingen betalning.\n';else tr2.forEach(t=>txt+=t.from+' betalar '+t.to+': '+t.amt+' kr\n');
@@ -581,8 +604,8 @@
       html+='<div class="summary-actions"><button class="summary-btn" id="sumExport">EXPORTERA</button><button class="summary-btn primary" id="sumClose">ST\u00c4NG</button></div>';
       $('summaryBody').innerHTML=html;
       $('sumExport').addEventListener('click',()=>{
-        const date=new Date().toLocaleDateString('sv-SE'),c=tbCourse(),t=tbTee();
-        let txt='B\u00c4STBOLL TALIBAN \u2014 '+date+'\n';if(c&&t)txt+=c.name+' \u00b7 '+t.name+'\n';
+        const date=new Date().toLocaleDateString('sv-SE'),c=tbCourse();
+        let txt='B\u00c4STBOLL TALIBAN \u2014 '+date+'\n';if(c)txt+=c.name+'\n';
         txt+='\n'+t1+' mot '+t2+'\n\nUT: '+utRes.txt+(utRes.sub?' ('+utRes.sub+')':'')+'\nIN: '+inRes.txt+(inRes.sub?' ('+inRes.sub+')':'')+'\nTOTALT: '+totRes.txt+(totRes.sub?' ('+totRes.sub+')':'');
         txt+=winner?'\n\nVinnare: '+winner:'\n\nResultat: J\u00e4mnt';
         navigator.clipboard.writeText(txt).then(()=>{const b=$('sumExport');if(!b)return;const o=b.textContent;b.textContent='KOPIERAT!';setTimeout(()=>{if($('sumExport'))$('sumExport').textContent=o;},2000);}).catch(()=>alert(txt));
@@ -635,6 +658,6 @@
   const tbLoaded=tbLoad();
   if(!tbLoaded)tbS.hole=1;
   enUI();tbUI();
-  if(activeMode==='en')updateCourseBar('en-courseSelect','en-teeSelect');
-  else updateCourseBar('tb-courseSelect','tb-teeSelect');
+  if(activeMode==='en')updateCourseBar('en-courseSelect');
+  else updateCourseBar('tb-courseSelect');
 })();
