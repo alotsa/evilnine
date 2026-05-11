@@ -218,6 +218,12 @@
     input[type="text"]::-webkit-inner-spin-button,input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
     input:focus { border-color:var(--lime); }
     input::placeholder { color:var(--rule-lt); }
+    .hcp-input-wrap { display:flex; }
+    .hcp-input-wrap input { flex:1; border-right:none; }
+    .hcp-plus-btn { width:36px;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--chalk-dim);background:var(--rule);border:1px solid var(--rule-lt);border-left:none;cursor:pointer;transition:background 0.15s,color 0.15s,border-color 0.15s; }
+    .hcp-plus-btn:hover { color:var(--chalk); }
+    .hcp-plus-btn.active { color:var(--bg);background:var(--lime);border-color:var(--lime); }
+    .hcp-plus-btn.active:hover { background:#d4f050; }
     .save-btn { font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;background:var(--lime);color:var(--bg);border:none;padding:14px 16px;width:100%;cursor:pointer;display:block; }
     .save-btn:hover { background:#d4f050; }
     .danger-group { padding:12px 16px;display:flex;flex-direction:column;gap:8px; }
@@ -411,9 +417,9 @@
             <div class="sf"><label class="sf-label" id="en-labelNameA">SPELARE 1</label><input id="en-nameA" type="text" placeholder="NAMN"></div>
             <div class="sf"><label class="sf-label" id="en-labelNameB">SPELARE 2</label><input id="en-nameB" type="text" placeholder="NAMN"></div>
             <div class="sf"><label class="sf-label" id="en-labelNameC">SPELARE 3</label><input id="en-nameC" type="text" placeholder="NAMN"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpA" type="text" placeholder="0.0" inputmode="decimal"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpB" type="text" placeholder="0.0" inputmode="decimal"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="en-hcpC" type="text" placeholder="0.0" inputmode="decimal"></div>
+            <div class="sf"><label class="sf-label">HCP</label><div class="hcp-input-wrap"><input id="en-hcpA" type="text" placeholder="0.0" inputmode="decimal"><button type="button" class="hcp-plus-btn" data-target="en-hcpA">+</button></div></div>
+            <div class="sf"><label class="sf-label">HCP</label><div class="hcp-input-wrap"><input id="en-hcpB" type="text" placeholder="0.0" inputmode="decimal"><button type="button" class="hcp-plus-btn" data-target="en-hcpB">+</button></div></div>
+            <div class="sf"><label class="sf-label">HCP</label><div class="hcp-input-wrap"><input id="en-hcpC" type="text" placeholder="0.0" inputmode="decimal"><button type="button" class="hcp-plus-btn" data-target="en-hcpC">+</button></div></div>
           </div>
         </div>
         <div class="settings-group">
@@ -452,10 +458,10 @@
             <div class="sf"><label class="sf-label">SPELARE 2</label><input id="tb-name2" type="text" placeholder="NAMN"></div>
             <div class="sf"><label class="sf-label">SPELARE 3</label><input id="tb-name3" type="text" placeholder="NAMN"></div>
             <div class="sf"><label class="sf-label">SPELARE 4</label><input id="tb-name4" type="text" placeholder="NAMN"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp1" type="text" placeholder="0.0" inputmode="decimal"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp2" type="text" placeholder="0.0" inputmode="decimal"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp3" type="text" placeholder="0.0" inputmode="decimal"></div>
-            <div class="sf"><label class="sf-label">HCP</label><input id="tb-hcp4" type="text" placeholder="0.0" inputmode="decimal"></div>
+            <div class="sf"><label class="sf-label">HCP</label><div class="hcp-input-wrap"><input id="tb-hcp1" type="text" placeholder="0.0" inputmode="decimal"><button type="button" class="hcp-plus-btn" data-target="tb-hcp1">+</button></div></div>
+            <div class="sf"><label class="sf-label">HCP</label><div class="hcp-input-wrap"><input id="tb-hcp2" type="text" placeholder="0.0" inputmode="decimal"><button type="button" class="hcp-plus-btn" data-target="tb-hcp2">+</button></div></div>
+            <div class="sf"><label class="sf-label">HCP</label><div class="hcp-input-wrap"><input id="tb-hcp3" type="text" placeholder="0.0" inputmode="decimal"><button type="button" class="hcp-plus-btn" data-target="tb-hcp3">+</button></div></div>
+            <div class="sf"><label class="sf-label">HCP</label><div class="hcp-input-wrap"><input id="tb-hcp4" type="text" placeholder="0.0" inputmode="decimal"><button type="button" class="hcp-plus-btn" data-target="tb-hcp4">+</button></div></div>
           </div>
         </div>
         <div class="settings-group">
@@ -724,6 +730,7 @@
     const nm=ui.names||['','',''];$('en-nameA').value=nm[0]||'';$('en-nameB').value=nm[1]||'';$('en-nameC').value=nm[2]||'';
     const hcps=ui.hcps||['','',''];$('en-hcpA').value=hcps[0]||'';$('en-hcpB').value=hcps[1]||'';$('en-hcpC').value=hcps[2]||'';
     if(ui.courseId){$('en-courseSelect').value=ui.courseId;buildTeeDd('en-teeSelect',ui.courseId);}if(ui.tee)$('en-teeSelect').value=ui.tee;
+    syncHcpPlusButtons();
   }
   function enSave(){localStorage.setItem(EN_KEY,JSON.stringify({state:enS,ui:enUiState()}));}
   function enLoad(){
@@ -981,6 +988,7 @@
     if(ui.stakeUt!=null)$('tb-stakeUt').value=ui.stakeUt;
     if(ui.stakeIn!=null)$('tb-stakeIn').value=ui.stakeIn;
     if(ui.stakeTot!=null)$('tb-stakeTot').value=ui.stakeTot;
+    syncHcpPlusButtons();
   }
 
   function tbCalcPayments(){
@@ -1127,9 +1135,34 @@
   }
 
   // ════════════════════════════════
+  // HCP PLUS-TOGGLE
+  // ════════════════════════════════
+  // Each HCP input has a "+" button beside it. Tapping the button toggles a leading
+  // "+" prefix on the input's value. parseHcp already understands "+5.4" as -5.4 (plus golfer).
+  function hcpTogglePlus(targetId){
+    const inp=$(targetId);if(!inp)return;
+    const cur=inp.value.trim();
+    inp.value=cur.startsWith('+')?cur.slice(1):'+'+cur;
+    syncHcpPlusButtons();
+  }
+  function syncHcpPlusButtons(){
+    document.querySelectorAll('.hcp-plus-btn').forEach(btn=>{
+      const inp=$(btn.dataset.target);
+      if(inp)btn.classList.toggle('active',inp.value.trim().startsWith('+'));
+    });
+  }
+
+  // ════════════════════════════════
   // INIT
   // ════════════════════════════════
   setTimeout(()=>tbBuildPairing(), 0);
+  // Wire up plus-toggle buttons (and sync state when user types directly)
+  document.querySelectorAll('.hcp-plus-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>hcpTogglePlus(btn.dataset.target));
+  });
+  document.querySelectorAll('input[id^="en-hcp"],input[id^="tb-hcp"]').forEach(inp=>{
+    inp.addEventListener('input',syncHcpPlusButtons);
+  });
   const savedMode=localStorage.getItem('golfActiveMode');
   if(savedMode==='tb'){
     activeMode='tb';
