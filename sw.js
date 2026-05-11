@@ -4,7 +4,7 @@
 //   - cache-first for fonts + icons so offline on the course just works
 // Bump CACHE_VERSION if you need to force old caches to be evicted.
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE = `golf-games-${CACHE_VERSION}`;
 
 const CORE_ASSETS = [
