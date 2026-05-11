@@ -526,11 +526,19 @@
     if(!Number.isFinite(hole)||hole<1||hole>18){alert('Ogiltigt h\u00e5l.');return;}
     const bruttos=[1,2,3,4].map(n=>Number($('tb-val'+n).value));
     if(bruttos.some(v=>!Number.isFinite(v))){alert('Fyll i slag f\u00f6r alla fyra spelare.');return;}
+    const existingIdx=tbS.history.findIndex(e=>e.hole===hole);
+    if(existingIdx!==-1&&!confirm('H\u00e5l '+hole+' \u00e4r redan registrerat. Vill du ers\u00e4tta det?'))return;
     tbUndo.push(tbSnap());
     const{nettos,best,worst,winner,note}=tbCalcHole(bruttos,hole);
-    tbS.history.push({hole,bruttos,nettos,best,worst,winner,note});
-    tbAddRow(tbS.history[tbS.history.length-1],true);
-    tbS.hole=Math.min(hole+1,18);
+    const entry={hole,bruttos,nettos,best,worst,winner,note};
+    if(existingIdx!==-1){
+      tbS.history[existingIdx]=entry;
+      tbRerender();
+    } else {
+      tbS.history.push(entry);
+      tbAddRow(entry,true);
+      tbS.hole=Math.min(hole+1,18);
+    }
     [1,2,3,4].forEach(n=>$('tb-val'+n).value='');$('tb-val1').focus();
     tbUI();if(tbS.history.length>=max)setTimeout(()=>openSummary('tb'),400);
   }
@@ -550,7 +558,13 @@
   $('tb-resetConfirmYes').addEventListener('click',()=>{localStorage.removeItem(TB_KEY);$('tb-resetConfirm').style.display='none';tbReset();});
   $('tb-saveSettings').addEventListener('click',tbSaveClose);
   $('tb-openPayments').addEventListener('click',()=>tbRenderPay());
-  $('tb-holeNo').addEventListener('input',tbUI);
+  $('tb-holeNo').addEventListener('input',()=>{
+    const h=Number($('tb-holeNo').value);
+    const existing=Number.isFinite(h)?tbS.history.find(e=>e.hole===h):null;
+    if(existing){[1,2,3,4].forEach((n,i)=>$('tb-val'+n).value=existing.bruttos[i]);}
+    else {[1,2,3,4].forEach(n=>$('tb-val'+n).value='');}
+    tbUI();
+  });
   $('tb-historyToggle').addEventListener('click',()=>$('tb-historySection').classList.toggle('open'));
   $('tb-showSummaryBtn').addEventListener('click',()=>openSummary('tb'));
 
