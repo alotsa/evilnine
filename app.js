@@ -180,7 +180,7 @@
     $('en-krNow').textContent=enS.krNow+' KR';
     $('en-doublesUsed').textContent=names.map((n,i)=>n+':'+(enS.usedDouble[i]?'\u2713':'\u2013')).join(' ');
     $('en-undoBtn').disabled=enS.history.length===0;
-    $('en-holeNo').value=enS.hole;
+    if(document.activeElement!==$('en-holeNo'))$('en-holeNo').value=enS.hole;
     enUpdateDblDd();enStrokeBadges();
     $('en-historyCount').textContent=enS.history.length+' H\u00c5L';
     $('en-roundCompleteBar').classList.toggle('visible',enS.history.length>=(Number($('en-maxHoles').value)||18));
@@ -434,7 +434,7 @@
     $('tb-resultUt').textContent=ul.sub?ul.sub:'';
     $('tb-resultIn').textContent=il.sub?il.sub:'';
     $('tb-resultTot').textContent=tl.sub?tl.sub:'';
-    $('tb-holeNo').value=tbS.hole;
+    if(document.activeElement!==$('tb-holeNo'))$('tb-holeNo').value=tbS.hole;
     $('tb-undoBtn').disabled=tbS.history.length===0;
     $('tb-historyCount').textContent=tbS.history.length+' H\u00c5L';
     $('tb-roundCompleteBar').classList.toggle('visible',tbS.history.length>=(Number($('tb-maxHoles').value)||18));
@@ -526,6 +526,7 @@
     if(!Number.isFinite(hole)||hole<1||hole>18){alert('Ogiltigt h\u00e5l.');return;}
     const bruttos=[1,2,3,4].map(n=>Number($('tb-val'+n).value));
     if(bruttos.some(v=>!Number.isFinite(v))){alert('Fyll i slag f\u00f6r alla fyra spelare.');return;}
+    {const c=tbCourse(),par=c?c.holes[hole-1].par:4;const sus=bruttos.filter(v=>v<1||v>par+8);if(sus.length&&!confirm('N\u00e5got slag verkar ovanligt ('+sus.join(', ')+').\nSt\u00e4mmer det?'))return;}
     const existingIdx=tbS.history.findIndex(e=>e.hole===hole);
     if(existingIdx!==-1&&!confirm('H\u00e5l '+hole+' \u00e4r redan registrerat. Vill du ers\u00e4tta det?'))return;
     tbUndo.push(tbSnap());
