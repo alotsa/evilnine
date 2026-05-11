@@ -992,28 +992,21 @@
   }
 
   function tbCalcPayments(){
-    const sc=tbCalcScore();
+    const t1=tbTname(0),t2=tbTname(1),teams=tbTeams();
     const stakes={ut:Number($('tb-stakeUt').value)||0,in:Number($('tb-stakeIn').value)||0,tot:Number($('tb-stakeTot').value)||0};
-    const teams=tbGetTeams();
+    const utRes=tbSectionResult(tbS.history.filter(e=>e.hole<=9),9,t1,t2);
+    const inRes=tbSectionResult(tbS.history.filter(e=>e.hole>=10),9,t1,t2);
+    const totRes=tbSectionResult(tbS.history,18,t1,t2);
     const payments=[];
-    // Ut
-    if(sc.ut.w1>sc.ut.w2&&stakes.ut>0){
-      teams[1].forEach(loser=>teams[0].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.ut,part:'UT'})));
-    } else if(sc.ut.w2>sc.ut.w1&&stakes.ut>0){
-      teams[0].forEach(loser=>teams[1].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.ut,part:'UT'})));
+    function addSection(res,stake,part){
+      if(stake<=0||!res.sub)return;
+      const winTeam=res.sub===t1?0:1;
+      const loseTeam=1-winTeam;
+      teams[loseTeam].forEach(L=>teams[winTeam].forEach(W=>payments.push({from:tbName(L),to:tbName(W),amt:stake,part})));
     }
-    // In
-    if(sc.in.w1>sc.in.w2&&stakes.in>0){
-      teams[1].forEach(loser=>teams[0].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.in,part:'IN'})));
-    } else if(sc.in.w2>sc.in.w1&&stakes.in>0){
-      teams[0].forEach(loser=>teams[1].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.in,part:'IN'})));
-    }
-    // Tot
-    if(sc.tot.w1>sc.tot.w2&&stakes.tot>0){
-      teams[1].forEach(loser=>teams[0].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.tot,part:'TOTALT'})));
-    } else if(sc.tot.w2>sc.tot.w1&&stakes.tot>0){
-      teams[0].forEach(loser=>teams[1].forEach(winner=>payments.push({from:tbName(loser),to:tbName(winner),amt:stakes.tot,part:'TOTALT'})));
-    }
+    addSection(utRes,stakes.ut,'UT');
+    addSection(inRes,stakes.in,'IN');
+    addSection(totRes,stakes.tot,'TOTALT');
     return payments;
   }
 
