@@ -1002,7 +1002,9 @@
       if(stake<=0||!res.sub)return;
       const winTeam=res.sub===t1?0:1;
       const loseTeam=1-winTeam;
-      teams[loseTeam].forEach(L=>teams[winTeam].forEach(W=>payments.push({from:tbName(L),to:tbName(W),amt:stake,part})));
+      const winners=teams[winTeam];
+      const perLine=stake/winners.length;
+      teams[loseTeam].forEach(L=>winners.forEach(W=>payments.push({from:tbName(L),to:tbName(W),amt:perLine,part})));
     }
     addSection(utRes,stakes.ut,'UT');
     addSection(inRes,stakes.in,'IN');
